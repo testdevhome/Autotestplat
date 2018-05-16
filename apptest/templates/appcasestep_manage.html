@@ -1,0 +1,112 @@
+﻿<html lang="zh-CN">
+<!---------------------------------------------------------------------------
+作者：邹辉《自动化平台测试开发》书；日期：2018年1月；版本：autotestplat V1.0
+----------------------------------------------------------------------------->
+<head>
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+<title>产品自动化测试平台</title>
+<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css" />
+
+<script type="text/javascript" src="/admin/jsi18n/"></script>
+
+
+
+<script type="text/javascript" src="/static/admin/js/vendor/jquery/jquery.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/admin/RelatedObjectLookups.js"></script>
+<script type="text/javascript" src="/static/admin/js/actions.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/urlify.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/prepopulate.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/vendor/xregexp/xregexp.js"></script>
+
+
+    
+<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    
+<link rel="stylesheet" type="text/css" href="/static/admin/css/responsive.css" />
+    
+
+
+<meta name="robots" content="NONE,NOARCHIVE" />
+<style> body{text-align:center} </style> 
+</head>
+<body role="document">
+<!-- 导航栏-->
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+<div class="container">
+<li class="active"><a style='color:white' href="/apis_manage/">单一接口</a></li> 
+&nbsp;&nbsp;&nbsp;&nbsp;
+<li><a style='color:white' href="/apitest_manage/">流程接口</a></li>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<li class="active"><a style='color:white' href="/appcase_manage/">app用例</a></li>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<li class="active"><a style='color:white' href="/webcase_manage/">web用例</a></li>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<ul class="nav justify-content-center">  
+</ul>
+<ul class="nav justify-content-end" style="position:absolute; right:10px; bottom:0px; ">
+<li class="nav-link"><a style='color:white' href="#">{{user}}</a></li>
+<li class="nav-link"><a style='color:white' href="/logout/">退出</a></li>
+</ul>
+</div>
+</nav>
+
+
+<!-- 流程测试步聚-->
+<div class="row" style="padding-top: 0px;">
+<div class="col-md-12">
+<table class="table table-striped">
+<thead>
+<tr> 
+<th>产品</th><th>所属用例</th><th>步聚</th><th>定位方式</th><th>控件元素</th><th>操作方法</th><th>测试数据</th><th>验证数据</th><th>测试结果</th><th>时间</th>
+</tr>
+</thead>
+<tbody>
+{% for appcasestep in appcasesteps %}
+<tr>
+{% if appcasestep.Appcase.id == appcase.id  %}
+<td>{{ appcasestep.Appcase.Product.productname }}</td>
+<td>case_{{ appcasestep.Appcase.id }}_{{ appcasestep.Appcase.appcasename }}</td>
+<td>{{ appcasestep.appteststep }}:{{ appcasestep.apptestobjname }}</td>
+<td>{{ appcasestep.appfindmethod }}</td>
+<td>{{ appcasestep.appevelement }}</td>
+<td>{{ appcasestep.appoptmethod }}</td>
+<td>{{ appcasestep.apptestdata }}</td>
+<td>{{ appcasestep.appassertdata }}</td>
+<td>{% if appcasestep.apptestresult == 1 %}
+<a style='color:green'>{{ appcasestep.apptestresult }}</a> 
+{% else %}
+<a style='color:red'>{{ appcasestep.apptestresult }}</a> 
+{% endif %}
+</td>
+<td>{{ appcasestep.create_time }}</td> 
+{% else %}
+{% endif %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+<td>
+<a style='color:light blue'  href="../appcase_manage/" >
+<img src="/static/admin/img/icon-yes.svg" alt="返回"/>返回
+</a>
+</td>
+
+<td>
+<a style='color:light blue' class="related-widget-wrapper-link add-related" id="add_id_Appcase" href="../admin/apptest/appcase/{{ appcase.id  }}/change/?_to_field=id&_popup=1">
+<img src="/static/admin/img/icon-changelink.svg"/>编辑</a>
+</td>
+
+</body>
+</html>

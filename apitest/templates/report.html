@@ -1,0 +1,122 @@
+﻿<html lang="zh-CN">
+<!---------------------------------------------------------------------------
+作者：邹辉《自动化平台测试开发》书；日期：2018年1月；版本：autotestplat V1.0
+----------------------------------------------------------------------------->
+<head>
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+<title>产品自动化测试管理平台</title>
+<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css" />
+
+
+
+<script type="text/javascript" src="/admin/jsi18n/"></script>
+
+<script type="text/javascript" src="/static/admin/js/vendor/jquery/jquery.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/admin/RelatedObjectLookups.js"></script>
+<script type="text/javascript" src="/static/admin/js/actions.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/urlify.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/prepopulate.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/vendor/xregexp/xregexp.js"></script>
+
+
+    
+<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    
+<link rel="stylesheet" type="text/css" href="/static/admin/css/responsive.css" />
+    
+
+
+<meta name="robots" content="NONE,NOARCHIVE" />
+
+</head>
+<body role="document">
+<!-- 导航栏-->
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+<div class="container">
+
+<li class="active"><a style='color:white' href="/test_report/">单一接口</a></li> 
+&nbsp;&nbsp;&nbsp;&nbsp;
+<li><a style='color:white' href="/apitest_report/">流程接口</a></li>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<li><a style='color:white' href="/apptest_report/">app报告</a></li>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<li><a style='color:white' href="/webtest_report/">web报告</a></li>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<ul class="nav justify-content-center">  
+</ul>
+<ul class="nav justify-content-end" style="position:absolute; right:10px; bottom:0px; ">
+<li class="nav-link"><a style='color:white' href="#">{{user}}</a></li>
+<li class="nav-link"><a style='color:white' href="/logout/">退出</a></li>
+</ul>
+</div>
+</nav>
+<div class="row" style="padding-top: 0px;">
+<div class="col-md-12">
+
+<table class="table table-striped">
+<div style="position:absolute;  right:10px; width:10px; ">
+<tr><th>自动化测试报告-单一接口扫描<td>{{ apis.create_time }}</td><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></th></tr>
+<tr><th>用例总数</th> <td>{{ apiscounts }}</td></td></td></td></tr> {# 前端读取定义的变量#}
+<tr><th>通过</th><td>{{ apis_pass_counts }}</td><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr> 
+<tr><th>不通过</th><td><a style='color:red'>{{ apis_fail_counts }}</a> </td><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr>
+
+</div>
+
+</table>
+
+
+<!-- 单一接口测试用例-->
+<table class="table table-striped" style="table-layout: fixed;">
+<style>
+td {
+      white-space:nowrap;overflow:hidden;text-overflow: ellipsis;
+}
+</style>
+
+<thead>
+
+<tr><th>不通过详情</th><td>
+<tr>
+<th>ID</th><th>产品</th><th>用例名称</th><th>URL地址</th><th>参数=值</th><th>方法</th><th>预期</th><th>响应数据</th><th>测试结果</th><th>执行时间</th>
+</tr>
+</thead>
+<tbody>
+{% for apis in apiss %}
+<tr>
+{% if apis.apistatus == 0 %}
+<td>{{apis.id}}</td>
+<td>{{ apis.Product.productname }}</td>
+<td>{{ apis.apiname }}</td>
+<td>{{ apis.apiurl }}</td>
+<td>{{ apis.apiparamvalue }}</td>
+<td>{{ apis.apimethod }}</td>
+<td>{{ apis.apiresult }}</td>
+<td title="{{ apis.apiresponse }}">{{ apis.apiresponse}}</td>
+<td><a style='color:red'>{{ apis.apistatus }}</a></td>
+<td>{{ apis.create_time }}</td>
+
+{% else %}
+
+{% endif %}
+
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+</div>
+</div>
+
+
+</body>
+</html>

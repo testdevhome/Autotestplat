@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<!---------------------------------------------------------------------------
+作者：邹辉《自动化平台测试开发》书；日期：2018年1月；版本：autotestplat V1.0
+----------------------------------------------------------------------------->
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/> 
+    <title>AutotestPlat</title>
+<style> body{text-align:center} </style> 
+</head>
+<body>
+<div>
+<font size="1">
+<h1>《自动化平台测试开发》书</h1>
+</font>
+<form method="post" action="/login/">
+{% csrf_token %}
+<br><a>&nbsp;&nbsp;用户名：</a> <input name="username" type="text" ><!--placeholder="test"   value="test"-->
+<br><br>  <a>&nbsp;&nbsp;密 &nbsp;&nbsp; 码：</a> <input name="password" type="password"><!-- placeholder="test123456" value="test123456"-->
+<br>{{ error }}<br>
+&nbsp; <button style="width:220px;height:28px;" id="submit" type="submit">登 录</button> 
+</form>
+</div>
+</body>
+</html>

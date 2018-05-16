@@ -1,0 +1,152 @@
+﻿<html lang="zh-CN">
+<!---------------------------------------------------------------------------
+作者：邹辉《自动化平台测试开发》书；日期：2018年1月；版本：autotestplat V1.0
+----------------------------------------------------------------------------->
+ <head>
+ {% load bootstrap4 %}
+ {% bootstrap_css %}
+ {% bootstrap_javascript %}
+ <title>产品自动化测试管理平台</title>
+<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css" />
+
+
+
+<script type="text/javascript" src="/admin/jsi18n/"></script>
+
+<script type="text/javascript" src="/static/admin/js/vendor/jquery/jquery.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/admin/RelatedObjectLookups.js"></script>
+<script type="text/javascript" src="/static/admin/js/actions.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/urlify.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/prepopulate.js"></script>
+
+<script type="text/javascript" src="/static/admin/js/vendor/xregexp/xregexp.js"></script>
+
+
+    
+<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    
+<link rel="stylesheet" type="text/css" href="/static/admin/css/responsive.css" />
+    
+
+
+<meta name="robots" content="NONE,NOARCHIVE" />
+
+ </head>
+ <body role="document">
+ <!-- 导航栏-->
+ <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+ <div class="container">
+<li class="active"><a style='color:white' href="/apis_manage/">单一接口</a></li> 
+&nbsp;&nbsp;&nbsp;&nbsp;
+<li><a style='color:white' href="/apitest_manage/">流程接口</a></li>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<li class="active"><a style='color:white' href="/appcase_manage/">app用例</a></li>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<li class="active"><a style='color:white' href="/webcase_manage/">web用例</a></li>
+&nbsp;&nbsp;&nbsp;&nbsp;
+ <ul class="nav justify-content-center">  
+
+</ul>
+<ul class="nav justify-content-end" style="position:absolute; right:10px; bottom:0px; ">
+<li class="nav-link"><a style='color:white' href="#">{{user}}</a></li>
+<li class="nav-link"><a style='color:white' href="/logout/">退出</a></li>
+</ul>
+ </div>
+ </nav>
+
+<!-- 搜索栏-->
+<div class="page-header" style="padding-top: 0px;">
+<form class="navbar-form" method="get" action="/websearch/"> 
+{% csrf_token %}     
+<input type="search" name="webcasename" placeholder="名称" required>  
+<button type="submit">搜索</button>  
+<!-- 增加web测试用例-->
+<div style="float:right;width:65%">
+
+<select name="Webcase" id="id_Webcase">
+<option value="" selected>----web测试用例----</option>
+</select>
+<a class="related-widget-wrapper-link change-related" id="change_id_Webcase" data-href-template="/admin/webtest/webcase/__fk__/change/?_to_field=id&amp;_popup=1" title="更改选中的测试用例">
+<img src="/static/admin/img/icon-changelink.svg" alt="修改"/>
+</a>
+<a class="related-widget-wrapper-link add-related" id="add_id_Webcase" href="/admin/webtest/webcase/add/?_to_field=id&amp;_popup=1" title="增加另一个 测试用例">
+<img src="/static/admin/img/icon-addlink.svg" alt="增加"/>增加
+</a>  
+</form>
+</div>
+
+ <!-- web测试用例列表-->
+ <div class="row" style="padding-top: 20px;">
+ <div class="col-md-12">
+ <table class="table table-striped">
+ <thead>
+ <tr>
+ <th>ID</th><th>产品</th><th>用例名称</th><th>结果</th><th>负责人</th><th>时间</th><th>查看</th><th>编辑</th><th>删除</th>
+ </tr>
+ </thead>
+ <tbody>
+ {% for webcase in webcases %}
+ <tr>
+ <td>{{ webcase.id }}</td>
+ <td>{{ webcase.Product.productname }}</td>
+ <td>{{ webcase.webcasename }}</td>
+ <td>{{ webcase.webtestresult }}</td>
+ <td>{{ webcase.webtester }}</td> 
+ <td>{{ webcase.create_time }}</td> 
+<td><a href="{% url "webcasestep_manage" %}?webcase.id={{ webcase.id  }} "><img src="/static/admin/img/icon-yes.svg"/></a></td> 
+<td><a style='color:light blue' class="related-widget-wrapper-link add-related" id="add_id_Webcase" href="../admin/webtest/webcase/{{ webcase.id  }}/change/?_to_field=id&_popup=1"><img src="/static/admin/img/icon-changelink.svg"/></a></td>
+<td><a style='color:light blue' class="related-widget-wrapper-link add-related" id="add_id_Webcase" href="../admin/webtest/webcase/{{ webcase.id  }}/delete/?_to_field=id&_popup=1"><img src="/static/admin/img/icon-deletelink.svg"/></a></td>
+ </tr>
+ {% endfor %}
+ </tbody>
+ </table>
+ </div>
+ </div>
+
+
+<!--统计和翻页功能-->
+<span style="position:absolute; left:600px; bottom:30px;">   {# 把翻页功能固定显示在右下角#}
+<div style="position:absolute; right:950px; bottom:25px; width:100px;">
+共:{{ webcasecounts }}条记录 {# 前端读取定义的变量#}
+</div>
+<div class="container">
+    <ul class="pagination" id="pager">
+          {# 上一页链接开始#}
+        {% if webcases.has_previous %}
+            {#  如果有上一页则正常显示上一页链接#}
+            <li class="previous"><a href="/webcase_manage/?page={{ webcases.previous_page_number }}">上一页</a></li>    {#  上一页标签 #}
+        {% else %}
+            <li class="previous disabled"><a href="#">上一页</a></li> {# 如果当前不存在上一页则上一页的链接不可点击#}
+        {% endif %}
+        {# 上一页链接开始#}
+        
+        {% for num in webcases.paginator.page_range %}
+         
+            {% if num == currentPage %}
+                <li class="item active"><a href="/webcase_manage/?page={{ num }}">{{ num }}</a></li> {#显示当页数链接#} 
+            {% else %}
+                <li class="item"><a href="/webcase_manage/?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+        
+        {# 下一页链接开始#}
+        {% if webcases.has_next %} {#  如果有下一页则正常显示下一页链接#}
+            <li class="next"><a href="/webcase_manage/?page={{ webcases.next_page_number }}">下一页</a></li>
+        {% else %}
+            <li class="next disabled"><a href="#">下一页</a></li>
+        {% endif %}
+        {# 下一页链接结束#}
+    </ul>
+</div>
+
+ </body>
+ </html>
+ 
+

@@ -1,0 +1,39 @@
+﻿<html lang="zh-CN">
+<!---------------------------------------------------------------------------
+作者：邹辉《自动化平台测试开发》书；日期：2018年1月；版本：autotestplat V1.0
+----------------------------------------------------------------------------->
+<head>
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+<title>产品自动化测试平台</title>
+<link href="../static/css/bootstrap.min.css" rel="stylesheet">
+<style> body{text-align:center} </style> 
+</head>
+<body role="document">
+<!-- 导航栏-->
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+<div class="container">
+
+<ul class="nav justify-content-center"> 
+</ul>
+<ul class="nav justify-content-end" style="position:absolute; right:10px; bottom:0px; ">
+<li class="nav-link"><a style='color:white' href="#">{{user}}</a></li>
+<li class="nav-link"><a style='color:white' href="/logout/">退出</a></li>
+</ul>
+</div>
+</nav>
+<div class="row" style="padding-top: 1px;">
+<div class="container">
+<font size="8">
+<h1>欢迎您，来到 autotestplat V1.0</h1>
+</font>
+</div></div>
+<div class="row" style="padding-top: 23px;">
+<div class="container">
+<tr>
+<td><a href="../periodic_task" target="mainFrame">点击进入定时任务</a></td>
+</tr>
+</div></div>
+</body>
+</html>
