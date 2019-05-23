@@ -20,7 +20,9 @@
 将来会考虑集成人工智能、机器学习、Devops 装备等技术。 
 
 
-
+![image](https://github.com/testdevhome/Autotestplat/blob/master/static/6.jpg?raw=true)
+![image](https://github.com/testdevhome/Autotestplat/blob/master/static/8.png?raw=true)
+![image](https://github.com/testdevhome/Autotestplat/blob/master/static/10.jpg?raw=true)
 
 
 
