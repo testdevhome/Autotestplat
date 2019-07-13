@@ -25,6 +25,7 @@
 ![image](https://github.com/testdevhome/Autotestplat/blob/master/static/10.jpg?raw=true)
 
 
-微信公众号：
+欢迎关注我们的微信公众号：
+
 ![image](https://github.com/testdevhome/Autotestplat/blob/master/static/testdevhome.jpg?raw=true)
 
