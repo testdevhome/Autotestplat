@@ -9,9 +9,9 @@ on:
     - master
 
 jobs:
-  integration_test:
+  publish:
 
-    name: integration_test - ${{ matrix.python-version }} on ${{ matrix.os }}
+    name: publish - ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       max-parallel: 6
