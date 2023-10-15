@@ -133,7 +133,8 @@ A content process crashed and MOZ_CRASHREPORTER_SHUTDOWN is set, shutting down
 [Parent 13084, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
 [Parent 13084, Gecko_IOThread] WARNING: pipe error: 232: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 513
 
-###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv[Child 11804, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
+[Child 11804, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
 1516266234400	Marionette	INFO	Listening on port 64000
 1516266236804	Marionette	WARN	TLS certificate errors will be ignored for this session
 1516266236946	Marionette	DEBUG	Register listener.js for window 4294967297
@@ -532,4 +533,4 @@ JavaScript error: https://ss1.bdstatic.com/5eN1bjq8AAUYm2zgoY3K/r/www/cache/stat
 JavaScript error: https://ss1.bdstatic.com/5eN1bjq8AAUYm2zgoY3K/r/www/cache/static/protocol/https/plugins/every_cookie_4644b13.js, line 4: ReferenceError: c is not defined
 1517129966329	Marionette	DEBUG	Received DOM event "DOMContentLoaded" for "https://www.baidu.com/"
 1517129966983	Marionette	DEBUG	Received DOM event "pageshow" for "https://www.baidu.com/"
-1517130031249	Marionette	DEBUG	Canceled page load listener because no navigation has been detected
+1517130031249	Marionette	DEBUG	Canceled page load listener because no navigation has been detected 
