@@ -29,3 +29,5 @@
 
 ![image](https://github.com/testdevhome/Autotestplat/blob/master/static/testdevhome.jpg?raw=true)
 
+autotestplat-v2.0版本，在2023年10月份即将发布。
+
