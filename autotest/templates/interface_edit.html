@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+<!---------------------------------------------------------
+Auther:：Fin;  Version：Autotestplat-V2.0
+----------------------------------------------------------->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>接口测试 - 编辑接口</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/fileinput.min.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" charset="gbk" src="/static/js/fileinput.min.js"></script>
+    <script src="/static/js/public.js"></script>
+</head>
+<body>
+{% if action == "edit" %}
+<form id="form_edit_window" method="post" action='/autotest/apitestcase/save_edit_interface/{{ edit_id }}/'>
+     {% csrf_token %}
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-info active" id="no" style="font-size: 12px" onclick="show_no()">
+                                    <input type="checkbox" class="is_no" name="is_no" id="no1" value="0" checked="checked">接口基本信息
+                                </label>
+                            </div>
+                             <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-info" id="ass" style="font-size: 12px" onclick="show_ass()">
+                                    <input type="checkbox" class="is_ass" name="is_ass" id="ass1" value="1">断言
+                                </label>
+                            </div>
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-info" id="yes" style="font-size: 12px" onclick="show_yes()">
+                                    <input type="checkbox" class="is_yes" name="is_yes" id="yes1" value="1">正则表达式
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-danger btn-sm" id="submit" value="submit" style="width: 100px" data-dismiss="modal">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% elif action == "copy" %}
+<form target="_parent" id="form_edit_window" method="post" action='/autotest/apitestcase/save_copy_interface/{{ edit_id }}/'>
+     {% csrf_token %}
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-warning active" id="no" style="font-size: 12px" onclick="show_no()">
+                                    <input type="checkbox" class="is_no" name="is_no" id="no1" value="0" checked="checked">接口基本信息
+                                </label>
+                            </div>
+                             <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-warning" id="ass" style="font-size: 12px" onclick="show_ass()">
+                                    <input type="checkbox" class="is_ass" name="is_ass" id="ass1" value="1">断言
+                                </label>
+                            </div>
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-warning" id="yes" style="font-size: 12px" onclick="show_yes()">
+                                    <input type="checkbox" class="is_yes" name="is_yes" id="yes1" value="1">正则表达式
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-danger btn-sm" id="submit" value="submit" style="width: 100px" data-dismiss="modal">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endif %}
+        {% for rec1 in interface_list_tmp %}
+            <div class="row" id="no_div2">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                            <span  class="input-group-addon" style="font-size: 12px">请求方式:</span>
+                                    <select class="selectpicker form-control" name="mode">
+                                        <option>{{ rec1.mode }}</option>
+                                        <option>post</option>
+                                        <option>get</option>
+                                        <option>put</option>
+                                     </select>
+                           </div>
+                        </div>
+                        <div class="col-md-3">
+                           <div class="input-group">
+                           <span  class="input-group-addon" style="font-size: 12px">host:</span>
+                                     <select class="selectpicker form-control" name="edit_url_host">
+                                        <option>{{ rec1.url_host }}</option>
+                                        {% for  env_para  in env_paras %}
+                                                <option>{ {{env_para.keywords}} }</option>
+                                        {% endfor %}
+                                     </select>
+                           </div>
+                        </div>
+                        <div class="col-md-5">
+                           <div class="input-group">
+                                <span  class="input-group-addon" style="font-size: 12px">URL:</span>
+                                <input name="edit_url" type="text" class="form-control" value="{{ rec1.url }}" required="" oninvalid="setCustomValidity('请填写正确的URL');" oninput="setCustomValidity('');" spellcheck="false">
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row" id="no_div1">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <span class="input-group-addon" style="font-size: 12px">接口名称</span>
+                                <input name="edit_name" type="text" class="form-control" value="{{ rec1.name }}" required="" style="font-size: 12px">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="col-md-12">
+                            <div class="input-group">
+                            <span  class="input-group-addon" style="font-size: 12px">产品:</span>
+                                    <select class="selectpicker form-control" name="edit_product_name">
+                                        <option>{{ rec1.product_name }}</option>
+                                        {% for  product  in product_alls %}
+                                                <option> {{product.product_name}} </option>
+                                        {% endfor %}
+                                     </select>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <span class="input-group-addon" style="font-size: 12px">创建人</span>
+                                <input name="edit_creator" type="text" class="form-control" value="{{ rec1.charger }}" required=""
+                                       style="font-size: 12px">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <span class="input-group-addon" style="font-size: 12px">头信息</span>
+                                <textarea name="head" name="head" rows="6" style="width: 150px;font-size: 12px;word-break:break-all;" placeholder='说明：&#10;1、格式：{"key1":"value1","key2":"value2"}&#10;2、头信息为空则写为：{}&#10;3、必填头信息：Accept、Content-Type、Cookie' spellcheck="false">{{ head }}</textarea>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <textarea class="formated_dict" name="formated_dict" rows="7" style="width: 460px;font-size: 12px;display: none" spellcheck="false">{{ para_dict }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="position: relative">
+                    <div class="input-group" style="width: 280px">
+                        <span class="input-group-addon" style="font-size: 12px">请求Body参数格式</span>
+                        <select class="selectpicker form-control" id="body_format" name="body_format">
+                                        <option>{{ rec1.body_format }}</option>
+                                        {% if rec1.body_format == "FORM" %}
+                                            <option>JSON</option>
+                                        {% else %}
+                                            <option>FORM</option>
+                                        {% endif %}
+                        </select>
+                    </div>
+                    <div style="width: 280px;background-color: #eaebee;border: 1px solid;border-radius:2px;text-align: center;">
+                        Body
+                    </div>
+                    <textarea id="original_body" rows="18" style="width: 280px;font-size: 12px;word-break: break-all" placeholder='请输入原始参数。说明：&#10;1、支持多种参数格式；&#10;2、参数只支持：字母、数字、下划线、中文。如果一个参数有多个值，则每个值之间以,分隔。' required="" spellcheck="false">{{ para_str }}</textarea>
+                    <br><br>
+                </div>
+                <div class="col-md-1" style="position: relative;margin-left: -40px;margin-top: 200px">
+                    <button type="button" class="btn btn-primary" onclick="format_body_edit(this)" style="font-size: 12px">格式化<br>→</button>
+                </div>
+                <div class="col-md-3" style="position: relative;margin-left: -10px">
+                    <div style="width: 280px;background-color: #eaebee;border: 1px solid;border-radius:2px;text-align: center">
+                        Body
+                    </div>
+                    <textarea class="formated_str" rows="20" style="width: 280px;font-size: 12px;word-break:break-all;" disabled="disabled" placeholder='请点击"格式化参数"，等待输出结果' spellcheck="false" required>{{ para_str }}</textarea>
+                </div>
+            </div>
+             <div class="row" id="yes_ass1" style="display: none">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <span style="font-size: 14px"> &nbsp;* 判断当前接口返回值中包含的信息</span>
+                            <div class="input-group">
+                                <span class="input-group-addon" style="font-size: 12px">匹配内容</span>
+                                <textarea class="assert_keywords_old" name="assert_keywords_old" rows="2" style="width: 150px;font-size: 12px" spellcheck="false">{{ rec1.assert_keywords_old }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="row" id="yes_div1" style="display: none">
+            <div class="col-md-7">
+                <div class="table-responsive" style="margin-left: 10px">
+                    <table class="table table-bordered">
+                        <caption> &nbsp;* 正则表达式是对当前接口返回值设置参数后，后续接口请求中可用 {关键字} 动态取值</caption>
+                        <thead>
+                        <tr>
+                            <th style="text-align: center;font-size: 12px">#</th>
+                            <th style="display: none">id</th>
+                            <th style="text-align: center;font-size: 12px">描述</th>
+                            <th style="text-align: center;font-size: 12px">关键字</th>
+                            <th style="text-align: center;font-size: 12px">左边界</th>
+                            <th style="text-align: center;font-size: 12px">右边界</th>
+                            <th style="text-align: center;font-size: 12px">索引</th>
+                            <th style="text-align: center;font-size: 12px">添加行</th>
+                            <th style="text-align: center;font-size: 12px">删除行</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tbody_resp_edit">
+                        {% if flag_resp == "false" %}
+                            <tr>
+                                <td style="width: 30px;white-space: normal;text-align: center;">1</td>
+                                <td style="display: none"></td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_edit_name" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 120px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_edit_keywords" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_edit_left" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_edit_right" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_edit_index" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="btn-group btn-xs">
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                onclick="add_resp_edit_row(this)">+
+                                        </button>
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="btn-group btn-xs">
+                                        <button type="button" class="btn btn-danger btn-sm" disabled="disabled">-</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            {% for rec3 in public_list_resp %}
+                                <tr>
+                                    <td style="width: 30px;white-space: normal;text-align: center;">{{ forloop.counter }}</td>
+                                    <td style="display: none"></td>
+                                    <td style="width: 150px;text-align: center;">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="resp_edit_name" class="form-control" value="{{ rec3.name }}">
+                                        </div>
+                                    </td>
+                                    <td style="width: 120px;text-align: center;">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="resp_edit_keywords" class="form-control" value="{{ rec3.keywords }}">
+                                        </div>
+                                    </td>
+                                    <td style="width: 150px;text-align: center;">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="resp_edit_left" class="form-control" value="{{ rec3.left }}">
+                                        </div>
+                                    </td>
+                                    <td style="width: 150px;text-align: center;">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="resp_edit_right" class="form-control" value="{{ rec3.right }}">
+                                        </div>
+                                    </td>
+                                    <td style="width: 80px;text-align: center;">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="resp_edit_index" class="form-control" value="{{ rec3.index }}">
+                                        </div>
+                                    </td>
+                                    <td style="width: 80px;text-align: center;">
+                                        <div class="btn-group btn-xs">
+                                            <button type="button" class="btn btn-primary btn-sm"
+                                                    onclick="add_resp_edit_row(this)">+
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td style="width: 80px;text-align: center;">
+                                        <div class="btn-group btn-xs">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="del_resp_edit_row(this)">-</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    function show_no(ele) {
+        $('#no_div1').show();
+        $('#no_div2').show();
+        $('#yes_div1').hide();
+        $('#yes_ass1').hide();
+    }
+
+    function show_ass(ele) {
+        $('#no_div1').hide();
+        $('#no_div2').hide();
+        $('#yes_div1').hide();
+        $('#yes_ass1').show();
+    }
+
+    function show_yes(ele) {
+        $('#no_div1').hide();
+        $('#no_div2').hide();
+        $('#yes_ass1').hide();
+        $('#yes_div1').show();
+    }
+
+    function format_body_edit(ele) {
+        $('.formated_str').empty();
+        $('.formated_dict').empty();
+        var original_body = $('#original_body')[0].value;
+        console.log(original_body);
+        $.ajax({
+            url: "/autotest/apitestcase/format_body/",
+            data: JSON.stringify({
+                original_body: original_body,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }),
+            headers:{'X-CSRFToken': '{{ csrf_token }}'},
+            contentType: 'application/json;charset=utf-8',
+            type: "POST",
+            traditional: true,
+            success: function (result) {
+                $('.formated_str').append(result['json_str']);
+                $('.formated_dict').append(result['json_dict']);
+                console.log(result['json_dict']);
+            },
+            fail: function (result) {
+                debugger
+            }
+        });
+    }
+
+    function add_resp_edit_row(ele) {
+        var root = document.getElementById("tbody_resp_edit");
+        var row_num = $(ele).parent().parent().parent()[0].rowIndex;
+        var newRow = root.insertRow(row_num);
+        var newCell0 = newRow.insertCell();
+        var newCell1 = newRow.insertCell();
+        var newCell2 = newRow.insertCell();
+        var newCell3 = newRow.insertCell();
+        var newCell4 = newRow.insertCell();
+        var newCell5 = newRow.insertCell();
+        var newCell6 = newRow.insertCell();
+        var newCell7 = newRow.insertCell();
+        newCell0.innerHTML = 'new';
+        newCell0.style = "width: 30px;white-space: normal;text-align: center;";
+        newCell1.innerHTML = '<div class="input-group input-group-sm"><input type="text" name="resp_edit_name" class="form-control"></div>';
+        newCell1.style = "width: 150px;text-align: center;";
+        newCell2.innerHTML = '<div class="input-group input-group-sm"><input type="text" name="resp_edit_keywords" class="form-control"></div>';
+        newCell2.style = "width: 120px;text-align: center;";
+        newCell3.innerHTML = '<div class="input-group input-group-sm"><input type="text" name="resp_edit_left" class="form-control"></div>';
+        newCell3.style = "width: 150px;text-align: center;";
+        newCell4.innerHTML = '<div class="input-group input-group-sm"><input type="text" name="resp_edit_right" class="form-control"></div>';
+        newCell4.style = "width: 150px;text-align: center;";
+        newCell5.innerHTML = '<div class="input-group input-group-sm"><input type="text" name="resp_edit_index" class="form-control"></div>';
+        newCell5.style = "width: 80px;text-align: center;";
+        newCell6.innerHTML = '<div class="btn-group btn-xs"><button type="button" class="btn btn-primary btn-sm" onclick="add_resp_edit_row(this)">+</button></div>';
+        newCell6.style = "width: 80px;text-align: center;";
+        newCell7.innerHTML = '<div class="btn-group btn-xs"><button type="button" class="btn btn-danger btn-sm" onclick="del_resp_edit_row(this)">-</button></div>';
+        newCell7.style = "width: 80px;text-align: center;";
+    }
+
+    function del_resp_edit_row(ele) {
+        var root = document.getElementById("tbody_resp_edit");
+        var row_num = $(ele).parent().parent().parent()[0].rowIndex;
+        root.deleteRow(row_num-1);
+    }
+</script>
+</body>
+</html>
