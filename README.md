@@ -17,8 +17,8 @@ mysql
 5、redis-server redis.windows.conf
 
 操作手册：
-第一步、设置用户，设置产品项目，设置系统。其中系统参数的设置 包括<span style="color: red"> 环境设置 </span>即host的url地址设置，<span style="color: red">常量</span>即设置一个固定值作为参数，<span style="color: red"> 变量</span>即通过随机函数获取需要的变量值，可以是时间戳，随机数字，随机字符等。在接口中通过{关键字}获取。
-第二步、在接口测试中进行接口用例及调试即接口信息录入，设置<span style="color: red"> 断言</span>，通过正则表达式设置<span style="color: red"> 关联参数</span>，执行；在测试计划中选择用例及调试即选择用例，修改接口参数，手动执行；在定时任务中选择设置要运行的测试计划，保存后执行以及定时自动执行。
+第一步、设置用户，设置产品项目，设置系统。其中系统参数的设置 包括<font color="red"> 环境设置 </font>即host的url地址设置，<font color="red">常量</font>即设置一个固定值作为参数，<font color="red"> 变量</font>即通过随机函数获取需要的变量值，可以是时间戳，随机数字，随机字符等。在接口中通过{关键字}获取。
+第二步、在接口测试中进行接口用例及调试即接口信息录入，设置<font color="red"> 断言</font>，通过正则表达式设置<font color="red"> 关联参数</font>，执行；在测试计划中选择用例及调试即选择用例，修改接口参数，手动执行；在定时任务中选择设置要运行的测试计划，保存后执行以及定时自动执行。
 第三步、测试报告中查看测试结果。
 
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/systemsetting.png)
