@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50717
 File Encoding         : 65001
 
-Date: 2023-11-02 21:30:52
+Date: 2023-11-03 10:25:23
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -222,11 +222,11 @@ CREATE TABLE `autotestplat_interface_testcase` (
 -- ----------------------------
 -- Records of autotestplat_interface_testcase
 -- ----------------------------
-INSERT INTO `autotestplat_interface_testcase` VALUES ('1338', '登录接口错误断言验证', '{ test_url }', '/autotest/login/last/', '{\'Accept\': \'\', \'Content-Type\': \'\', \'Cookie\': \'\'}', '{\"username\": \"fin\"}', 'JSON', 'post', 'fin', null, 'ChatGPT', '', null, null, '1', '20012');
-INSERT INTO `autotestplat_interface_testcase` VALUES ('1351', '登录接口异常入参验证', '{ test_url }', '/autotest/login/last/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{keyres}\"}', 'JSON', 'post', 'fin', null, 'ChatGPT', null, '', '', '1', '2002');
-INSERT INTO `autotestplat_interface_testcase` VALUES ('1352', '用户数据', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"\"}', 'JSON', 'post', 'fin', null, '扫地机器人', '', '', '', '1', 'test12345');
-INSERT INTO `autotestplat_interface_testcase` VALUES ('1353', 'get用户', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"“username\": \"\"}', 'JSON', 'post', '邹先生', null, 'Autotestplat', '', '', '', '1', 'test123456');
-INSERT INTO `autotestplat_interface_testcase` VALUES ('1363', '登录接口随机变量', '{ test_url }', '/autotest/login/last/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{TimeRandom}\"}', 'JSON', 'post', 'fin', null, 'ChatGPT', null, '', '', '1', '200');
+INSERT INTO `autotestplat_interface_testcase` VALUES ('1338', '用户列表接口-断言错误校验', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'\', \'Cookie\': \'\'}', '{}', 'JSON', 'post', 'fin', null, 'ChatGPT', '', null, null, '1', '20012');
+INSERT INTO `autotestplat_interface_testcase` VALUES ('1351', '用户列表接口-获取前面接口返回值参数的值', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{keyres}\"}', 'JSON', 'post', 'fin', null, 'ChatGPT', null, '', '', '1', 'fin');
+INSERT INTO `autotestplat_interface_testcase` VALUES ('1352', '用户列表接口-设置接口返回值关联参数-通过正则表达式设置', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"\"}', 'JSON', 'post', 'fin', null, '扫地机器人', '', '', '', '1', 'test12345');
+INSERT INTO `autotestplat_interface_testcase` VALUES ('1353', '用户列表接口-断言正确校验', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"“username\": \"\"}', 'JSON', 'post', '邹先生', null, 'Autotestplat', '', '', '', '1', 'test123456');
+INSERT INTO `autotestplat_interface_testcase` VALUES ('1363', '用户列表接口-参数中获取随机变量参数值', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{charRandom}\"}', 'JSON', 'post', 'fin', null, 'ChatGPT', null, '', '', '1', 'fin');
 
 -- ----------------------------
 -- Table structure for `autotestplat_parameter`
@@ -244,22 +244,19 @@ CREATE TABLE `autotestplat_parameter` (
   `module_id` varchar(20) DEFAULT NULL,
   `type` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`,`keywords`)
-) ENGINE=InnoDB AUTO_INCREMENT=869 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=877 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of autotestplat_parameter
 -- ----------------------------
-INSERT INTO `autotestplat_parameter` VALUES ('616', '字符串随机数', 'CharRandom', '\'\'.join(random.sample([\'z\',\'c\',\'b\',\'a\'], 5))', '', '', '', 'ChatGPT', '', 'con');
-INSERT INTO `autotestplat_parameter` VALUES ('667', '生产环境', 'test2_url', 'http://127.0.0.1', '', '', '', 'Autotestplat', null, 'env');
-INSERT INTO `autotestplat_parameter` VALUES ('668', '时间戳随机数', 'TimeRandom', 'int(time.time())', '', '', '', 'ChatGPT', null, 'var');
-INSERT INTO `autotestplat_parameter` VALUES ('669', '数字随机数', 'NumRandom', 'random.randint(0,99999999999)', '', '', '', '扫地机器人', null, 'var');
+INSERT INTO `autotestplat_parameter` VALUES ('616', '字符串随机数', 'charRandom', '\'\'.join(random.sample(string.ascii_letters + string.digits,10))', '', '', '', 'ChatGPT', '', 'var');
+INSERT INTO `autotestplat_parameter` VALUES ('668', '时间戳随机数', 'timeRandom', 'int(time.time())', '', '', '', 'ChatGPT', null, 'var');
+INSERT INTO `autotestplat_parameter` VALUES ('669', '数字随机数', 'numRandom', 'random.randint(0,99999999999)', '', '', '', '扫地机器人', null, 'var');
 INSERT INTO `autotestplat_parameter` VALUES ('670', 'Appid', 'Appid', '123456789011', '', '', '', '扫地机器人', null, 'con');
 INSERT INTO `autotestplat_parameter` VALUES ('671', '测试环境1', 'test_url', 'http://127.0.0.1', '', '', '', 'ChatGPT', null, 'env');
-INSERT INTO `autotestplat_parameter` VALUES ('862', 'keyres1', 'keyres', '', 'da', 'a', '0', 'testplan', '1878', 'res');
-INSERT INTO `autotestplat_parameter` VALUES ('863', 'keyres2', 'keyres2', '', 'd', 'a', '0', 'testplan', '1878', 'res');
-INSERT INTO `autotestplat_parameter` VALUES ('864', 'd', 'testkey', '', 'd', 'a', '0', 'testplan', '1879', 'res');
-INSERT INTO `autotestplat_parameter` VALUES ('867', 'd', 'testkey', '', 'd', 'a', '0', 'testplan', '1882', 'res');
-INSERT INTO `autotestplat_parameter` VALUES ('868', '22', '22', '', '22', '22', '2', 'testplan', '1883', 'res');
+INSERT INTO `autotestplat_parameter` VALUES ('869', '生产环境', 'online_url', 'http://127.0.0.1', null, null, null, 'Autotestplat', null, 'env');
+INSERT INTO `autotestplat_parameter` VALUES ('875', '参数关联', 'keyres', '', 'd', 'a', '0', '扫地机器人', '1352', 'res');
+INSERT INTO `autotestplat_parameter` VALUES ('876', '参数关联', 'keyres', '', 'd', 'a', '0', 'testplan', '1890', 'res');
 
 -- ----------------------------
 -- Table structure for `autotestplat_product`
@@ -302,8 +299,8 @@ CREATE TABLE `autotestplat_testplan` (
 -- ----------------------------
 -- Records of autotestplat_testplan
 -- ----------------------------
-INSERT INTO `autotestplat_testplan` VALUES ('25', '新的测试计划', '{ test_url }', 'testplan_interface_1882_get用户,testplan_interface_1883_登录接口错误断言验证', 'get用户 ， 登录接口错误断言验证', 'fin', '1');
-INSERT INTO `autotestplat_testplan` VALUES ('65', 'testplan', '{ test_url }', 'testplan_interface_1878_用户数据,testplan_interface_1879_get用户', '用户数据 ， get用户', '2', '5');
+INSERT INTO `autotestplat_testplan` VALUES ('25', '新的测试计划', '{ test_url }', 'testplan_interface_1890_用户列表接口-设置接口返回值关联参数-通过正则表达式设置,testplan_interface_1891_用户列表接口-获取前面接口返回值参数的值', '用户列表接口-设置接口返回值关联参数-通过正则表达式设置 ， 用户列表接口-获取前面接口返回值参数的值', 'fin', '1');
+INSERT INTO `autotestplat_testplan` VALUES ('65', 'testplan', '{ test_url }', 'testplan_interface_1889_用户列表接口-断言正确校验,testplan_interface_1892_用户列表接口-断言错误校验,testplan_interface_1894_用户列表接口-参数中获取随机变量参数值', '用户列表接口-参数中获取随机变量参数值 ， 用户列表接口-断言正确校验 ， 用户列表接口-断言错误校验', '2', '5');
 
 -- ----------------------------
 -- Table structure for `autotestplat_testplan_interface`
@@ -327,15 +324,16 @@ CREATE TABLE `autotestplat_testplan_interface` (
   `interface_testresult` int(11) DEFAULT NULL,
   `interface_response` longtext,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1884 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1895 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of autotestplat_testplan_interface
 -- ----------------------------
-INSERT INTO `autotestplat_testplan_interface` VALUES ('1878', '65', 'testplan', '用户数据', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"\"}', 'JSON', 'post', '', '', null, '1', 'test12345', null, null);
-INSERT INTO `autotestplat_testplan_interface` VALUES ('1879', '65', 'testplan', 'get用户', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"“username\": \"\"}', 'JSON', 'post', null, '', null, '1', 'test123456', null, null);
-INSERT INTO `autotestplat_testplan_interface` VALUES ('1882', '25', '新的测试计划', 'get用户', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"“username\": \"\"}', 'JSON', 'post', null, '', null, '1', 'test123456', null, null);
-INSERT INTO `autotestplat_testplan_interface` VALUES ('1883', '25', '新的测试计划', '登录接口错误断言验证', '/autotest/login/last/', '{\'Accept\': \'\', \'Content-Type\': \'\', \'Cookie\': \'\'}', '{\"username\": \"fin\"}', 'JSON', 'post', null, null, null, '1', '20012', null, null);
+INSERT INTO `autotestplat_testplan_interface` VALUES ('1889', '65', 'testplan', '用户列表接口-断言正确校验', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"“username\": \"\"}', 'JSON', 'post', '', '', null, '1', 'test123456', null, null);
+INSERT INTO `autotestplat_testplan_interface` VALUES ('1890', '25', '新的测试计划', '用户列表接口-设置接口返回值关联参数-通过正则表达式设置', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"\"}', 'JSON', 'post', '', '', null, '1', 'test12345', null, null);
+INSERT INTO `autotestplat_testplan_interface` VALUES ('1891', '25', '新的测试计划', '用户列表接口-获取前面接口返回值参数的值', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{keyres}\"}', 'JSON', 'post', null, '', null, '1', 'fin', null, null);
+INSERT INTO `autotestplat_testplan_interface` VALUES ('1892', '65', 'testplan', '用户列表接口-断言错误校验', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'\', \'Cookie\': \'\'}', '{}', 'JSON', 'post', '', null, null, '1', '20012', null, null);
+INSERT INTO `autotestplat_testplan_interface` VALUES ('1894', '65', 'testplan', '用户列表接口-参数中获取随机变量参数值', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{charRandom}\"}', 'JSON', 'post', null, '', null, '1', 'fin', null, null);
 
 -- ----------------------------
 -- Table structure for `autotestplat_testplan_interface_order`
@@ -346,15 +344,16 @@ CREATE TABLE `autotestplat_testplan_interface_order` (
   `suit_id` int(11) DEFAULT NULL,
   `interface_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=34514 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=34531 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of autotestplat_testplan_interface_order
 -- ----------------------------
-INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34508', '65', '1878');
-INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34509', '65', '1879');
-INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34512', '25', '1882');
-INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34513', '25', '1883');
+INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34520', '25', '1890');
+INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34521', '25', '1891');
+INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34528', '65', '1894');
+INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34529', '65', '1889');
+INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34530', '65', '1892');
 
 -- ----------------------------
 -- Table structure for `autotestplat_testplan_interface_result`
@@ -370,16 +369,14 @@ CREATE TABLE `autotestplat_testplan_interface_result` (
   `mode` varchar(20) DEFAULT NULL,
   `response_time` longtext,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27094 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=27112 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of autotestplat_testplan_interface_result
 -- ----------------------------
-INSERT INTO `autotestplat_testplan_interface_result` VALUES ('27089', '25', '1882', '{\"data\": [[1, \"\\u5c0f\\u98de\", \"test123456\", \"13000000000\", \"\\u81ea\\u52a8\\u5316\\u6d4b\\u8bd5\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [2, \"\\u5c0f\\u8f89\", \"test123456\", \"137000011112\", \"\\u6d4b\\u8bd5\\u5f00\\u53d1\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [4, \"finer\", \"test123456\", \"13711112222\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-23\"], [5, \"fin\", \"test123456\", \"13711111111\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-24\"]]}', '0', '2023-11-02 21:02:43', '手工执行', '0.044206');
-INSERT INTO `autotestplat_testplan_interface_result` VALUES ('27090', '25', '1883', '200', '1', '2023-11-02 21:02:43', '手工执行', '0.029724');
-INSERT INTO `autotestplat_testplan_interface_result` VALUES ('27091', '65', '1878', '{\"data\": [[1, \"\\u5c0f\\u98de\", \"test123456\", \"13000000000\", \"\\u81ea\\u52a8\\u5316\\u6d4b\\u8bd5\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [2, \"\\u5c0f\\u8f89\", \"test123456\", \"137000011112\", \"\\u6d4b\\u8bd5\\u5f00\\u53d1\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [4, \"finer\", \"test123456\", \"13711112222\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-23\"], [5, \"fin\", \"test123456\", \"13711111111\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-24\"]]}', '0', '2023-11-02 21:03:50', '定时任务', '0.020017');
-INSERT INTO `autotestplat_testplan_interface_result` VALUES ('27092', '65', '1879', '{\"data\": [[1, \"\\u5c0f\\u98de\", \"test123456\", \"13000000000\", \"\\u81ea\\u52a8\\u5316\\u6d4b\\u8bd5\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [2, \"\\u5c0f\\u8f89\", \"test123456\", \"137000011112\", \"\\u6d4b\\u8bd5\\u5f00\\u53d1\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [4, \"finer\", \"test123456\", \"13711112222\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-23\"], [5, \"fin\", \"test123456\", \"13711111111\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-24\"]]}', '0', '2023-11-02 21:03:50', '定时任务', '0.01999');
-INSERT INTO `autotestplat_testplan_interface_result` VALUES ('27093', '65', '1879', '{\"data\": [[1, \"\\u5c0f\\u98de\", \"test123456\", \"13000000000\", \"\\u81ea\\u52a8\\u5316\\u6d4b\\u8bd5\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [2, \"\\u5c0f\\u8f89\", \"test123456\", \"137000011112\", \"\\u6d4b\\u8bd5\\u5f00\\u53d1\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [4, \"finer\", \"test123456\", \"13711112222\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-23\"], [5, \"fin\", \"test123456\", \"13711111111\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-24\"]]}', '0', '2023-11-02 21:28:10', '手工执行', '0.09416');
+INSERT INTO `autotestplat_testplan_interface_result` VALUES ('27109', '65', '1894', '{\"data\": [[1, \"\\u5c0f\\u98de\", \"test123456\", \"13000000000\", \"\\u81ea\\u52a8\\u5316\\u6d4b\\u8bd5\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [2, \"\\u5c0f\\u8f89\", \"test123456\", \"137000011112\", \"\\u6d4b\\u8bd5\\u5f00\\u53d1\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [4, \"finer\", \"test123456\", \"13711112222\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-23\"], [5, \"fin\", \"test123456\", \"13711111111\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-24\"]]}', '0', '2023-11-03 10:23:21', '定时任务', '0.01425');
+INSERT INTO `autotestplat_testplan_interface_result` VALUES ('27110', '65', '1889', '{\"data\": [[1, \"\\u5c0f\\u98de\", \"test123456\", \"13000000000\", \"\\u81ea\\u52a8\\u5316\\u6d4b\\u8bd5\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [2, \"\\u5c0f\\u8f89\", \"test123456\", \"137000011112\", \"\\u6d4b\\u8bd5\\u5f00\\u53d1\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [4, \"finer\", \"test123456\", \"13711112222\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-23\"], [5, \"fin\", \"test123456\", \"13711111111\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-24\"]]}', '0', '2023-11-03 10:23:21', '定时任务', '0.002017');
+INSERT INTO `autotestplat_testplan_interface_result` VALUES ('27111', '65', '1892', '{\"data\": [[1, \"\\u5c0f\\u98de\", \"test123456\", \"13000000000\", \"\\u81ea\\u52a8\\u5316\\u6d4b\\u8bd5\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [2, \"\\u5c0f\\u8f89\", \"test123456\", \"137000011112\", \"\\u6d4b\\u8bd5\\u5f00\\u53d1\\u5de5\\u7a0b\\u5e08\", null, null, \"2023-01-04\"], [4, \"finer\", \"test123456\", \"13711112222\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-23\"], [5, \"fin\", \"test123456\", \"13711111111\", \"\\u6d4b\\u8bd5\\u7ecf\\u7406\", null, null, \"2023-10-24\"]]}', '1', '2023-11-03 10:23:21', '定时任务', '0.011328');
 
 -- ----------------------------
 -- Table structure for `autotestplat_user`
