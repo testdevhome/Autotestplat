@@ -13,7 +13,7 @@ mysql
 
 操作手册：
 待更新...
-![systemsetting](pic/systemsetting.png)
+!([pic/systemsetting.png](https://github.com/testdevhome/Doc/blob/main/pic/systemsetting.png))
 
 
     欢迎关注我们的微信公众号，请扫一扫如下图：
