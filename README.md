@@ -24,7 +24,7 @@ mysql
 
     欢迎关注我们的微信公众号，请扫一扫如下图：
 
-![image](https://github.com/testdevhome/Autotestplat/blob/master/static/testdevhome.jpg)
+![image](https://github.com/testdevhome/Autotestplat/tree/V1.0/static/testdevhome.jpg)
 
 
 
