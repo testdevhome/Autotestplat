@@ -16,14 +16,15 @@ mysql
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/systemsetting.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/apitestcase.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/editpara.png)
+![image](https://github.com/testdevhome/Doc/blob/main/pic/testresult.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/testplan.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/task.png)
-![image](https://github.com/testdevhome/Doc/blob/main/pic/testresult.png)
+![image](https://github.com/testdevhome/Doc/blob/main/pic/report.png)
 
 
     欢迎关注我们的微信公众号，请扫一扫如下图：
 
-![image](https://github.com/testdevhome/Autotestplat/blob/master/static/testdevhome.jpg?raw=true)
+![image](https://github.com/testdevhome/Autotestplat/blob/master/static/testdevhome.jpg)
 
 
 
