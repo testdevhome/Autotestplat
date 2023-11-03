@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50717
 File Encoding         : 65001
 
-Date: 2023-11-03 10:25:23
+Date: 2023-11-03 19:16:39
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -226,7 +226,7 @@ INSERT INTO `autotestplat_interface_testcase` VALUES ('1338', '用户列表接�
 INSERT INTO `autotestplat_interface_testcase` VALUES ('1351', '用户列表接口-获取前面接口返回值参数的值', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{keyres}\"}', 'JSON', 'post', 'fin', null, 'ChatGPT', null, '', '', '1', 'fin');
 INSERT INTO `autotestplat_interface_testcase` VALUES ('1352', '用户列表接口-设置接口返回值关联参数-通过正则表达式设置', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"\"}', 'JSON', 'post', 'fin', null, '扫地机器人', '', '', '', '1', 'test12345');
 INSERT INTO `autotestplat_interface_testcase` VALUES ('1353', '用户列表接口-断言正确校验', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"“username\": \"\"}', 'JSON', 'post', '邹先生', null, 'Autotestplat', '', '', '', '1', 'test123456');
-INSERT INTO `autotestplat_interface_testcase` VALUES ('1363', '用户列表接口-参数中获取随机变量参数值', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{charRandom}\"}', 'JSON', 'post', 'fin', null, 'ChatGPT', null, '', '', '1', 'fin');
+INSERT INTO `autotestplat_interface_testcase` VALUES ('1363', '用户列表接口-参数中获取随机变量参数值', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{timeRandom}\"}', 'JSON', 'post', 'fin', null, 'ChatGPT', null, '', '', '1', 'fin');
 
 -- ----------------------------
 -- Table structure for `autotestplat_parameter`
@@ -244,19 +244,19 @@ CREATE TABLE `autotestplat_parameter` (
   `module_id` varchar(20) DEFAULT NULL,
   `type` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`,`keywords`)
-) ENGINE=InnoDB AUTO_INCREMENT=877 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=880 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of autotestplat_parameter
 -- ----------------------------
 INSERT INTO `autotestplat_parameter` VALUES ('616', '字符串随机数', 'charRandom', '\'\'.join(random.sample(string.ascii_letters + string.digits,10))', '', '', '', 'ChatGPT', '', 'var');
 INSERT INTO `autotestplat_parameter` VALUES ('668', '时间戳随机数', 'timeRandom', 'int(time.time())', '', '', '', 'ChatGPT', null, 'var');
-INSERT INTO `autotestplat_parameter` VALUES ('669', '数字随机数', 'numRandom', 'random.randint(0,99999999999)', '', '', '', '扫地机器人', null, 'var');
-INSERT INTO `autotestplat_parameter` VALUES ('670', 'Appid', 'Appid', '123456789011', '', '', '', '扫地机器人', null, 'con');
+INSERT INTO `autotestplat_parameter` VALUES ('669', '数字随机数', 'numRandom', 'random.randint(0,99999999999)', '', '', '', 'Autotestplat', null, 'var');
+INSERT INTO `autotestplat_parameter` VALUES ('670', 'Appid', 'Appid', '123456789011', '', '', '', 'Autotestplat', null, 'con');
 INSERT INTO `autotestplat_parameter` VALUES ('671', '测试环境1', 'test_url', 'http://127.0.0.1', '', '', '', 'ChatGPT', null, 'env');
 INSERT INTO `autotestplat_parameter` VALUES ('869', '生产环境', 'online_url', 'http://127.0.0.1', null, null, null, 'Autotestplat', null, 'env');
-INSERT INTO `autotestplat_parameter` VALUES ('875', '参数关联', 'keyres', '', 'd', 'a', '0', '扫地机器人', '1352', 'res');
 INSERT INTO `autotestplat_parameter` VALUES ('876', '参数关联', 'keyres', '', 'd', 'a', '0', 'testplan', '1890', 'res');
+INSERT INTO `autotestplat_parameter` VALUES ('879', '参数关联', 'keyres', '', '5, \"', '\", \"test', '0', '扫地机器人', '1352', 'res');
 
 -- ----------------------------
 -- Table structure for `autotestplat_product`
