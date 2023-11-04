@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50717
 File Encoding         : 65001
 
-Date: 2023-11-03 19:43:46
+Date: 2023-11-04 10:59:15
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -392,7 +392,7 @@ CREATE TABLE `autotestplat_user` (
   `login_time` varchar(255) DEFAULT NULL,
   `create_date` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of autotestplat_user
@@ -401,6 +401,7 @@ INSERT INTO `autotestplat_user` VALUES ('1', '小飞', 'test123456', '1300000000
 INSERT INTO `autotestplat_user` VALUES ('2', '小辉', 'test123456', '137000011112', '测试开发工程师', null, null, '2023-01-04');
 INSERT INTO `autotestplat_user` VALUES ('4', 'finer', 'test123456', '13711112222', '测试经理', null, null, '2023-10-23');
 INSERT INTO `autotestplat_user` VALUES ('5', 'fin', 'test123456', '13711111111', '测试经理', null, null, '2023-10-24');
+INSERT INTO `autotestplat_user` VALUES ('7', 'root', 'test123456', '13788888888', '软件工程师', null, null, '2023-11-04');
 
 -- ----------------------------
 -- Table structure for `django_admin_log`
