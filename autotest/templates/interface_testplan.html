@@ -157,7 +157,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                     <td style="width: 50px;text-align: left;" id="ids">{{ rec.id }}</td>
                                     <td style="width: 130px;font-size: 12px">{{ rec.suit_name }}</td>
                                     <td style="width: 90px;font-size: 12px">{{ rec.url_host }}</td>
-                                    <td style="max-width: 200px;white-space:normal;font-size: 12px">{{ rec.interface_name_display | truncatechars:"50" }}</td>
+                                    <td style="max-width: 200px;white-space:normal;font-size: 12px">{{ rec.interface_name_display | truncatechars:"45" }}</td>
                                     <td style="width:100px;text-align: left;font-size: 12px">{{ rec.charger }}</td>
                                     <td style="width:120px;text-align: left;font-size: 12px">{{ rec.product_id }}</td>
                                     <td id="operations" style="width: 160px;text-align: left;">
@@ -363,6 +363,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                     <div class="col-md-7">
                         <h5>
                             <button type="button" class="btn btn-danger btn-sm" style="width: 80px" onclick="start_interface_testplan(this)">手工执行</button>
+                            <span style="margin-left: 10px;font-size:15px;color:red">* 注意:勾选的接口会被顺序执行,执行失败时终止 !</span>
                         </h5>
                         <div class="table-responsive">
                             <table class="table table-bordered" id="add_interface_table1">
@@ -993,9 +994,13 @@ Auther:：Fin;  Version：Autotestplat-V2.0
             var suit_name1 = suit_head.split("_")[1];
             console.log(suit_id1, suit_name1);
             var id_list = document.getElementsByClassName('suit_interface_id');
-            var row_num = id_list.length;   //总行数
+            var row_num = id_list.length;
             var cur_id = id_list[chk_list[row_index]].textContent;
             console.log(chk_list[row_index]+1,cur_id);
+            if (cur_id =='') {
+                var tmp = $(obj[row_index]).parent().parent().find('td')[5].textContent;
+                cur_id= tmp.split('_')[1]
+            }
             var j = 0;
             $('.ex_status').each(function () {
                 if (j == chk_list[row_index]) {
@@ -1011,6 +1016,8 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                 data: JSON.stringify({
                     cur_id: cur_id,
                     row_index: row_index,
+                    suit_id:suit_id1,
+                    suit_name:suit_name1,
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 }),
                 headers:{'X-CSRFToken': '{{ csrf_token }}'},
