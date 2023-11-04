@@ -471,6 +471,10 @@ def start_interface_testplan(request):
             raw_data = request.body
             raw_data = json.loads(raw_data)
             cur_id = raw_data['cur_id']
+            suit_id = raw_data['suit_id']
+            suit_name = raw_data['suit_name']
+            # print("raw_data is "+str(raw_data))
+            # print("cur_id is "+cur_id)
             global test_time
             global response_time
             now = datetime.now()
@@ -513,227 +517,426 @@ def start_interface_testplan(request):
             f_handler = open(logfile, 'w')
             f_handler.truncate()
             f_handler.close()
-            cur_interface = AutotestplatTestplanInterface.objects.filter(id=cur_id)[0]
-            host = AutotestplatTestplan.objects.filter(id=cur_interface.suit_id)[0]
-            host = host.url_host
-            try:
-                if ("{" in host and "}" in host):
-                    end_index = host.find("}")
-                    key_url = host[:end_index + 1]
-                    host = host.replace(key_url, public_dict[key_url.replace('{', '').replace('}', '').strip()])
-            except:
-                return HttpResponse('【ERROR】：url_host参数 ' + url_host + ' 有误，请重新修改 ')
-            url = cur_interface.url
-            try:
-                if("{" in url and "}" in url):
-                    end_index = url.find("}")
-                    key_url = url[:end_index+1]
-                    url = url.replace(key_url,public_dict[key_url.replace('{','').replace('}','')])
-            except:
-                return HttpResponse('【ERROR】：url参数 ' + url + ' 有误，请重新修改 ')
-            url = host+url
-            head = eval(cur_interface.head)
-            for rec in head.keys():
-                if(head[rec] in keyword_list1):
-                    head[rec] = public_dict[head[rec].replace('{','').replace('}','')]
-                elif (head[rec] in keyword_list4):
-                    head[rec] = public_dict[head[rec].replace('{', '').replace('}', '')]
-                elif (head[rec] in keyword_list5):
-                    head[rec] = public_dict[head[rec].replace('{', '').replace('}', '')]
-                    head[rec] = str(eval(head[rec]))
-                elif(head[rec] in keyword_list2):
-                    try:
-                        head[rec] = cache.get(head[rec].replace('{','').replace('}',''))
-                    except Exception:
-                        return HttpResponse('【ERROR】：参数 '+head[rec]+' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 '+head[rec]+' 的前置接口，以及确认Redis是否已启动')
-            is_login_api = False
-            n = 0
-            while (n < 5):
-                body = eval(cur_interface.body)
-                for rec in body.keys():
-                    if(isinstance(body[rec],str)):
-                        for rec1 in keyword_list1:
-                            if(rec1 in body[rec]):
-                                if('captcha' not in rec1):
-                                    body[rec] = body[rec].replace(rec1, public_dict[rec1.replace('{','').replace('}','')])
-                                else:
-                                    is_login_api = True
-                                    yanzheng_url = public_dict[rec1.replace('{','').replace('}','')]
-                                    haha = request_get(yanzheng_url,{},{},0)
-                                    with open(codefile,'wb') as f:
-                                        f.write(haha.content)
-                                    yanzheng = getcaptcha()
-                                    body[rec] = yanzheng
-                                    print_log('【登录验证码】：',','),print_log(yanzheng)
-                        for rec5 in keyword_list5:
-                            if (rec5 in body[rec]):
-                                try:
-                                    body[rec] = body[rec].replace(rec5,public_dict[rec5.replace('{', '').replace('}', '')])
-                                    body[rec] = str(eval(body[rec]))
-                                except Exception:
-                                    error_info = traceback.format_exc()
-                                    print(error_info)
-                                    return HttpResponse('【ERROR】：参数 ' + rec5 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec5 + ' 的前置接口，以及确认Redis是否已启动')
-                        for rec2 in keyword_list2:
-                            if(rec2 in body[rec]):
-                                try:
-                                    body[rec] = body[rec].replace(rec2, cache.get(rec2.replace('{','').replace('}','')).decode('utf-8'))
-                                except Exception:
-                                    error_info = traceback.format_exc()
-                                    print(error_info)
-                                    return HttpResponse('【ERROR】：参数 '+rec2+' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 '+rec2+' 的前置接口，以及确认Redis是否已启动')
-                        for rec3 in keyword_list3:
-                            if(rec3 in body[rec]):
-                                para = copy.deepcopy(body)
-                                body[rec] = sign_nb(para)
-                        if('select' in body[rec]):
-                            try:
-                                sql = body[rec]
-                                cursor = connection.cursor()
-                                print(sql)
-                                cursor.execute(sql)
-                                data = cursor.fetchall()
-                                print(u'查询的结果为： ',data[0][0])
-                                body[rec] = data[0][0]
-                            except Exception:
-                                body[rec] = '【ERROR】：查询结果为空！'
-                mode = cur_interface.mode
-                body_format = cur_interface.body_format
-                starttime = datetime.now()
-                response,cookie = interface_test_start(url,body,head,mode,body_format,True)
-                endtime = datetime.now()
-                response_time = (endtime - starttime).total_seconds()
-                update_cookie = cur_interface.update_cookie
-                public_resp = AutotestplatParameter.objects.filter(module_id=int(cur_id))
-                if(str(public_resp) != '[]'):
-                    for rec in public_resp:
-                        left = rec.left
-                        right = rec.right
-                        index = int(rec.index)
-                        reg = left+'.+?'+right
-                        result_all = re.findall(reg,response)
+
+            testplanapis = AutotestplatTestplanInterface.objects.all()
+
+            ids = []
+            for testplan in testplanapis:
+                ids.append(testplan.id)
+
+            count = ids.count(int(cur_id))
+
+            id_list=[]
+
+            if count>0:
+                cur_interface = AutotestplatTestplanInterface.objects.filter(id=cur_id)[0]
+                host = AutotestplatTestplan.objects.filter(id=cur_interface.suit_id)[0]
+                host = host.url_host
+                try:
+                    if ("{" in host and "}" in host):
+                        end_index = host.find("}")
+                        key_url = host[:end_index + 1]
+                        host = host.replace(key_url, public_dict[key_url.replace('{', '').replace('}', '').strip()])
+                except:
+                    return HttpResponse('【ERROR】：url_host参数 ' + url_host + ' 有误，请重新修改 ')
+                url = cur_interface.url
+                try:
+                    if ("{" in url and "}" in url):
+                        end_index = url.find("}")
+                        key_url = url[:end_index + 1]
+                        url = url.replace(key_url, public_dict[key_url.replace('{', '').replace('}', '')])
+                except:
+                    return HttpResponse('【ERROR】：url参数 ' + url + ' 有误，请重新修改 ')
+                url = host + url
+                head = eval(cur_interface.head)
+                for rec in head.keys():
+                    if (head[rec] in keyword_list1):
+                        head[rec] = public_dict[head[rec].replace('{', '').replace('}', '')]
+                    elif (head[rec] in keyword_list4):
+                        head[rec] = public_dict[head[rec].replace('{', '').replace('}', '')]
+                    elif (head[rec] in keyword_list5):
+                        head[rec] = public_dict[head[rec].replace('{', '').replace('}', '')]
+                        head[rec] = str(eval(head[rec]))
+                    elif (head[rec] in keyword_list2):
                         try:
-                            result_tmp = result_all[index]
-                            start = len(left)
-                            end = len(result_tmp) - len(right)
-                            result = result_tmp[start:end]
-                            print(rec.keywords,'匹配结果为：',result)
-                            cache.set(rec.keywords, result)
-                            cache.expire(rec.keywords, 3600)
+                            head[rec] = cache.get(head[rec].replace('{', '').replace('}', ''))
                         except Exception:
-                            print((rec.keywords,left,right,index),' 在返回结果中未匹配到')
-                is_new = cur_interface.assert_use_new
-                if(is_new == '1'):
-                    assert_url = cur_interface.assert_url
-                    assert_head = eval(cur_interface.assert_head)
-                    for rec in assert_head.keys():
-                        if(assert_head[rec] in keyword_list1):
-                            assert_head[rec] = public_dict[assert_head[rec].replace('{','').replace('}','')]
-                        elif(assert_head[rec] in keyword_list2):
-                            try:
-                                assert_head[rec] = cache.get(assert_head[rec].replace('{','').replace('}',''))
-                            except Exception:
-                                return HttpResponse('【ERROR】：参数 '+assert_head[rec]+' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 '+assert_head[rec]+' 的前置接口，以及确认Redis是否已启动')
-                    assert_mode = cur_interface.assert_mode
-                    assert_body = eval(cur_interface.assert_body)
-                    for rec in assert_body.keys():
-                        if(isinstance(assert_body[rec],str)):
+                            return HttpResponse(
+                                '【ERROR】：参数 ' + head[rec] + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' +
+                                head[rec] + ' 的前置接口，以及确认Redis是否已启动')
+                is_login_api = False
+                n = 0
+                while (n < 5):
+                    body = eval(cur_interface.body)
+                    for rec in body.keys():
+                        if (isinstance(body[rec], str)):
                             for rec1 in keyword_list1:
-                                if(rec1 in assert_body[rec]):
-                                    assert_body[rec] = assert_body[rec].replace(rec1, public_dict[rec1.replace('{','').replace('}','')])
-                            for rec2 in keyword_list2:
-                                if(rec2 in assert_body[rec]):
+                                if (rec1 in body[rec]):
+                                    if ('captcha' not in rec1):
+                                        body[rec] = body[rec].replace(rec1, public_dict[
+                                            rec1.replace('{', '').replace('}', '')])
+                                    else:
+                                        is_login_api = True
+                                        yanzheng_url = public_dict[rec1.replace('{', '').replace('}', '')]
+                                        haha = request_get(yanzheng_url, {}, {}, 0)
+                                        with open(codefile, 'wb') as f:
+                                            f.write(haha.content)
+                                        yanzheng = getcaptcha()
+                                        body[rec] = yanzheng
+                                        print_log('【登录验证码】：', ','), print_log(yanzheng)
+                            for rec5 in keyword_list5:
+                                if (rec5 in body[rec]):
                                     try:
-                                        assert_body[rec] = assert_body[rec].replace(rec2, cache.get(rec2.replace('{','').replace('}','')).decode('utf-8'))
+                                        body[rec] = body[rec].replace(rec5, public_dict[
+                                            rec5.replace('{', '').replace('}', '')])
+                                        body[rec] = str(eval(body[rec]))
                                     except Exception:
                                         error_info = traceback.format_exc()
                                         print(error_info)
-                                        return HttpResponse('【ERROR】：参数 '+rec2+' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 '+rec2+' 的前置接口，以及确认Redis是否已启动')
+                                        return HttpResponse(
+                                            '【ERROR】：参数 ' + rec5 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec5 + ' 的前置接口，以及确认Redis是否已启动')
+                            for rec2 in keyword_list2:
+                                if (rec2 in body[rec]):
+                                    try:
+                                        body[rec] = body[rec].replace(rec2, cache.get(
+                                            rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                                    except Exception:
+                                        error_info = traceback.format_exc()
+                                        print(error_info)
+                                        return HttpResponse(
+                                            '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认Redis是否已启动')
                             for rec3 in keyword_list3:
-                                if(rec3 in assert_body[rec]):
-                                    para = copy.deepcopy(assert_body)
-                                    assert_body[rec] = sign_nb(para)
-                            if('select' in assert_body[rec]):
+                                if (rec3 in body[rec]):
+                                    para = copy.deepcopy(body)
+                                    body[rec] = sign_nb(para)
+                            if ('select' in body[rec]):
                                 try:
-                                    sql = assert_body[rec]
+                                    sql = body[rec]
                                     cursor = connection.cursor()
                                     print(sql)
                                     cursor.execute(sql)
                                     data = cursor.fetchall()
-                                    print(u'查询的结果为： ',data[0][0])
-                                    assert_body[rec] = data[0][0]
+                                    print(u'查询的结果为： ', data[0][0])
+                                    body[rec] = data[0][0]
                                 except Exception:
-                                    assert_body[rec] = '【ERROR】：查询结果为空！'
-                    assert_keywords = cur_interface.assert_keywords
-                    for rec1 in keyword_list1:
-                        if(rec1 in assert_keywords):
-                            assert_keywords = assert_keywords.replace(rec1, public_dict[rec1.replace('{','').replace('}','')])
-                    for rec2 in keyword_list2:
-                        if(rec2 in assert_keywords):
+                                    body[rec] = '【ERROR】：查询结果为空！'
+                    mode = cur_interface.mode
+                    body_format = cur_interface.body_format
+                    starttime = datetime.now()
+                    response, cookie = interface_test_start(url, body, head, mode, body_format, True)
+                    endtime = datetime.now()
+                    response_time = (endtime - starttime).total_seconds()
+                    update_cookie = cur_interface.update_cookie
+                    public_resp = AutotestplatParameter.objects.filter(module_id=int(cur_id))
+                    if (str(public_resp) != '[]'):
+                        for rec in public_resp:
+                            left = rec.left
+                            right = rec.right
+                            index = int(rec.index)
+                            reg = left + '.+?' + right
+                            result_all = re.findall(reg, response)
                             try:
-                                assert_keywords = assert_keywords.replace(rec2, cache.get(rec2.replace('{','').replace('}','')).decode('utf-8'))
+                                result_tmp = result_all[index]
+                                start = len(left)
+                                end = len(result_tmp) - len(right)
+                                result = result_tmp[start:end]
+                                print(rec.keywords, '匹配结果为：', result)
+                                cache.set(rec.keywords, result)
+                                cache.expire(rec.keywords, 3600)
                             except Exception:
-                                error_info = traceback.format_exc()
-                                print(error_info)
-                                return HttpResponse('【ERROR】：参数 '+rec2+' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 '+rec2+' 的前置接口，以及确认Redis是否已启动')
-                    if('select' in assert_keywords):
+                                print((rec.keywords, left, right, index), ' 在返回结果中未匹配到')
+                    is_new = cur_interface.assert_use_new
+                    if (is_new == '1'):
+                        assert_url = cur_interface.assert_url
+                        assert_head = eval(cur_interface.assert_head)
+                        for rec in assert_head.keys():
+                            if (assert_head[rec] in keyword_list1):
+                                assert_head[rec] = public_dict[assert_head[rec].replace('{', '').replace('}', '')]
+                            elif (assert_head[rec] in keyword_list2):
+                                try:
+                                    assert_head[rec] = cache.get(assert_head[rec].replace('{', '').replace('}', ''))
+                                except Exception:
+                                    return HttpResponse('【ERROR】：参数 ' + assert_head[
+                                        rec] + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + assert_head[
+                                                            rec] + ' 的前置接口，以及确认Redis是否已启动')
+                        assert_mode = cur_interface.assert_mode
+                        assert_body = eval(cur_interface.assert_body)
+                        for rec in assert_body.keys():
+                            if (isinstance(assert_body[rec], str)):
+                                for rec1 in keyword_list1:
+                                    if (rec1 in assert_body[rec]):
+                                        assert_body[rec] = assert_body[rec].replace(rec1, public_dict[
+                                            rec1.replace('{', '').replace('}', '')])
+                                for rec2 in keyword_list2:
+                                    if (rec2 in assert_body[rec]):
+                                        try:
+                                            assert_body[rec] = assert_body[rec].replace(rec2, cache.get(
+                                                rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                                        except Exception:
+                                            error_info = traceback.format_exc()
+                                            print(error_info)
+                                            return HttpResponse(
+                                                '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认Redis是否已启动')
+                                for rec3 in keyword_list3:
+                                    if (rec3 in assert_body[rec]):
+                                        para = copy.deepcopy(assert_body)
+                                        assert_body[rec] = sign_nb(para)
+                                if ('select' in assert_body[rec]):
+                                    try:
+                                        sql = assert_body[rec]
+                                        cursor = connection.cursor()
+                                        print(sql)
+                                        cursor.execute(sql)
+                                        data = cursor.fetchall()
+                                        print(u'查询的结果为： ', data[0][0])
+                                        assert_body[rec] = data[0][0]
+                                    except Exception:
+                                        assert_body[rec] = '【ERROR】：查询结果为空！'
+                        assert_keywords = cur_interface.assert_keywords
+                        for rec1 in keyword_list1:
+                            if (rec1 in assert_keywords):
+                                assert_keywords = assert_keywords.replace(rec1, public_dict[
+                                    rec1.replace('{', '').replace('}', '')])
+                        for rec2 in keyword_list2:
+                            if (rec2 in assert_keywords):
+                                try:
+                                    assert_keywords = assert_keywords.replace(rec2, cache.get(
+                                        rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                                except Exception:
+                                    error_info = traceback.format_exc()
+                                    print(error_info)
+                                    return HttpResponse(
+                                        '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认Redis是否已启动')
+                        if ('select' in assert_keywords):
+                            try:
+                                sql = assert_keywords
+                                cursor = connection.cursor()
+                                print(sql)
+                                cursor.execute(sql)
+                                data = cursor.fetchall()
+                                print(u'查询的结果为： ', data[0][0])
+                                assert_keywords = data[0][0]
+                            except Exception:
+                                assert_keywords = '【ERROR】：查询结果为空！'
+                        is_contain = cur_interface.assert_keywords_is_contain
+                        assert_body_format = cur_interface.assert_body_format
+                        result1 = assert_test(assert_url, assert_head, assert_mode, assert_body, assert_keywords,
+                                              is_contain, assert_body_format, True)
+                        time.sleep(0.1)
+                    else:
+                        assert_keywords_old = cur_interface.assert_keywords_old
+                        for rec1 in keyword_list1:
+                            if (rec1 in assert_keywords_old):
+                                assert_keywords_old = assert_keywords_old.replace(rec1, public_dict[
+                                    rec1.replace('{', '').replace('}', '')])
+                        for rec2 in keyword_list2:
+                            if (rec2 in assert_keywords_old):
+                                try:
+                                    assert_keywords_old = assert_keywords_old.replace(rec2, cache.get(
+                                        rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                                except Exception:
+                                    error_info = traceback.format_exc()
+                                    print(error_info)
+                                    return HttpResponse(
+                                        '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认Redis是否已启动')
+                        if ('select' in assert_keywords_old):
+                            try:
+                                sql = assert_keywords_old
+                                cursor = connection.cursor()
+                                print(sql)
+                                cursor.execute(sql)
+                                data = cursor.fetchall()
+                                print(u'查询的结果为： ', data[0][0])
+                                assert_keywords_old = data[0][0]
+                            except Exception:
+                                assert_keywords_old = '【ERROR】：查询结果为空！'
+                        result1 = assert_test_old(response, assert_keywords_old, True)
+                    if (is_login_api == True):
+                        if (result1 != 0):
+                            n += 1
+                        elif (result1 == 0):
+                            break
+                    else:
+                        break
+                suit_id1 = cur_interface.suit_id
+                result_info = AutotestplatTestplanInterfaceResult(suit_id=suit_id1, suit_interface_id=cur_id,
+                                                                  response_time=response_time, mode="手工执行",
+                                                                  response=response, result=result1,
+                                                                  date_time=test_time)
+                result_info.save()
+                File = logfile
+                File1 = open(File, 'r', encoding='utf-8')
+                test_log = File1.readlines()
+                test_log = str(test_log)
+                test_log = test_log.replace('<', '[').replace('>', "]")
+                test_log = eval(test_log)
+                return HttpResponse(test_log)
+            else:
+                interfaces = AutotestplatInterfaceTestcase.objects.filter(id=cur_id)[0]
+                print_log('【接口名称】: ', ','), print_log(str(cur_id) + "_", ','), print_log(interfaces.name)
+                print_log('【请求方式】: ', ','), print_log(interfaces.mode)
+                url_host = interfaces.url_host
+                try:
+                    if ("{" in url_host and "}" in url_host):
+                        end_index = url_host.find("}")
+                        key_url_host = url_host[:end_index + 1]
+                        url_host = url_host.replace(key_url_host, public_dict[
+                            key_url_host.replace('{', '').replace('}', '').replace(' ', '')])
+                except:
+                    return HttpResponse('【ERROR】：url_host参数 ' + url_host + ' 有误，请重新修改 ')
+                url = interfaces.url
+                try:
+                    if ("{" in url and "}" in url):
+                        end_index = url.find("}")
+                        start_index = url.find("{")
+                        key_url = url[start_index:end_index + 1]
+                        url = url.replace(key_url, public_dict[key_url.replace('{', '').replace('}', '')])
+                except:
+                    return HttpResponse('【ERROR】：url参数 ' + url + ' 有误，请重新修改 ')
+                url = url_host + url
+                head = eval(interfaces.head)
+                for rec in head.keys():
+                    if (head[rec] in keyword_list1):
+                        head[rec] = public_dict[head[rec].replace('{', '').replace('}', '')]
+                    elif (head[rec] in keyword_list4):
+                        head[rec] = public_dict[head[rec].replace('{', '').replace('}', '')]
+                    elif (head[rec] in keyword_list5):
+                        head[rec] = public_dict[head[rec].replace('{', '').replace('}', '')]
+                        head[rec] = str(eval(head[rec]))
+                    elif (head[rec] in keyword_list2):
                         try:
-                            sql = assert_keywords
-                            cursor = connection.cursor()
-                            print(sql)
-                            cursor.execute(sql)
-                            data = cursor.fetchall()
-                            print(u'查询的结果为： ',data[0][0])
-                            assert_keywords = data[0][0]
+                            head[rec] = cache.get(head[rec].replace('{', '').replace('}', ''))
                         except Exception:
-                            assert_keywords = '【ERROR】：查询结果为空！'
-                    is_contain = cur_interface.assert_keywords_is_contain
-                    assert_body_format = cur_interface.assert_body_format
-                    result1 = assert_test(assert_url,assert_head,assert_mode,assert_body,assert_keywords,is_contain,assert_body_format,True)
-                    time.sleep(0.1)
-                else:
-                    assert_keywords_old = cur_interface.assert_keywords_old
-                    for rec1 in keyword_list1:
-                        if(rec1 in assert_keywords_old):
-                            assert_keywords_old = assert_keywords_old.replace(rec1, public_dict[rec1.replace('{','').replace('}','')])
-                    for rec2 in keyword_list2:
-                        if(rec2 in assert_keywords_old):
+                            error_info = traceback.format_exc()
+                            print(error_info)
+                            return HttpResponse(
+                                '【ERROR】：参数 ' + head[rec] + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' +
+                                head[rec] + ' 的前置接口，以及确认Redis是否已启动')
+                is_login_api = False
+                n = 0
+                while (n < 5):
+                    body = eval(interfaces.body)
+                    for rec in body.keys():
+                        if (isinstance(body[rec], str)):
+                            for rec1 in keyword_list1:
+                                if (rec1 in body[rec]):
+                                    if ('captcha' not in rec1):
+                                        body[rec] = body[rec].replace(rec1, public_dict[
+                                            rec1.replace('{', '').replace('}', '')])
+                                    else:
+                                        is_login_api = True
+                                        yanzheng_url = public_dict[rec1.replace('{', '').replace('}', '')]
+                                        haha = request_get(yanzheng_url, {}, {}, 0)
+                                        with open(codefile, 'wb') as f:
+                                            f.write(haha.content)
+                                        yanzheng = getcaptcha()
+                                        body[rec] = yanzheng
+                                        print_log('【登录验证码】：', ','), print_log(yanzheng)
+                            for rec5 in keyword_list5:
+                                if (rec5 in body[rec]):
+                                    try:
+                                        body[rec] = body[rec].replace(rec5, public_dict[
+                                            rec5.replace('{', '').replace('}', '')])
+                                        body[rec] = str(eval(body[rec]))
+                                    except Exception:
+                                        error_info = traceback.format_exc()
+                                        print(error_info)
+                                        return HttpResponse(
+                                            '【ERROR】：参数 ' + rec5 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec5 + ' 的前置接口，以及确认Redis是否已启动')
+                            for rec2 in keyword_list2:
+                                if (rec2 in body[rec]):
+                                    try:
+                                        body[rec] = body[rec].replace(rec2, cache.get(
+                                            rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                                    except Exception:
+                                        error_info = traceback.format_exc()
+                                        print(error_info)
+                                        return HttpResponse(
+                                            '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认Redis是否已启动')
+                            for rec3 in keyword_list3:
+                                if (rec3 in body[rec]):
+                                    para = copy.deepcopy(body)
+                                    body[rec] = sign_nb(para)
+                            if ('select' in body[rec]):
+                                try:
+                                    sql = body[rec]
+                                    cursor = connection.cursor()
+                                    cursor.execute(sql)
+                                    data = cursor.fetchall()
+                                    print(u'查询的结果为： ', data[0][0])
+                                    body[rec] = data[0][0]
+                                except Exception:
+                                    body[rec] = '【ERROR】：查询结果为空！'
+                    mode = interfaces.mode
+                    body_format = interfaces.body_format
+                    try:
+                        response, cookie = interface_test_start(url, body, head, mode, body_format,
+                                                                True)  # False，不打印日志；True，打印日志
+                    except:
+                        return HttpResponse('【ERROR】：' + url + ' 接口录入信息有误，请重新修改')
+                    update_cookie = interfaces.update_cookie
+                    public_resp = AutotestplatParameter.objects.filter(module_id=int(cur_id)).exclude(product_name='testplan')
+                    if (str(public_resp) != '[]'):
+                        for rec in public_resp:
+                            left = rec.left
+                            right = rec.right
+                            index = int(rec.index)
+                            reg = left + '.+?' + right
+                            result_all = re.findall(reg, response)
+                            print(result_all)
                             try:
-                                assert_keywords_old = assert_keywords_old.replace(rec2, cache.get(rec2.replace('{','').replace('}','')).decode('utf-8'))
+                                result_tmp = result_all[index]
+                                start = len(left)
+                                end = len(result_tmp) - len(right)
+                                result = result_tmp[start:end]
+                                cache.set(rec.keywords, result)
+                                cache.expire(rec.keywords, 3600)
+                                print_log('【响应关联参数】： {' + rec.keywords + '}，匹配的第' + str(
+                                    index + 1) + '个值为：' + result)
                             except Exception:
                                 error_info = traceback.format_exc()
                                 print(error_info)
-                                return HttpResponse('【ERROR】：参数 '+rec2+' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 '+rec2+' 的前置接口，以及确认Redis是否已启动')
-                    if('select' in assert_keywords_old):
-                        try:
+                                print_log(
+                                    '【响应关联参数】： {' + rec.keywords + '} 在响应数据中未匹配到，请检测前置接口关键字配置，以及Redis是否已启动')
+                    assert_keywords_old = interfaces.assert_keywords_old
+                    for rec1 in keyword_list1:
+                        if (rec1 in assert_keywords_old):
+                            assert_keywords_old = assert_keywords_old.replace(rec1, public_dict[
+                                rec1.replace('{', '').replace('}', '')])
+                    for rec2 in keyword_list2:
+                        if (rec2 in assert_keywords_old):
+                            try:
+                                assert_keywords_old = assert_keywords_old.replace(rec2, cache.get(
+                                    rec2.replace('{', '').replace('}', '')))
+                            except Exception:
+                                error_info = traceback.format_exc()
+                                print(error_info)
+                                return HttpResponse(
+                                    '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认Redis是否已启动')
+                        if ('select' in assert_keywords_old):
                             sql = assert_keywords_old
                             cursor = connection.cursor()
-                            print(sql)
                             cursor.execute(sql)
                             data = cursor.fetchall()
-                            print(u'查询的结果为： ',data[0][0])
+                            print(u'查询的结果为： ', data[0][0])
                             assert_keywords_old = data[0][0]
-                        except Exception:
-                            assert_keywords_old = '【ERROR】：查询结果为空！'
-                    result1 = assert_test_old(response,assert_keywords_old,True)
-                if(is_login_api == True):
-                    if(result1 != 0):
-                        n += 1
-                    elif(result1 == 0):
+                    assert_result = assert_test_old(response, assert_keywords_old, True)
+                    if (is_login_api == True):
+                        if (assert_result != 0):
+                            n += 1
+                        elif (assert_result == 0):
+                            break
+                    else:
                         break
-                else:
-                    break
-            suit_id1 = cur_interface.suit_id
-            result_info = AutotestplatTestplanInterfaceResult(suit_id=suit_id1,suit_interface_id=cur_id,response_time=response_time,mode="手工执行",response=response,result=result1,date_time=test_time)
-            result_info.save()
-            File = logfile
-            File1 = open(File,'r',encoding='utf-8')
-            test_log = File1.readlines()
-            test_log = str(test_log)
-            test_log = test_log.replace('<','[').replace('>',"]")
-            test_log = eval(test_log)
-            return HttpResponse(test_log)
+                File = logfile
+                File1 = open(File, 'r', encoding='utf-8')
+                test_log = File1.readlines()
+                test_log = str(test_log)
+                test_log = test_log.replace('<', '[').replace('>', "]")
+                test_log = eval(test_log)
+                return HttpResponse(test_log)
+
         except Exception:
             error_info = traceback.format_exc()
-            print(error_info)
-            return HttpResponse(error_info)
+        print(error_info)
+        return HttpResponse(error_info)
