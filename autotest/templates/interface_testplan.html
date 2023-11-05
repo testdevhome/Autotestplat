@@ -93,7 +93,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                     <a href="#" class="nav-link" id="userName"></a>
                 </li>
                 <li class="nav-item" id="logout">
-                    <button class="btn btn-danger" onclick="logout()">退 出</button>
+                    <button class="btn btn-danger" onclick="logout()"  style="font-size: 13px">退 出</button>
                 </li>
             </ul>
         </div>
@@ -227,24 +227,12 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                 <div class="col-md-11">
                                     <div class="input-group">
                                         <span class="input-group-addon">测试环境</span>
-                                        <div class="input-group-addon select-input" style="width: 100px">
                                         <select class="selectpicker form-control" id="add_url_host" name="add_url_host">
                                         <option>{{ rec1.url_host }}</option>
                                         {% for  env_para  in env_paras %}
                                                 <option>{ {{env_para.keywords}} }</option>
                                         {% endfor %}
                                          </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-md-11">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">创建人</span>
-                                        <input id="add_creator" name="add_creator" type="text" class="form-control" value="{{ user_Name }}">
                                     </div>
                                 </div>
                             </div>
@@ -444,7 +432,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                 <div class="col-md-12">
                                     <div class="input-group">
                                         <span class="input-group-addon">创建人</span>
-                                        <input id="edit_creator" type="text" class="form-control" value="" required>
+                                        <input id="edit_creator" type="text" class="form-control" value="" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -581,7 +569,8 @@ Auther:：Fin;  Version：Autotestplat-V2.0
             var suit_list = [];
             var add_name = $('#add_name')[0].value;
             var add_url_host = $('#add_url_host')[0].value;
-            var add_creator = $('#add_creator')[0].value;
+            var userObj = JSON.parse(localStorage.getItem('user'));
+            var add_creator = userObj.userName;
             var add_product_id = $('#add_product_id')[0].value;
             var interface_names = [];
             var tmp = document.getElementsByClassName("interface_name");
