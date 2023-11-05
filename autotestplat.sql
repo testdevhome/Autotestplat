@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50717
 File Encoding         : 65001
 
-Date: 2023-11-04 10:59:15
+Date: 2023-11-05 09:09:27
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -224,8 +224,8 @@ CREATE TABLE `autotestplat_interface_testcase` (
 -- ----------------------------
 INSERT INTO `autotestplat_interface_testcase` VALUES ('1338', '用户列表接口-断言错误校验', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'\', \'Cookie\': \'\'}', '{}', 'JSON', 'post', 'fin', null, 'ChatGPT', '', null, null, '1', '20012');
 INSERT INTO `autotestplat_interface_testcase` VALUES ('1351', '用户列表接口-获取前面接口返回值参数的值', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{keyres}\"}', 'JSON', 'post', 'fin', null, 'ChatGPT', null, '', '', '1', 'fin');
-INSERT INTO `autotestplat_interface_testcase` VALUES ('1352', '用户列表接口-设置接口返回值关联参数-通过正则表达式设置', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"\"}', 'JSON', 'post', 'fin', null, '扫地机器人', '', '', '', '1', 'test12345');
-INSERT INTO `autotestplat_interface_testcase` VALUES ('1353', '用户列表接口-断言正确校验', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"“username\": \"\"}', 'JSON', 'post', '邹先生', null, 'Autotestplat', '', '', '', '1', 'test123456');
+INSERT INTO `autotestplat_interface_testcase` VALUES ('1352', '用户列表接口-设置接口返回值关联参数-通过正则表达式设置', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"\"}', 'JSON', 'post', 'fin', null, 'Autotestplat', '', '', '', '1', 'test12345');
+INSERT INTO `autotestplat_interface_testcase` VALUES ('1353', '用户列表接口-断言正确校验', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"“username\": \"\"}', 'JSON', 'post', 'fin', null, 'Autotestplat', '', '', '', '1', 'test123456');
 INSERT INTO `autotestplat_interface_testcase` VALUES ('1363', '用户列表接口-参数中获取随机变量参数值', '{ test_url }', '/autotest/user/getTableData/', '{\'Accept\': \'\', \'Content-Type\': \'application/json; charset=utf-8\', \'Cookie\': \'\'}', '{\"username\": \"{timeRandom}\"}', 'JSON', 'post', 'fin', null, 'ChatGPT', null, '', '', '1', 'fin');
 
 -- ----------------------------
@@ -244,7 +244,7 @@ CREATE TABLE `autotestplat_parameter` (
   `module_id` varchar(20) DEFAULT NULL,
   `type` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`,`keywords`)
-) ENGINE=InnoDB AUTO_INCREMENT=880 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=881 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of autotestplat_parameter
@@ -256,7 +256,7 @@ INSERT INTO `autotestplat_parameter` VALUES ('670', 'Appid', 'Appid', '123456789
 INSERT INTO `autotestplat_parameter` VALUES ('671', '测试环境1', 'test_url', 'http://127.0.0.1', '', '', '', 'ChatGPT', null, 'env');
 INSERT INTO `autotestplat_parameter` VALUES ('869', '生产环境', 'online_url', 'http://127.0.0.1', null, null, null, 'Autotestplat', null, 'env');
 INSERT INTO `autotestplat_parameter` VALUES ('876', '参数关联', 'keyres', '', 'd', 'a', '0', 'testplan', '1890', 'res');
-INSERT INTO `autotestplat_parameter` VALUES ('879', '参数关联', 'keyres', '', '5, \"', '\", \"test', '0', '扫地机器人', '1352', 'res');
+INSERT INTO `autotestplat_parameter` VALUES ('880', '参数关联', 'keyres', '', '5, \"', '\", \"test', '0', 'Autotestplat', '1352', 'res');
 
 -- ----------------------------
 -- Table structure for `autotestplat_product`
@@ -299,8 +299,8 @@ CREATE TABLE `autotestplat_testplan` (
 -- ----------------------------
 -- Records of autotestplat_testplan
 -- ----------------------------
-INSERT INTO `autotestplat_testplan` VALUES ('25', '新的测试计划', '{ test_url }', 'testplan_interface_1890_用户列表接口-设置接口返回值关联参数-通过正则表达式设置,testplan_interface_1891_用户列表接口-获取前面接口返回值参数的值', '用户列表接口-设置接口返回值关联参数-通过正则表达式设置 ， 用户列表接口-获取前面接口返回值参数的值', 'fin', '1');
-INSERT INTO `autotestplat_testplan` VALUES ('65', 'testplan', '{ test_url }', 'testplan_interface_1889_用户列表接口-断言正确校验,testplan_interface_1892_用户列表接口-断言错误校验,testplan_interface_1894_用户列表接口-参数中获取随机变量参数值', '用户列表接口-参数中获取随机变量参数值 ， 用户列表接口-断言正确校验 ， 用户列表接口-断言错误校验', '2', '5');
+INSERT INTO `autotestplat_testplan` VALUES ('25', '新的测试计划', '{ test_url }', 'testplan_interface_1890_用户列表接口-设置接口返回值关联参数-通过正则表达式设置,testplan_interface_1891_用户列表接口-获取前面接口返回值参数的值', '用户列表接口-设置接口返回值关联参数-通过正则表达式设置 ， 用户列表接口-获取前面接口返回值参数的值', 'fin', '5');
+INSERT INTO `autotestplat_testplan` VALUES ('65', 'testplan', '{ test_url }', 'testplan_interface_1889_用户列表接口-断言正确校验,testplan_interface_1892_用户列表接口-断言错误校验,testplan_interface_1894_用户列表接口-参数中获取随机变量参数值', '用户列表接口-参数中获取随机变量参数值 ， 用户列表接口-断言正确校验 ， 用户列表接口-断言错误校验', 'fin', '5');
 
 -- ----------------------------
 -- Table structure for `autotestplat_testplan_interface`
@@ -344,16 +344,16 @@ CREATE TABLE `autotestplat_testplan_interface_order` (
   `suit_id` int(11) DEFAULT NULL,
   `interface_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=34531 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=34536 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of autotestplat_testplan_interface_order
 -- ----------------------------
-INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34520', '25', '1890');
-INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34521', '25', '1891');
-INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34528', '65', '1894');
-INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34529', '65', '1889');
-INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34530', '65', '1892');
+INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34531', '25', '1890');
+INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34532', '25', '1891');
+INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34533', '65', '1894');
+INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34534', '65', '1889');
+INSERT INTO `autotestplat_testplan_interface_order` VALUES ('34535', '65', '1892');
 
 -- ----------------------------
 -- Table structure for `autotestplat_testplan_interface_result`
