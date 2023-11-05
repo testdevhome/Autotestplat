@@ -41,7 +41,7 @@ def api_testcase(req):
 def show_add_window(req):
     head_dict = {'Cookie':'','Accept':'','Content-Type':'application/json; charset=utf-8'}
     head_json = json.dumps(head_dict, sort_keys=True, indent=8).encode().decode('raw_unicode_escape')
-    public_list = AutotestplatParameter.objects.exclude(type='con')
+    public_list = AutotestplatParameter.objects.all()
     env_para = AutotestplatParameter.objects.filter(type="env")
     product_all = AutotestplatProduct.objects.all()
     c = csrf(req)
@@ -156,12 +156,12 @@ def save_edit_interface(req,edit_id):
 
 def save_copy_interface(req,edit_id):
     if req.method == "POST":
-        edit_name = req.POST.get('edit_name','')
-        edit_url_host = req.POST.get('edit_url_host', '')
-        edit_url = req.POST.get('edit_url','')
-        edit_product_name = req.POST.get('edit_product_name', '')
+        edit_name = req.POST.get('copy_name','')
+        edit_url_host = req.POST.get('copy_url_host', '')
+        edit_url = req.POST.get('copy_url','')
+        edit_product_name = req.POST.get('copy_product_name', '')
         formated_dict = req.POST.get('formated_dict','')
-        edit_creator = req.POST.get('edit_creator','')
+        edit_creator = req.POST.get('copy_creator','')
         edit_head = req.POST.get('head','')
         edit_mode = req.POST.get('mode','')
         body_format = req.POST.get('body_format','')
@@ -458,11 +458,9 @@ def sign_nb(para):
         tmp = parse.quote(rec) + '=' + para[rec] + '&'
         para_URI += tmp
     para_URI += 'key=22222'
-    print('para_URI = ',para_URI)
     hl = hashlib.md5()
     hl.update(para_URI.encode(encoding='utf-8'))
     sign = hl.hexdigest()
-    print('sign = ',sign)
     return sign
 
 def start_interface_test(req):
@@ -599,7 +597,7 @@ def start_interface_test(req):
             except:
                 return HttpResponse('【ERROR】：' + url + ' 接口录入信息有误，请重新修改')
             update_cookie = interfaces.update_cookie
-            public_resp = AutotestplatParameter.objects.filter(module_id=int(id1)).exclude(product_name='suit')
+            public_resp = AutotestplatParameter.objects.filter(module_id=int(id1)).exclude(product_name='testplan')
             if(str(public_resp) != '[]'):
                 for rec in public_resp:
                     left = rec.left
