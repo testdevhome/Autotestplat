@@ -17,7 +17,6 @@ Auther:：Fin;  Version：Autotestplat-V2.0
     <script>
          window.onload = function(){
             if(loginVerify() == 200){
-                 infoInit()
                }
         }
     </script>
@@ -54,7 +53,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                     <a href="#" class="nav-link" id="userName"></a>
                 </li>
                 <li class="nav-item" id="logout">
-                    <button class="btn btn-danger" onclick="logout()">退 出</button>
+                    <button class="btn btn-danger" onclick="logout()" style="font-size: 13px">退 出</button>
                 </li>
             </ul>
         </div>
@@ -292,7 +291,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
     function show_add_window() {
         var frameSrc = "/autotest/apitestcase/show_add_window/";
         $("#frame_add_window").attr("src", frameSrc);
-        $('#add_window').modal();
+        $('#add_window').modal()
     }
 
     function show_edit_interface(ele,id,action) {

@@ -12,6 +12,16 @@ Auther:：Fin;  Version：Autotestplat-V2.0
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/public.js"></script>
     <script type="text/javascript" charset="gbk" src="/static/js/fileinput.min.js"></script>
+    <script>
+         window.onload = function(){
+            if(loginVerify() == 200){
+                var userObj = JSON.parse(localStorage.getItem('user'));
+                var user_Name = userObj.userName;
+                var addInput = document.querySelectorAll('input[name="add_creator"]')[0];
+                addInput.value = user_Name;
+            }
+        }
+    </script>
 </head>
 <body>
 <form target="_parent" id="form_add_window" method="post" action='/autotest/apitestcase/add/'>
@@ -109,15 +119,14 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                     <div class="col-md-12">
                         <div class="input-group">
                             <span class="input-group-addon" style="font-size: 12px">创建人</span>
-                            <input name="add_creator" type="text" class="form-control" value="{{ user_Name }}" required=""
-                                   style="font-size: 12px">
+                            <input name="add_creator" type="text"  class="form-control" value="" style="font-size: 12px;background-color:#f9f9f9" readonly>
                         </div>
                     </div>
                     <br>
                     <div class="col-md-12">
                         <div class="input-group">
                             <span class="input-group-addon" style="font-size: 12px">头信息</span>
-                            <textarea id="head" name="head" rows="6" style="width: 155px;font-size: 12px;word-break:break-all;" placeholder='说明：&#10;1、格式：{"key1":"value1","key2":"value2"}&#10;2、头信息为空则写为：{}&#10;3、必填头信息：Accept、Content-Type、Cookie' spellcheck="false">{{ head_json }}</textarea>
+                            <textarea id="head" name="head" rows="8" style="width: 148px;font-size: 12px;word-break:break-all;" placeholder='说明：&#10;1、格式：{"key1":"value1","key2":"value2"}&#10;2、头信息为空则写为：{}&#10;3、必填头信息：Accept、Content-Type、Cookie' spellcheck="false">{{ head_json }}</textarea>
                         </div>
                     </div>
                     <br>
