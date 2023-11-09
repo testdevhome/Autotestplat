@@ -1,0 +1,322 @@
+﻿<!Doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+<!---------------------------------------------------------
+Auther:：Fin;  Version：Autotestplat-V2.0
+----------------------------------------------------------->
+<head>
+    <meta charset="UTF-8">
+    <title> 测试报告 </title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/fileinput.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/select2.min.css" />
+    <link href="/static/css/navbar.css" rel="stylesheet" type="text/css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/select2.min.js"></script>
+    <script src="/static/js/select2.full.min.js"></script>
+    <script src="/static/js/public.js"></script>
+    <script type="text/javascript" charset="gbk" src="/static/js/fileinput.min.js"></script>
+    <script type="text/javascript" charset="gbk" src="/static/js/exporting.js"></script>
+    <script>
+        window.onload = function(){
+            if(loginVerify() == 200){
+               infoInit()
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="row" >
+        <div class="col-sm">
+            <ul class="nav nav-pills nav-pills-success nav-pills-square nav-light bg-white pa-15 fixed-top">
+                <li class="nav-item">
+                    <a class="nav-link" href={% url 'index' %}>首 页</a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'product' %} class="nav-link"> 产品管理 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apitestcase' %} class="nav-link"> 接口用例 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apitestplan' %} class="nav-link"> 测试计划 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'periodictask' %} class="nav-link"> 定时任务 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apireport' %} class="nav-link active"> 测试报告 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'parasettings' %} class="nav-link"> 系统设置 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'user' %} class="nav-link "> 用户设置 </a>
+                </li>
+                <li class="nav-item" id="navUser">
+                    <a href="#" class="nav-link" id="userName"></a>
+                </li>
+                <li class="nav-item" id="logout">
+                    <button class="btn btn-danger" onclick="logout()" style="font-size: 13px">退 出</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="outterDiv" class="hk-wrapper screenHeight">
+        <div class="container" style="padding: 0px 20px; max-width: 1800px;">
+        <section class="hk-sec-wrapper">
+        <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-body">
+                <h1 style="font-size: 24px;color:green;text-align:center;">接口自动化测试报告</h1><br>
+                <ul class="headline" style="margin-left: -20px">
+                    <li>测试报告ID：<span style="font-size: 16px">{{ report_id }} </span></li>
+                </ul>
+                <ul class="headline" style="margin-left: -20px">
+                    <br>
+                    <li>测试计划：<span style="font-size: 16px">{{ testplan_name }} </span></li>
+                </ul>
+                <ul class="headline" style="margin-left: -20px">
+                    <br>
+                    <li>用例总数： <span style="font-size: 16px"> {{ testcase_all_count }}</span></li>
+                    <li>通过： <span style="font-size: 16px;color: blue"> {{ testcase_pass_count }}</span></li>
+                    <li>不通过：<span style="font-size: 16px;color: red"> {{ testcase_fail_count }}</span></li>
+                    <li>未执行： <span style="font-size: 16px;color: lightgrey"> {{ testcase_norun_count }}</span></li>
+                    <li>成功率： <span style="font-size: 16px"> {{ testcase_pass_pers }}</span></li>
+                </ul>
+                <ul class="headline" style="margin-left: -20px">
+                    <br>
+                    <li>测试时间： <span style="font-size: 14px;font-weight: normal"> {{ testplan_time }}</span></li>
+                    <li><div class="time" datetime="{{ testplan_time }}"></div></li>
+                </ul>
+                    <br><br>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left;width: 30px">#</th>
+{#                                    <th style="text-align: left;">id</th>#}
+{#                                    <th style="text-align: left;width: 150px;">测试计划</th>#}
+                                    <th style="text-align: left;width: 320px;">接口名称</th>
+                                    <th style="text-align: left;width: 320px;">url</th>
+                                    <th style="text-align: left;width: 100px;">结果</th>
+                                    <th style="text-align: left;width: 150px;">响应时间</th>
+                                    <th style="text-align: left;width: 100px;">模式</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div style="margin-top: -22px">
+                            {% for rec in test_result %}
+                                {% if rec.result == "0" %}
+                                <div class="panel-group" id="accordion">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading" style="background-color: white;">
+                                            <h4 class="panel-title" style="font-size: 14px">
+                                                <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}">
+                                                    <div class="row">
+                                                        <div class="col-md-1" style="text-align: left;">{{ forloop.counter }}</div>
+                                                        <div class="col-md-1" style="display: none;">{{ rec.suit_interface_id }}</div>
+{#                                                        <div class="col-md-1" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: -70px;width: 150px">{{ rec.1 }}</div>#}
+                                                        <div class="col-md-2" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: -70px;width: 320px">{{ rec.interface_name }}</div>
+                                                        <div class="col-md-4" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: 30px;width: 320px">{{ rec.url | cut:"http://127.0.0.1" }}</div>
+                                                        <div class="col-md-2" style="overflow: hidden;text-align: left;margin-left: 50px;width: 115px">
+                                                            {% if rec.result == "0" %}
+                                                                <span style="color: green;"> pass</span>
+                                                            {% elif rec.result == "1" %}
+                                                                <span style="color: red;"> failed</span>
+                                                            {% else %}
+                                                                <span> ng</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="col-md-1" style="white-space: nowrap;overflow: hidden;text-align: left;">{{ rec.response_time }}</div>
+                                                        <div class="col-md-1" style="overflow: hidden;text-align: left;margin-left: 65px;width: 100px">
+                                                             {% if rec.task_mode == "手工执行" %}
+                                                                <span>  手工</span>
+                                                            {% elif rec.task_mode == "定时任务" %}
+                                                                <span> 自动</span>
+                                                            {% else %}
+                                                                <span> 未知</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse">
+                                            <div class="panel-body" style="background-color: #eaebee">
+                                                <div class="row" >
+                                                    <div class="col-md-5">
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold;text-align: left;">接口名称</span>：{{ rec.interface_name }}
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">url</span>：<span style="word-break:break-all;">{{ rec.url }}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">请求参数</span>：<span style="word-break:break-all;">{{ rec.body }}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">请求方式</span>：{{ rec.mode }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-7">
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">断言</span>：{{ rec.assert_keywords_old }}
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold;">响应信息</span>：<span style="word-break:break-all;">{{ rec.response }}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold;">响应时间</span>：<span style="word-break:break-all;">{{ rec.response_time }}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">测试结果</span>：
+                                                            {% if rec.result == "0" %}
+                                                                <span style="color: green"> pass</span>
+                                                            {% elif rec.result == "1" %}
+                                                                <span style="color: red"> failed</span>
+                                                            {% else %}
+                                                                <span> no_run</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    {% else %}
+                                {% endif %}
+                            {% endfor %}
+                            {% for rec in test_result %}
+                                {% if rec.result == "1" %}
+                                <div class="panel-group" id="accordion">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading" style="background-color: white;">
+                                            <h4 class="panel-title" style="font-size: 14px">
+                                                <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}">
+                                                    <div class="row">
+                                                        <div class="col-md-1" style="text-align: left;">{{ forloop.counter }}</div>
+                                                        <div class="col-md-1" style="display: none">{{ rec.suit_interface_id }}</div>
+{#                                                        <div class="col-md-1" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: -70px;width: 150px">{{ rec.1 }}</div>#}
+                                                        <div class="col-md-2" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: -70px;width: 320px">{{ rec.interface_name }}</div>
+                                                        <div class="col-md-4" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: 30px;width: 320px">{{ rec.url | cut:"http://127.0.0.1" }}</div>
+                                                        <div class="col-md-2" style="overflow: hidden;text-align: left;margin-left: 50px;width: 115px">
+                                                            {% if rec.result == "0" %}
+                                                                <span style="color: green"> pass</span>
+                                                            {% elif rec.result == "1" %}
+                                                                <span style="color: red"> failed</span>
+                                                            {% else %}
+                                                                <span> no_run</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="col-md-1" style="white-space: nowrap;overflow: hidden;text-align: left;">{{ rec.response_time }}</div>
+                                                        <div class="col-md-1" style="overflow: hidden;text-align: left;margin-left: 65px;width: 100px">
+                                                             {% if rec.task_mode == "手工执行" %}
+                                                                <span>  手工</span>
+                                                            {% elif rec.task_mode == "定时任务" %}
+                                                                <span> 自动</span>
+                                                            {% else %}
+                                                                <span> 未知</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse">
+                                            <div class="panel-body" style="background-color: #eaebee">
+                                                <div class="row" >
+                                                    <div class="col-md-5">
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">接口名称</span>：{{ rec.interface_name }}
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">url</span>：<span style="word-break:break-all;">{{ rec.url }}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">请求参数</span>：<span style="word-break:break-all;">{{ rec.body }}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">请求方式</span>：{{ rec.mode }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-7">
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">断言</span>：{{ rec.assert_keywords_old }}
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold;">响应信息</span>：<span style="word-break:break-all;">{{ rec.response }}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold;">响应时间</span>：<span style="word-break:break-all;">{{ rec.response_time }}</span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <span style="font-weight: bold">测试结果</span>：
+                                                            {% if rec.11 == "0" %}
+                                                                <span style="color: green"> pass</span>
+                                                            {% elif rec.11 == "1" %}
+                                                                <span style="color: red"> failed</span>
+                                                            {% else %}
+                                                                <span> ng</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <button class="btn btn-primary btn-sm" style="margin-left: 47%;width: 57px;height: 34px;font-size: 14px" onclick="goBack()">返回</button>
+        </section>
+         </div>
+    </div>
+
+    <script type="text/javascript">
+        function reportsearch(ele) {
+            var suit1 = $("#select2-suit1-container").text();
+            L = suit1.length;
+            suit1 = suit1.substring(1, L);
+            var day1 = $("#select2-day1-container").text();
+            L = day1.length;
+            day1 = day1.substring(1, L);
+            var time1 = $("#select2-time1-container").text();
+            L = time1.length;
+            time1 = time1.substring(1, L);
+            $.ajax({
+                url: "/autotest/apitestreport/search/",
+                data: JSON.stringify({
+                    suit1: suit1,
+                    day1: day1,
+                    time1: time1,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }),
+                headers:{'X-CSRFToken': '{{ csrf_token }}'},
+                contentType: 'application/json;charset=utf-8',
+                type: "POST",
+                traditional: true,
+                success: function (result) {
+                    console.log(result);
+                },
+                fail: function (result) {
+                    debugger
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
