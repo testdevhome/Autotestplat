@@ -7,7 +7,7 @@ django-redis==4.0.0
 kombu==3.0.37
 PyMySQL==1.0.2
 pillow==8.4.0
-request
+requests
 chardet==3.0.4
 idna==2.6
 pywin32==305
