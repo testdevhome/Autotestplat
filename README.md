@@ -9,17 +9,26 @@ Autotestplat-v2.0版本
 python3.6
 django2.1
 mysql
-版本待更新...
-1、git clone https://github.com/testdevhome/Autotestplat
-2、cd Autotestplat
-3、pip install -r requirements.txt
-4、python manage.py runserver 0.0.0.0:80
-5、redis-server redis.windows.conf
+版本待更新...<br>
+1、下载和安装python 3.6、git、mysql、redis等安装包https://github.com/testdevhome/installPackage<br>
+2、git clone https://github.com/testdevhome/Autotestplat<br>
+3、cd Autotestplat <br>
+4、pip install -r requirements.txt<br>
+5、创建和导入数据库<br>
+创建数据库名autotestplat，导入autotestplat.sql
+可能要修改数据库连接配置文件 Autotestplat/settings.py 77行 DATABASES 
+6、运行命令 python manage.py runserver 0.0.0.0:80 <br>
+7、运行命令 redis-server redis.conf<br>
+8、访问 127.0.0.1/autotest/login<br>
+9、用户名 fin，密码test123456<br>
 
-操作手册：
-第一步、设置用户，设置产品项目，设置系统。其中系统参数的设置 包括<font color="red"> 环境设置 </font>即host的url地址设置，<font color="red">常量</font>即设置一个固定值作为参数，<font color="red"> 变量</font>即通过随机函数获取需要的变量值，可以是时间戳，随机数字，随机字符等。在接口中通过{关键字}获取。
-第二步、在接口测试中进行接口用例及调试即接口信息录入，设置<font color="red"> 断言</font>，通过正则表达式设置<font color="red"> 关联参数</font>，执行；在测试计划中选择用例及调试即选择用例，修改接口参数，手动执行；在定时任务中选择设置要运行的测试计划，保存后执行以及定时自动执行。
-第三步、测试报告中查看测试结果。
+操作手册：<br>
+第一步、设置用户，设置产品/项目，用户设置默认产品，也就是当前正在进入使用的产品。<br>
+第二步、在系统设置中设置参数，环境设置即设置host地址，常量即设置固定值作为参数，变量可以是时间戳，随机数字、字符等。<br>
+第三步、在接口用例中进行接口用例录入调试，设置断言，通过正则表达式设置关联参数，执行；在接口中通过{关键字}设置参数。<br>
+第四步、在测试计划中选择接口用例，修改接口参数，手动执行调试。<br>
+第五步、在定时任务中选择测试计划，保存后执行以及定时自动执行。<br>
+第六步、在测试报告中查看测试记录，报告的详情数据。<br>
 
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/systemsetting.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/apitestcase.png)
