@@ -25,6 +25,44 @@ Auther:：Fin;  Version：Autotestplat-V2.0
             }
         }
     </script>
+
+    <script>
+    window.onload = function() {
+        const downloadLink = document.getElementById('download-link');
+        downloadLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        const bodyContent = document.getElementById('outterDiv').innerHTML;
+        const elementsToHide = document.querySelectorAll('#table_api_info');
+        const api_count = elementsToHide.length;
+        let filteredContent = bodyContent;
+        for (var i = 0; i < api_count; i++) {
+            var element = elementsToHide[i];
+            var regex = new RegExp(`${element.innerHTML}`, 'g');
+            filteredContent = filteredContent.replace(regex, '');
+        }
+        const elementsToHide2 = document.getElementById('table_title').innerHTML;
+        var regex2 = new RegExp(`${elementsToHide2}`, 'g');
+        filteredContent = filteredContent.replace(regex2, '');
+        const buttonId = 'search_button';
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(filteredContent, 'text/html');
+        const button = doc.getElementById(buttonId);
+        if (button) {
+            button.parentNode.removeChild(button);
+        }
+        const newFilteredContent = doc.documentElement.innerHTML;
+        const blob = new Blob([newFilteredContent], {type: 'text/html'});
+        const url = URL.createObjectURL(blob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = 'apiTestReport-' + {{ report_id }} + '.html';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        });
+    };
+
+</script>
 </head>
 <body>
     <div class="row" >
@@ -80,27 +118,26 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                     <br>
                     <li>测试计划：<span style="font-size: 16px">{{ testplan_name }} </span></li>
                 </ul>
-                <ul class="headline" style="margin-left: -20px">
+                <ul class="headline" style="margin-left: -20px;">
                     <br>
-                    <li>用例总数： <span style="font-size: 16px"> {{ testcase_all_count }}</span></li>
-                    <li>通过： <span style="font-size: 16px;color: blue"> {{ testcase_pass_count }}</span></li>
-                    <li>不通过：<span style="font-size: 16px;color: red"> {{ testcase_fail_count }}</span></li>
-                    <li>未执行： <span style="font-size: 16px;color: lightgrey"> {{ testcase_norun_count }}</span></li>
-                    <li>成功率： <span style="font-size: 16px"> {{ testcase_pass_pers }}</span></li>
+                    <li>用例总数： <span id="testcase_all_count" style="font-size: 16px"> {{ testcase_all_count }}</span>
+                    &nbsp;&nbsp;通过： <span style="font-size: 16px;color: blue"> {{ testcase_pass_count }}</span>
+                    &nbsp;&nbsp;不通过：<span style="font-size: 16px;color: red"> {{ testcase_fail_count }}</span>
+                   &nbsp;&nbsp;未执行： <span style="font-size: 16px;color: lightgrey"> {{ testcase_norun_count }}</span>
+                    &nbsp;&nbsp;成功率： <span style="font-size: 16px"> {{ testcase_pass_pers }}</span></li>
                 </ul>
                 <ul class="headline" style="margin-left: -20px">
                     <br>
                     <li>测试时间： <span style="font-size: 14px;font-weight: normal"> {{ testplan_time }}</span></li>
-                    <li><div class="time" datetime="{{ testplan_time }}"></div></li>
                 </ul>
-                    <br><br>
+                    <br>
                     <div class="table-responsive">
-                        <table class="table table-bordered">
+                        <table id="table_title" class="table table-bordered">
                             <thead>
                                 <tr>
                                     <th style="text-align: left;width: 30px">#</th>
                                     <th style="text-align: left;width: 320px;">接口名称</th>
-                                    <th style="text-align: left;width: 320px;">url</th>
+                                    <th style="text-align: left;width: 320px;">接口URL</th>
                                     <th style="text-align: left;width: 100px;">结果</th>
                                     <th style="text-align: left;width: 150px;">响应时间</th>
                                     <th style="text-align: left;width: 100px;">模式</th>
@@ -114,14 +151,14 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                 <div class="panel-group" id="accordion">
                                     <div class="panel panel-default">
                                         <div class="panel-heading" style="background-color: white;">
-                                            <h4 class="panel-title" style="font-size: 14px">
+                                            <h4 id="table_api_info" class="panel-title" style="font-size: 14px">
                                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}">
                                                     <div class="row">
                                                         <div class="col-md-1" style="text-align: left;">{{ forloop.counter }}</div>
                                                         <div class="col-md-1" style="display: none;">{{ rec.suit_interface_id }}</div>
-                                                        <div class="col-md-2" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: -70px;width: 320px">{{ rec.interface_name }}</div>
-                                                        <div class="col-md-4" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: 30px;width: 320px">{{ rec.url | cut:"http://127.0.0.1" }}</div>
-                                                        <div class="col-md-2" style="overflow: hidden;text-align: left;margin-left: 50px;width: 115px">
+                                                        <div id="table_interface_name" class="col-md-2" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: -70px;width: 320px">{{ rec.interface_name }}</div>
+                                                        <div id="table_url" class="col-md-4" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: 30px;width: 320px">{{ rec.url | cut:"http://127.0.0.1" }}</div>
+                                                        <div id="table_result" class="col-md-2" style="overflow: hidden;text-align: left;margin-left: 50px;width: 115px">
                                                             {% if rec.result == "0" %}
                                                                 <span style="color: green;"> pass</span>
                                                             {% elif rec.result == "1" %}
@@ -130,8 +167,8 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                                                 <span> no_run</span>
                                                             {% endif %}
                                                         </div>
-                                                        <div class="col-md-1" style="white-space: nowrap;overflow: hidden;text-align: left;">{{ rec.response_time }}</div>
-                                                        <div class="col-md-1" style="overflow: hidden;text-align: left;margin-left: 65px;width: 100px">
+                                                        <div id="table_response_time" class="col-md-1" style="white-space: nowrap;overflow: hidden;text-align: left;">{{ rec.response_time }}</div>
+                                                        <div id="table_task_mode" class="col-md-1" style="overflow: hidden;text-align: left;margin-left: 65px;width: 100px">
                                                              {% if rec.task_mode == "手工执行" %}
                                                                 <span>  手工</span>
                                                             {% elif rec.task_mode == "定时任务" %}
@@ -149,10 +186,10 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                                 <div class="row" >
                                                     <div class="col-md-5">
                                                         <div class="form-group">
-                                                            <span style="font-weight: bold;text-align: left;">接口名称</span>：{{ rec.interface_name }}
+                                                            <span style="font-weight: bold;text-align: left;">{{ forloop.counter }}、接口名称</span>：{{ rec.interface_name }}
                                                         </div>
                                                         <div class="form-group">
-                                                            <span style="font-weight: bold">url</span>：<span style="word-break:break-all;">{{ rec.url }}</span>
+                                                            <span style="font-weight: bold">接口URL</span>：<span style="word-break:break-all;">{{ rec.url }}</span>
                                                         </div>
                                                         <div class="form-group">
                                                             <span style="font-weight: bold">请求参数</span>：<span style="word-break:break-all;">{{ rec.body }}</span>
@@ -166,7 +203,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                                             <span style="font-weight: bold">断言</span>：{{ rec.assert_keywords_old }}
                                                         </div>
                                                         <div class="form-group">
-                                                            <span style="font-weight: bold;">响应信息</span>：<span style="word-break:break-all;">{{ rec.response }}</span>
+                                                            <span style="font-weight: bold;">响应数据</span>：<span style="word-break:break-all;">{{ rec.response }}</span>
                                                         </div>
                                                         <div class="form-group">
                                                             <span style="font-weight: bold;">响应时间</span>：<span style="word-break:break-all;">{{ rec.response_time }}</span>
@@ -195,13 +232,13 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                 <div class="panel-group" id="accordion">
                                     <div class="panel panel-default">
                                         <div class="panel-heading" style="background-color: white;">
-                                            <h4 class="panel-title" style="font-size: 14px">
+                                            <h4 id="table_api_info" class="panel-title" style="font-size: 14px">
                                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}">
                                                     <div class="row">
                                                         <div class="col-md-1" style="text-align: left;">{{ forloop.counter }}</div>
                                                         <div class="col-md-1" style="display: none">{{ rec.suit_interface_id }}</div>
                                                         <div class="col-md-2" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: -70px;width: 320px">{{ rec.interface_name }}</div>
-                                                        <div class="col-md-4" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: 30px;width: 320px">{{ rec.url | cut:"http://127.0.0.1" }}</div>
+                                                        <div id="table_url" class="col-md-4" style="white-space: nowrap;overflow: hidden;text-align: left;margin-left: 30px;width: 320px">{{ rec.url | cut:"http://127.0.0.1" }}</div>
                                                         <div class="col-md-2" style="overflow: hidden;text-align: left;margin-left: 50px;width: 115px">
                                                             {% if rec.result == "0" %}
                                                                 <span style="color: green"> pass</span>
@@ -211,8 +248,8 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                                                 <span> no_run</span>
                                                             {% endif %}
                                                         </div>
-                                                        <div class="col-md-1" style="white-space: nowrap;overflow: hidden;text-align: left;">{{ rec.response_time }}</div>
-                                                        <div class="col-md-1" style="overflow: hidden;text-align: left;margin-left: 65px;width: 100px">
+                                                        <div id="table_response_time"  class="col-md-1" style="white-space: nowrap;overflow: hidden;text-align: left;">{{ rec.response_time }}</div>
+                                                        <div id="table_task_mode" class="col-md-1" style="overflow: hidden;text-align: left;margin-left: 65px;width: 100px">
                                                              {% if rec.task_mode == "手工执行" %}
                                                                 <span>  手工</span>
                                                             {% elif rec.task_mode == "定时任务" %}
@@ -233,7 +270,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                                             <span style="font-weight: bold">接口名称</span>：{{ rec.interface_name }}
                                                         </div>
                                                         <div class="form-group">
-                                                            <span style="font-weight: bold">url</span>：<span style="word-break:break-all;">{{ rec.url }}</span>
+                                                            <span style="font-weight: bold">接口URL</span>：<span style="word-break:break-all;">{{ rec.url }}</span>
                                                         </div>
                                                         <div class="form-group">
                                                             <span style="font-weight: bold">请求参数</span>：<span style="word-break:break-all;">{{ rec.body }}</span>
@@ -247,7 +284,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                                             <span style="font-weight: bold">断言</span>：{{ rec.assert_keywords_old }}
                                                         </div>
                                                         <div class="form-group">
-                                                            <span style="font-weight: bold;">响应信息</span>：<span style="word-break:break-all;">{{ rec.response }}</span>
+                                                            <span style="font-weight: bold;">响应数据</span>：<span style="word-break:break-all;">{{ rec.response }}</span>
                                                         </div>
                                                         <div class="form-group">
                                                             <span style="font-weight: bold;">响应时间</span>：<span style="word-break:break-all;">{{ rec.response_time }}</span>
@@ -277,7 +314,16 @@ Auther:：Fin;  Version：Autotestplat-V2.0
             </div>
         </div>
         </div>
-        <button class="btn btn-primary btn-sm" style="margin-left: 47%;width: 57px;height: 34px;font-size: 14px" onclick="goBack()">返回</button>
+        <div class="form-group">
+            <div class="row">
+            <div class="col-md-9">
+              <button id="search_button" class="btn btn-primary" style="margin-left: 60%;width: 57px;height: 34px;font-size: 14px"  type="submit" onclick="goBack()">返回</button>
+            </div>
+            <div class="col-md-1">
+                <a href="" class="btn btn-primary" style="margin-left: -360%;width: 57px;height: 34px;font-size: 14px" id="download-link">下载</a>
+            </div>
+            </div>
+        </div>
         </section>
          </div>
     </div>
