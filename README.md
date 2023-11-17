@@ -29,6 +29,7 @@ django2.1.3
 第三步、在接口用例中进行接口用例录入调试，设置断言，通过正则表达式设置关联参数，执行；在接口中通过{关键字}设置参数。<br>
 第四步、在测试计划中选择接口用例，定时设置，勾选用例调试。<br>
 第五步、在测试报告中查看测试记录，报告的详情数据。<br>
+
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/userproduct.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/systemsetting.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/apitestcase.png)
