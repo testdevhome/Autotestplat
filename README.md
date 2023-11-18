@@ -21,7 +21,6 @@ django2.1.3
 8、python manage.py celery worker -c 6 -l debug<br>
 9、python manage.py celery beat<br>
 10、访问 127.0.0.1/autotest/login<br>
-11、用户名 fin，密码test123456<br>
 
 操作手册：<br>
 第一步、设置用户，设置产品/项目，用户设置默认产品，也就是当前正在进入使用的产品。<br>
