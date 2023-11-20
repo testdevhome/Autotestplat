@@ -35,6 +35,7 @@ django2.1.3
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/editpara.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/testresult.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/testplan.png)
+![image](https://github.com/testdevhome/Doc/blob/main/pic/addapi.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/report.png)
 
 
