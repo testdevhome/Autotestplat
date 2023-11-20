@@ -265,7 +265,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
                                     <td style="width: 50px;text-align: left;" name="ids" id="ids">{{ rec.id }}</td>
                                     <td style="width: 130px;font-size: 12px">{{ rec.suit_name }}</td>
                                     <td style="width: 90px;font-size: 12px;display: none">{{ rec.url_host }}</td>
-                                    <td style="max-width: 200px;white-space:normal;font-size: 12px">{{ rec.interface_name_display | truncatechars:"35" }}</td>
+                                    <td style="max-width: 200px;white-space:normal;font-size: 12px">{{ rec.interface_name_display | truncatechars:"43" }}</td>
                                     <td style="width:150px;text-align: left;font-size: 12px">{{ rec.task_id }}</td>
                                     <td style="width:90px;text-align: left;font-size: 12px">{{ rec.charger }}</td>
                                     <td style="width:100px;text-align: left;font-size: 12px">{{ rec.product_id }}</td>
@@ -430,7 +430,7 @@ Auther:：Fin;  Version：Autotestplat-V2.0
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary" onclick="reset_testplan()">重选</button>
+                <button type="button" class="btn btn-info" onclick="reset_testplan()">重选</button>
                 <button type="button" class="btn btn-primary" onclick="add_testplan()">保存</button>
             </div>
         </div>
