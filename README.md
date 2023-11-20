@@ -8,7 +8,7 @@ Autotestplat-v2.0版本
 部署指南：
 python3.6
 django2.1.3
-其他版本待后续更新...<br>
+更高版本待后续更新...<br>
 1、下载和安装python 3.6、git、mysql、redis等安装包https://github.com/testdevhome/installPackage<br>
 2、git clone https://github.com/testdevhome/Autotestplat<br>
 3、cd Autotestplat <br>
