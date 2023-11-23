@@ -331,151 +331,154 @@ def show_edit_testplan(request):
         interface_ids = ''
         for index, id2 in enumerate(id_list):
             if index == len(id_list) - 1:
-                ids = AutotestplatTestplanInterface.objects.filter(id=id2).first().interface_id
-                interface_ids +=str(ids)
-                names = AutotestplatTestplanInterface.objects.filter(id=id2).first().interface_name
-                interface_names += "testplan_interface_"+str(id2)+"_"+names
-                testplan_interface_id = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_id
-                testplan_interface_name = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_name
-                interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
-                testplan_interface_url = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().url
-                interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
-                testplan_interface_head = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().head
-                interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
-                testplan_interface_body = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body
-                interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
-                testplan_interface_body_format = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body_format
-                interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
-                testplan_interface_mode = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().mode
-                interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
-                testplan_interface_assert_keywords_old = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().assert_keywords_old
-                interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
-                testplan_interface_res = AutotestplatParameter.objects.filter(module_id=id2).filter(product_id='testplan')
-                if testplan_interface_res:
-                    testplan_interface_res_name=testplan_interface_res.first().name
-                    testplan_interface_res_keywords=testplan_interface_res.first().keywords
-                    testplan_interface_res_value=testplan_interface_res.first().value
-                    testplan_interface_res_left=testplan_interface_res.first().left
-                    testplan_interface_res_right=testplan_interface_res.first().right
-                    testplan_interface_res_index=testplan_interface_res.first().index
-                    testplan_res=testplan_interface_res_name+testplan_interface_res_keywords+testplan_interface_res_value+testplan_interface_res_left+testplan_interface_res_right+testplan_interface_res_index
-                else:
-                    testplan_interface_res_name = ''
-                    testplan_interface_res_keywords = ''
-                    testplan_interface_res_value = ''
-                    testplan_interface_res_left = ''
-                    testplan_interface_res_right = ''
-                    testplan_interface_res_index = ''
-                    testplan_res = testplan_interface_res_name + testplan_interface_res_keywords + testplan_interface_res_value + testplan_interface_res_left + testplan_interface_res_right + testplan_interface_res_index
-                interface_res = AutotestplatParameter.objects.filter(module_id=testplan_interface_id).exclude(product_id='testplan')
-                if interface_res:
-                    interface_res_name = interface_res.first().name
-                    interface_res_keywords = interface_res.first().keywords
-                    interface_res_value = interface_res.first().value
-                    interface_res_left = interface_res.first().left
-                    interface_res_right = interface_res.first().right
-                    interface_res_index = interface_res.first().index
-                    res=interface_res_name+interface_res_keywords+interface_res_value+interface_res_left+interface_res_right+interface_res_index
-                else:
-                    interface_res_name = ''
-                    interface_res_keywords = ''
-                    interface_res_value = ''
-                    interface_res_left = ''
-                    interface_res_right = ''
-                    interface_res_index = ''
-                    res = interface_res_name + interface_res_keywords + interface_res_value + interface_res_left + interface_res_right + interface_res_index
-                if testplan_interface_name != interface_name:
-                    update_list += '1'
-                elif testplan_interface_url != interface_url:
-                    update_list += '1'
-                elif testplan_interface_head != interface_head:
-                    update_list += '1'
-                elif testplan_interface_body != interface_body:
-                    update_list += '1'
-                elif testplan_interface_body_format != interface_body_format:
-                    update_list += '1'
-                elif testplan_interface_mode != interface_mode:
-                    update_list += '1'
-                elif testplan_interface_assert_keywords_old != interface_assert_keywords_old:
-                    update_list += '1'
-                elif testplan_res != res:
-                    update_list += '1'
-                else:
-                    update_list += '0'
+                tmp_ids = AutotestplatTestplanInterface.objects.filter(id=id2)
+                if tmp_ids:
+                    ids=tmp_ids.first().interface_id
+                    interface_ids +=str(ids)
+                    names = AutotestplatTestplanInterface.objects.filter(id=id2).first().interface_name
+                    interface_names += "testplan_interface_"+str(id2)+"_"+names
+                    testplan_interface_id = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_id
+                    testplan_interface_name = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_name
+                    interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
+                    testplan_interface_url = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().url
+                    interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
+                    testplan_interface_head = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().head
+                    interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
+                    testplan_interface_body = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body
+                    interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
+                    testplan_interface_body_format = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body_format
+                    interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
+                    testplan_interface_mode = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().mode
+                    interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
+                    testplan_interface_assert_keywords_old = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().assert_keywords_old
+                    interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
+                    testplan_interface_res = AutotestplatParameter.objects.filter(module_id=id2).filter(product_id='testplan')
+                    if testplan_interface_res:
+                        testplan_interface_res_name=testplan_interface_res.first().name
+                        testplan_interface_res_keywords=testplan_interface_res.first().keywords
+                        testplan_interface_res_value=testplan_interface_res.first().value
+                        testplan_interface_res_left=testplan_interface_res.first().left
+                        testplan_interface_res_right=testplan_interface_res.first().right
+                        testplan_interface_res_index=testplan_interface_res.first().index
+                        testplan_res=testplan_interface_res_name+testplan_interface_res_keywords+testplan_interface_res_value+testplan_interface_res_left+testplan_interface_res_right+testplan_interface_res_index
+                    else:
+                        testplan_interface_res_name = ''
+                        testplan_interface_res_keywords = ''
+                        testplan_interface_res_value = ''
+                        testplan_interface_res_left = ''
+                        testplan_interface_res_right = ''
+                        testplan_interface_res_index = ''
+                        testplan_res = testplan_interface_res_name + testplan_interface_res_keywords + testplan_interface_res_value + testplan_interface_res_left + testplan_interface_res_right + testplan_interface_res_index
+                    interface_res = AutotestplatParameter.objects.filter(module_id=testplan_interface_id).exclude(product_id='testplan')
+                    if interface_res:
+                        interface_res_name = interface_res.first().name
+                        interface_res_keywords = interface_res.first().keywords
+                        interface_res_value = interface_res.first().value
+                        interface_res_left = interface_res.first().left
+                        interface_res_right = interface_res.first().right
+                        interface_res_index = interface_res.first().index
+                        res=interface_res_name+interface_res_keywords+interface_res_value+interface_res_left+interface_res_right+interface_res_index
+                    else:
+                        interface_res_name = ''
+                        interface_res_keywords = ''
+                        interface_res_value = ''
+                        interface_res_left = ''
+                        interface_res_right = ''
+                        interface_res_index = ''
+                        res = interface_res_name + interface_res_keywords + interface_res_value + interface_res_left + interface_res_right + interface_res_index
+                    if testplan_interface_name != interface_name:
+                        update_list += '1'
+                    elif testplan_interface_url != interface_url:
+                        update_list += '1'
+                    elif testplan_interface_head != interface_head:
+                        update_list += '1'
+                    elif testplan_interface_body != interface_body:
+                        update_list += '1'
+                    elif testplan_interface_body_format != interface_body_format:
+                        update_list += '1'
+                    elif testplan_interface_mode != interface_mode:
+                        update_list += '1'
+                    elif testplan_interface_assert_keywords_old != interface_assert_keywords_old:
+                        update_list += '1'
+                    elif testplan_res != res:
+                        update_list += '1'
+                    else:
+                        update_list += '0'
             else:
-                ids = AutotestplatTestplanInterface.objects.filter(id=id2).first().interface_id
-                interface_ids += str(ids) + ","
-                names = AutotestplatTestplanInterface.objects.filter(id=id2).first().interface_name
-                interface_names += "testplan_interface_" + str(id2) + "_" + names + ","
-                testplan_interface_id = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_id
-                testplan_interface_name = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_name
-                interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
-                testplan_interface_url = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().url
-                interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
-                testplan_interface_head = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().head
-                interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
-                testplan_interface_body = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body
-                interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
-                testplan_interface_body_format = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body_format
-                interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
-                testplan_interface_mode = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().mode
-                interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
-                testplan_interface_assert_keywords_old = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().assert_keywords_old
-                interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
-                testplan_interface_res = AutotestplatParameter.objects.filter(module_id=id2).filter(
-                    product_id='testplan')
-                if testplan_interface_res:
-                    testplan_interface_res_name = testplan_interface_res.first().name
-                    testplan_interface_res_keywords = testplan_interface_res.first().keywords
-                    testplan_interface_res_value = testplan_interface_res.first().value
-                    testplan_interface_res_left = testplan_interface_res.first().left
-                    testplan_interface_res_right = testplan_interface_res.first().right
-                    testplan_interface_res_index = testplan_interface_res.first().index
-                    testplan_res = testplan_interface_res_name + testplan_interface_res_keywords + testplan_interface_res_value + testplan_interface_res_left + testplan_interface_res_right + testplan_interface_res_index
-                else:
-                    testplan_interface_res_name = ''
-                    testplan_interface_res_keywords = ''
-                    testplan_interface_res_value = ''
-                    testplan_interface_res_left = ''
-                    testplan_interface_res_right = ''
-                    testplan_interface_res_index = ''
-                    testplan_res = testplan_interface_res_name + testplan_interface_res_keywords + testplan_interface_res_value + testplan_interface_res_left + testplan_interface_res_right + testplan_interface_res_index
-                interface_res = AutotestplatParameter.objects.filter(module_id=testplan_interface_id).exclude(
-                    product_id='testplan')
-                if interface_res:
-                    interface_res_name = interface_res.first().name
-                    interface_res_keywords = interface_res.first().keywords
-                    interface_res_value = interface_res.first().value
-                    interface_res_left = interface_res.first().left
-                    interface_res_right = interface_res.first().right
-                    interface_res_index = interface_res.first().index
-                    res = interface_res_name + interface_res_keywords + interface_res_value + interface_res_left + interface_res_right + interface_res_index
-                else:
-                    interface_res_name = ''
-                    interface_res_keywords = ''
-                    interface_res_value = ''
-                    interface_res_left = ''
-                    interface_res_right = ''
-                    interface_res_index = ''
-                    res = interface_res_name + interface_res_keywords + interface_res_value + interface_res_left + interface_res_right + interface_res_index
-                if testplan_interface_name != interface_name:
-                    update_list += '1'+ ","
-                elif testplan_interface_url != interface_url:
-                    update_list += '1'+ ","
-                elif testplan_interface_head != interface_head:
-                    update_list += '1'+ ","
-                elif testplan_interface_body != interface_body:
-                    update_list += '1'+ ","
-                elif testplan_interface_body_format != interface_body_format:
-                    update_list += '1'+ ","
-                elif testplan_interface_mode != interface_mode:
-                    update_list += '1'+ ","
-                elif testplan_interface_assert_keywords_old != interface_assert_keywords_old:
-                    update_list += '1'+ ","
-                elif testplan_res != res:
-                    update_list += '1'+ ","
-                else:
-                    update_list += '0'+ ","
+                tmp_ids = AutotestplatTestplanInterface.objects.filter(id=id2)
+                if tmp_ids:
+                    ids=tmp_ids.first().interface_id
+                    interface_ids += str(ids) + ","
+                    names = AutotestplatTestplanInterface.objects.filter(id=id2).first().interface_name
+                    interface_names += "testplan_interface_" + str(id2) + "_" + names + ","
+                    testplan_interface_id = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_id
+                    testplan_interface_name = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_name
+                    interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
+                    testplan_interface_url = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().url
+                    interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
+                    testplan_interface_head = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().head
+                    interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
+                    testplan_interface_body = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body
+                    interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
+                    testplan_interface_body_format = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body_format
+                    interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
+                    testplan_interface_mode = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().mode
+                    interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
+                    testplan_interface_assert_keywords_old = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().assert_keywords_old
+                    interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
+                    testplan_interface_res = AutotestplatParameter.objects.filter(module_id=id2).filter(product_id='testplan')
+                    if testplan_interface_res:
+                        testplan_interface_res_name = testplan_interface_res.first().name
+                        testplan_interface_res_keywords = testplan_interface_res.first().keywords
+                        testplan_interface_res_value = testplan_interface_res.first().value
+                        testplan_interface_res_left = testplan_interface_res.first().left
+                        testplan_interface_res_right = testplan_interface_res.first().right
+                        testplan_interface_res_index = testplan_interface_res.first().index
+                        testplan_res = testplan_interface_res_name + testplan_interface_res_keywords + testplan_interface_res_value + testplan_interface_res_left + testplan_interface_res_right + testplan_interface_res_index
+                    else:
+                        testplan_interface_res_name = ''
+                        testplan_interface_res_keywords = ''
+                        testplan_interface_res_value = ''
+                        testplan_interface_res_left = ''
+                        testplan_interface_res_right = ''
+                        testplan_interface_res_index = ''
+                        testplan_res = testplan_interface_res_name + testplan_interface_res_keywords + testplan_interface_res_value + testplan_interface_res_left + testplan_interface_res_right + testplan_interface_res_index
+                    interface_res = AutotestplatParameter.objects.filter(module_id=testplan_interface_id).exclude(product_id='testplan')
+                    if interface_res:
+                        interface_res_name = interface_res.first().name
+                        interface_res_keywords = interface_res.first().keywords
+                        interface_res_value = interface_res.first().value
+                        interface_res_left = interface_res.first().left
+                        interface_res_right = interface_res.first().right
+                        interface_res_index = interface_res.first().index
+                        res = interface_res_name + interface_res_keywords + interface_res_value + interface_res_left + interface_res_right + interface_res_index
+                    else:
+                        interface_res_name = ''
+                        interface_res_keywords = ''
+                        interface_res_value = ''
+                        interface_res_left = ''
+                        interface_res_right = ''
+                        interface_res_index = ''
+                        res = interface_res_name + interface_res_keywords + interface_res_value + interface_res_left + interface_res_right + interface_res_index
+                    if testplan_interface_name != interface_name:
+                        update_list += '1'+ ","
+                    elif testplan_interface_url != interface_url:
+                        update_list += '1'+ ","
+                    elif testplan_interface_head != interface_head:
+                        update_list += '1'+ ","
+                    elif testplan_interface_body != interface_body:
+                        update_list += '1'+ ","
+                    elif testplan_interface_body_format != interface_body_format:
+                        update_list += '1'+ ","
+                    elif testplan_interface_mode != interface_mode:
+                        update_list += '1'+ ","
+                    elif testplan_interface_assert_keywords_old != interface_assert_keywords_old:
+                        update_list += '1'+ ","
+                    elif testplan_res != res:
+                        update_list += '1'+ ","
+                    else:
+                        update_list += '0'+ ","
+
         suit_info.product_id = AutotestplatProduct.objects.filter(id=suit_info.product_id).first().product_name
         crontab = PeriodicTask.objects.filter(id=suit_info.task_id)
         if crontab:
@@ -624,6 +627,7 @@ def save_edit_testplan(request):
                 tmp_id = rec.split('_')[1]
                 suit_id1 = suit_info[0]
                 suit_name1 = suit_info[1]
+                interface_id1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().id
                 interface_name1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().name
                 url1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().url
                 assert_use_new1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().assert_use_new
@@ -634,7 +638,7 @@ def save_edit_testplan(request):
                 update_cookie1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().update_cookie,
                 mode1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().mode,
                 head1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().head,
-                para_suit_info = AutotestplatTestplanInterface(suit_id=suit_id1, suit_name=suit_name1,
+                para_suit_info = AutotestplatTestplanInterface(suit_id=suit_id1, suit_name=suit_name1,interface_id=interface_id1,
                                                                    interface_name=interface_name1, url=url1,
                                                                    body_format=body_format[0], body=formated_dict[0],
                                                                    mode=mode1[0],
@@ -665,11 +669,12 @@ def save_edit_testplan(request):
         for index,interface in enumerate(interfaces):
             if index == len(interfaces) - 1:
                 interfaceid = interface[0]
-                interfacename = interface[3]
+                interfacename = interface[4]
                 interface_name_list += 'testplan_interface_' + str(interfaceid) + '_' + interfacename
             else:
                 interfaceid = interface[0]
-                interfacename = interface[3]
+                interfacename = interface[4]
+                print(interfacename)
                 interface_name_list += 'testplan_interface_' + str(interfaceid) + '_' + interfacename + ','
         AutotestplatTestplan.objects.filter(id=suit_info[0]).update(interface_name=interface_name_list)
         return HttpResponse('update_use_status success!')
