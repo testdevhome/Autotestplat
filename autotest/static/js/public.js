@@ -188,12 +188,12 @@ function add(tips="添加成功"){
             }
             else{
                 console.log(rst)
-                return alert('rst' )
+                return alert(rst)
             }
         },
         error: (rst) =>{
             console.log(rst)
-            return alert('rst' )
+            return alert(rst)
         },
     })
 }
@@ -559,6 +559,54 @@ function getAndShowSelectValue(){
         }
     }
 }
+
+
+function getAndShowSecondSelectValue(){
+    if(getSelectURL.length == 0)
+        return
+    $.ajax({
+        url: appURL + getSelectURL,
+        async: false,
+        success: (rst) => {
+            FieldsOptions = rst
+            console.log(FieldsOptions)
+        },
+        error: (rst) => {
+            console.log(rst)
+            alert(rst)
+        }
+    })
+    var addModalSlt = $("#addModal").find("select")
+    var modModalSlt = $("#modifyModal").find("select")
+    var Slt = []
+    if(addModalSlt.length > 0){
+        Slt.push(addModalSlt)
+    }
+    if(modModalSlt.length > 0){
+        Slt.push(modModalSlt)
+    }
+
+    for(let i = 0; i < FieldsOptions.length; i++){
+        for(let j = 0; j < Slt.length; j++){
+            $(Slt[j][1]).empty()
+            var optionNode = document.createElement('option')
+            optionNode.innerText = '--请选择--'
+            optionNode.value = ''
+            Slt[j][1].append(optionNode)
+        }
+        for(let j = 0; j < FieldsOptions[i].length; j++){
+            var optionValue = FieldsOptions[i][j]
+            for(let k = 0; k < Slt.length; k++){
+                var optionNode = document.createElement('option')
+                optionNode.innerText = optionValue
+                optionNode.value = optionValue
+                Slt[k][i].append(optionNode)
+            }
+        }
+    }
+}
+
+
 function searchSelectValueUpdate(){
     var searchFields = $("#searchFields").find("[name=searchField]")
     var filterSessionObj = JSON.parse(sessionStorage.getItem("filter"))
