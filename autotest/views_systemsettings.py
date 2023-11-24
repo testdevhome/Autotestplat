@@ -123,7 +123,7 @@ def add_settings_para(request):
     value = request.POST.get('value')
     keywords_exist = AutotestplatParameter.objects.filter(keywords=keywords).first()
     if keywords_exist:
-        return HttpResponse(f'关键字"{keywords}"已存在，请重新填写')
+        return HttpResponse(f'关键字"{keywords}"在当前产品或其他产品中已存在，请重新填写')
     AutotestplatParameter.objects.create(product_id=product_id, type=type, name=name, keywords=keywords, value=value)
     return HttpResponse('200')
 
