@@ -62,7 +62,7 @@ tableColumnsData = [
 
 function infoInit(){
     getAndShowSearchSelectValue()
-    getAndShowSelectValue()
+    getAndShowSecondSelectValue()
     tableDataInit()
 
 }
