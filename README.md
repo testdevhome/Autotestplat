@@ -15,7 +15,7 @@ django2.1.3
 4、pip install -r requirements.txt<br>
 5、创建和导入数据库<br>
 创建数据库名autotestplat，导入autotestplat.sql
-可能要修改数据库连接配置文件 Autotestplat/settings.py 77行 DATABASES 
+修改数据库连接配置文件 Autotestplat/settings.py 77行 DATABASES 
 6、运行命令 python manage.py runserver 0.0.0.0:80 <br>
 7、运行命令 redis-server redis.conf<br>
 8、python manage.py celery worker -c 6 -l debug<br>
