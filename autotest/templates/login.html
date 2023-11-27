@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<!---------------------------------------------------------
+Auther:：Fin;  Version：Autotestplat-V2.0
+----------------------------------------------------------->
+<head>
+    <meta charset="UTF-8">
+    <title>Autotestplat-V2.2</title>
+    <link href="/static/dist/css/style.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/navbar.css" rel="stylesheet" type="text/css">
+    <script src="/static/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script src="/static/js/public.js"></script>
+    <script type="text/javascript">
+         function login(){
+            var userName = $("#userName").val()
+            var pwd = $("#password").val()
+            if( userName == '' || pwd == ''){
+                alert('用户名或密码没有输入')
+                return
+            }
+            $.ajax({
+                url:loginVerifyURL,
+                type: 'post',
+                data:{
+                    user: userName,
+                    pwd: pwd,
+                },
+                success: function(rst){
+                    if(rst == '登录成功'){
+                        var userObj = {
+                            userName: userName,
+                            pwd: pwd,
+                            loginTime: (new Date()).getTime(),
+                        }
+                        setUser('user', userObj)
+                        window.location = indexURL
+                    }
+                    else{
+                        console.log(rst)
+                        alert(rst)
+                    }
+                }
+            })
+        }
+        function keyLogin() {
+            if(event.keyCode === 13){
+                    $('#loginBtn').click()
+                }
+            }
+    </script>
+</head>
+<body onkeydown="keyLogin();">
+<div class="hk-pg-wrapper screenHeight">
+    <div class="container" style="align-items: center;">
+        <div class="card shadow-sm shadow-hover-lg" style="width: 480px; margin: 2% auto 0 auto;">
+            <div class="card-header" style="display: flex; justify-content: center; align-items: center;background-color: #ddddddaa;">
+                <div class="input-group-prepend" style="text-align: center;color: black; font-weight: 500; font-size: 20px;">
+                    一站式自动化测试平台系统
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="control-label mb-10" for="userName">用 户 名</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="userName" placeholder="username" value="fin">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label mb-10" for="password">密 码</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="password" placeholder="password" value="test123456">
+                    </div>
+                </div>
+                <button id="loginBtn" class="btn btn-outline-primary" onclick="login()" style="margin-left: 50%; transform:translate(-50%, 0); width: 100%; margin-top: 20px;">登 录 </button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
