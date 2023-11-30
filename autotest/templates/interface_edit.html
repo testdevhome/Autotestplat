@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html>
+<!---------------------------------------------------------
+Auther:：Fin;  Version：Autotestplat-V2.3
+----------------------------------------------------------->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>接口测试 - 编辑接口</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/fileinput.min.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" charset="gbk" src="/static/js/fileinput.min.js"></script>
+    <script src="/static/js/public.js"></script>
+    <script>
+         window.onload = function(){
+            if(loginVerify() == 200){
+            }
+
+             const tabs = document.querySelectorAll('.tab-content');
+             const tabsArray = Array.from(tabs);
+             const tabsToDisplay = tabsArray.slice(0, 6);
+             document.getElementById('requesttab').addEventListener('click', (event) => {
+                 const targetTab = event.target.getAttribute('href');
+                 tabsToDisplay.forEach((tab) => {
+                 if (tab.id === targetTab.substring(1)) {
+                     tab.style.display = 'block';
+                 } else {
+                     tab.style.display = 'none';
+                 }
+                 });
+             });
+
+             const tabsToDisplay2 = tabsArray.slice(7, 9);
+             document.getElementById('responsetab').addEventListener('click', (event) => {
+                 const targetTab = event.target.getAttribute('href');
+                 tabsToDisplay2.forEach((tab) => {
+                 if (tab.id === targetTab.substring(1)) {
+                     tab.style.display = 'block';
+                 } else {
+                     tab.style.display = 'none';
+                 }
+                 });
+             });
+
+        }
+    </script>
+</head>
+<body>
+{% if action == "edit" %}
+<form target="_parent" id="form_edit_window" method="post" action='/autotest/apitestcase/save_edit_interface/{{ edit_id }}/'>
+     {% csrf_token %}
+    <div class="modal-body">
+
+    {% for rec1 in interface_list_tmp %}
+            <div class="row" id="no_div2">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <div class="input-group" style="display: none">
+                            <span  class="input-group-addon" style="font-size: 12px;display: none">产品:</span>
+                                    <select class="selectpicker form-control" id="edit_product_id" name="edit_product_id" style="width: 173px;font-size: 12px;display: none">
+                                        <option>{{ product_name }}</option>
+                                        {% for  product  in product_alls %}
+                                                <option> {{product.product_name}} </option>
+                                        {% endfor %}
+                                     </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-addon" style="font-size: 12px">名称</span>
+                                <input id="edit_name" name="edit_name" type="text" class="form-control" value="{{ rec1.name }}" required="" style="font-size: 12px">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                           <div class="input-group">
+                           <span  class="input-group-addon" style="font-size: 12px">环境</span>
+                                     <select class="selectpicker form-control" id="edit_url_host" name="edit_url_host">
+                                        <option>{{ rec1.url_host }}</option>
+                                        {% for  env_para  in env_paras %}
+                                                <option>{ {{env_para.keywords}} }</option>
+                                        {% endfor %}
+                                     </select>
+                           </div>
+                        </div>
+                        <br><br><br>
+                        <div class="col-md-2">
+                            <div class="input-group">
+                            <span  class="input-group-addon" style="font-size: 12px">请求</span>
+                                    <select class="selectpicker form-control" id="mode" name="mode">
+                                        <option>{{ rec1.mode }}</option>
+                                         {% if rec1.mode == 'post' %}
+                                             <option>get</option>
+                                             <option>put</option>
+                                             <option>delete</option>
+                                         {% elif rec1.mode == 'get' %}
+                                             <option>post</option>
+                                             <option>put</option>
+                                             <option>delete</option>
+                                         {% elif rec1.mode == 'put' %}
+                                             <option>post</option>
+                                             <option>get</option>
+                                             <option>delete</option>
+                                         {% else %}
+                                             <option>post</option>
+                                             <option>get</option>
+                                             <option>put</option>
+                                         {% endif %}
+                                     </select>
+                           </div>
+                        </div>
+                        <div class="col-md-6">
+                           <input id="edit_url" name="edit_url" type="text" class="form-control" value="{{ rec1.url }}" required="" oninvalid="setCustomValidity('请填写正确的URL');" oninput="setCustomValidity('');" spellcheck="false">
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                              <div class="col-md-12">
+                                 <button style="width: 70px; height: 33px;padding-left: 12px;line-height: 0px;margin-left: -12px; " type="button" class="btn btn-success" id="submit" onclick="start_interface_debug(this)">发送</button>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                               <div class="col-md-12">
+                                  <button style="width: 70px; height: 33px;padding-left: 12px;line-height: 0px;margin-left: -12px;" type="submit" class="btn btn-primary" id="submit" value="submit">保存</button>
+                               </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+
+        <div class="row">
+        <div class="col-md-12" style="margin-left: 10px">
+            <ul id="requesttab" class="nav nav-tabs">
+                <li class="active" style="text-align: center;font-size: 12px"><a style="color: black" href="#requestbody" data-toggle="tab">请求Body </a></li>
+                <li style="text-align: center;font-size: 12px;"><a style="color: black" href="#params" data-toggle="tab">参数 </a></li>
+                <li style="text-align: center;font-size: 12px;"><a style="color: black" href="#head" data-toggle="tab">头信息 </a></li>
+                <li style="text-align: center;font-size: 12px"><a style="color: black" href="#auth" data-toggle="tab">认证 </a></li>
+                <li style="text-align: center;font-size: 12px"><a style="color: black" href="#assert" data-toggle="tab">断言 </a></li>
+                <li style="text-align: center;font-size: 12px"><a style="color: black" href="#match" data-toggle="tab">正则表达式 </a></li>
+            </ul>
+
+
+            <div id="requestbody" class="tab-content" >
+               <div class="row">
+                   <div class="col-md-10">
+                       <div class="input-group">
+                        <textarea class="formated_dict" id="formated_dict" name="formated_dict" rows="6" style="width:900px">{{ para_str }}</textarea>
+                       </div>
+                   </div>
+                </div>
+            </div>
+
+
+            <div id="params" name="params" class="tab-content" style="display:none;">
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <input id="params_key" name="params_key" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Key" value=""></input>
+                            <input id="params_value" name="params_value" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Value" value=""></input>
+                            <input id="params_description" name="params_description" type="text" class="form-control" style="width:220px;font-size: 12px;text-align: center" placeholder="Description"></input>
+                            <button class="btn btn-default" >+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="head" name="head" class="tab-content" style="display:none;">
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <input id="head_key" name="head_key" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Key" value="Content-Type"></input>
+                            <input id="head_value" name="head_value" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Value" value="application/json; charset=utf-8"></input>
+                            <input id="head_description" name="head_description" type="text" class="form-control" style="width:220px;font-size: 12px;text-align: center" placeholder="Description"></input>
+                            <input id="head_key" name="head_key" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Key" value="Accept"></input>
+                            <input id="head_value" name="head_value" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Value"></input>
+                            <input id="head_description" name="head_description" type="text" class="form-control" style="width:220px;font-size: 12px;text-align: center" placeholder="Description"></input>
+                            <input id="head_key" name="head_key" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Key" value="Cookie"></input>
+                            <input id="head_value" name="head_value" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Value"></input>
+                            <input id="head_description" name="head_description" type="text" class="form-control" style="width:220px;font-size: 12px;text-align: center" placeholder="Description"></input>
+                            <button class="btn btn-default">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="auth" name="auth" class="tab-content" style="display:none;">
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <input id="head_key" name="head_key" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Key" value="token"></input>
+                            <input id="head_value" name="head_value" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Value" value=""></input>
+                            <input id="head_description" name="head_description" type="text" class="form-control" style="width:220px;font-size: 12px;text-align: center" placeholder="Description"></input>
+                            <button class="btn btn-default">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="assert" name="assert" class="tab-content" style="display: none">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div class="col-md-12">
+{#                            <span style="font-size: 14px"> &nbsp;* 判断当前接口返回值中包含的信息</span>#}
+                            <br>
+                            <div class="input-group">
+                                <span class="input-group-addon" style="font-size: 12px">匹配内容</span>
+                                <textarea class="assert_keywords_old" id="assert_keywords_old" name="assert_keywords_old" rows="2" style="width: 150px;font-size: 12px" spellcheck="false">{{ rec1.assert_keywords_old }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="match" name="match" class="tab-content" style="display: none">
+                <div class="col-md-7">
+                    <div class="table-responsive" style="margin-left: 10px">
+                        <table class="table table-bordered">
+                            <caption> &nbsp;* 正则表达式是对当前接口返回值设置参数后，后续接口请求中可用 {关键字} 动态取值</caption>
+                            <thead>
+                            <tr>
+                            <th style="text-align: center;font-size: 12px">#</th>
+                            <th style="text-align: center;font-size: 12px">描述</th>
+                            <th style="text-align: center;font-size: 12px">关键字</th>
+                            <th style="text-align: center;font-size: 12px">左边界</th>
+                            <th style="text-align: center;font-size: 12px">右边界</th>
+                            <th style="text-align: center;font-size: 12px">索引</th>
+                            <th style="text-align: center;font-size: 12px">添加行</th>
+                            <th style="text-align: center;font-size: 12px">删除行</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbody_resp_add">
+                            <tr>
+                                <td style="width: 30px;white-space: normal;text-align: center;">1</td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_add_name" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 120px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                    <input type="text" name="resp_add_keywords" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                    <input type="text" name="resp_add_left" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                    <input type="text" name="resp_add_right" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                    <input type="text" name="resp_add_index" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="btn-group btn-xs">
+                                    <button type="button" class="btn btn-primary btn-sm"
+                                            onclick="add_resp_add_row(this)">+
+                                    </button>
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="btn-group btn-xs">
+                                    <button type="button" class="btn btn-danger btn-sm" disabled="disabled">-</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+<br>
+     <div class="row">
+      <div class="col-md-7">
+        <ul id="responsetab" class="nav nav-tabs" style="margin-left: 10px">
+           <li style="text-align: center;font-size: 12px"><a href="#response" data-toggle="tab" id="res" style="color: black;font-weight: bold">响应Body</a></li>
+           <li style="text-align: center;font-size: 12px"><a href="#assertresult" data-toggle="tab" id="rst" style="color:black;display: none">断言结果</a></li>
+        </ul>
+      </div>
+      <div id="responsecodehtml"></div>
+    </div>
+
+     <div class="row">
+         <div class="col-md-12" style="margin-left: 10px">
+             <div id="responseTabContent" class="tab-content" style="display: none">
+               <div class="tab-content" id="response">
+                  <textarea id="responsedata" rows="15" name="responsedata" style="width:900px;"></textarea>
+               </div>
+               <div class="tab-content" id="assertresult">
+                 <textarea id="assertrst" rows="5" name="assertrst" style="width:900px;"></textarea>
+               </div>
+             </div>
+         </div>
+     </div>
+   </div>
+
+        </div>
+
+    </div>
+
+
+        {% endfor %}
+{% elif action == "copy" %}
+<form target="_parent" id="form_edit_window" method="post" action='/autotest/apitestcase/save_copy_interface/{{ edit_id }}/'>
+     {% csrf_token %}
+    <div class="modal-body">
+    {% for rec1 in interface_list_tmp %}
+            <div class="row" id="no_div2">
+                <div class="col-md-12">
+                    <div class="form-group">
+                         <div class="col-md-12">
+                            <div class="input-group" style="display: none">
+                            <span  class="input-group-addon" style="font-size: 12px;display: none">产品:</span>
+                                    <select class="selectpicker form-control" id="copy_product_id" name="copy_product_id" style="width: 173px;font-size: 12px;display: none">
+                                        <option>{{ product_name }}</option>
+                                        {% for  product  in product_alls %}
+                                                <option> {{product.product_name}} </option>
+                                        {% endfor %}
+                                     </select>
+                            </div>
+                         </div>
+
+                         <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-addon" style="font-size: 12px">名称</span>
+                                <input id="copy_name" name="copy_name" type="text" class="form-control" value="{{ rec1.name }}" required="" style="font-size: 12px">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                           <div class="input-group">
+                           <span  class="input-group-addon" style="font-size: 12px">环境</span>
+                                     <select class="selectpicker form-control" id="copy_url_host" name="copy_url_host">
+                                        <option>{{ rec1.url_host }}</option>
+                                        {% for  env_para  in env_paras %}
+                                                <option>{ {{env_para.keywords}} }</option>
+                                        {% endfor %}
+                                     </select>
+                           </div>
+                        </div>
+                        <br><br><br>
+                        <div class="col-md-2">
+                            <div class="input-group">
+                            <span  class="input-group-addon" style="font-size: 12px">请求</span>
+                                    <select  id="mode" class="selectpicker form-control" name="mode">
+                                        <option>{{ rec1.mode }}</option>
+                                         {% if rec1.mode == 'post' %}
+                                             <option>get</option>
+                                             <option>put</option>
+                                             <option>delete</option>
+                                         {% elif rec1.mode == 'get' %}
+                                             <option>post</option>
+                                             <option>put</option>
+                                             <option>delete</option>
+                                         {% elif rec1.mode == 'put' %}
+                                             <option>post</option>
+                                             <option>get</option>
+                                             <option>delete</option>
+                                         {% else %}
+                                             <option>post</option>
+                                             <option>get</option>
+                                             <option>put</option>
+                                         {% endif %}
+                                     </select>
+                           </div>
+                        </div>
+                        <div class="col-md-6">
+                           <input id="copy_url" name="copy_url" type="text" class="form-control" value="{{ rec1.url }}" required="" oninvalid="setCustomValidity('请填写正确的URL');" oninput="setCustomValidity('');" spellcheck="false">
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                              <div class="col-md-12">
+                                 <button style="width: 70px; height: 33px;padding-left: 12px;line-height: 0px;margin-left: -12px; " type="button" class="btn btn-success" id="submit" onclick="start_interface_debug(this)">发送</button>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <div class="col-md-12">
+                                    <button style="width: 70px; height: 33px;padding-left: 12px;line-height: 0px;margin-left: -12px;" type="submit" class="btn btn-primary" id="submit" value="submit">保存</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+
+
+        <div class="row">
+        <div class="col-md-12" style="margin-left: 10px">
+            <ul id="requesttab" class="nav nav-tabs">
+                <li class="active" style="text-align: center;font-size: 12px"><a style="color: black" href="#requestbody" data-toggle="tab">请求Body </a></li>
+                <li style="text-align: center;font-size: 12px;"><a style="color: black" href="#params" data-toggle="tab">参数 </a></li>
+                <li style="text-align: center;font-size: 12px;"><a style="color: black" href="#head" data-toggle="tab">头信息 </a></li>
+                <li style="text-align: center;font-size: 12px"><a style="color: black" href="#auth" data-toggle="tab">认证 </a></li>
+                <li style="text-align: center;font-size: 12px"><a style="color: black" href="#assert" data-toggle="tab">断言 </a></li>
+                <li style="text-align: center;font-size: 12px"><a style="color: black" href="#match" data-toggle="tab">正则表达式 </a></li>
+            </ul>
+
+
+            <div id="requestbody" class="tab-content" >
+               <div class="row">
+                   <div class="col-md-10">
+                       <div class="input-group">
+                        <textarea class="formated_dict" id="formated_dict" name="formated_dict" rows="6" style="width:900px">{{ para_str }}</textarea>
+                       </div>
+                   </div>
+                </div>
+            </div>
+
+
+            <div id="params" name="params" class="tab-content" style="display:none;">
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <input id="params_key" name="params_key" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Key" value=""></input>
+                            <input id="params_value" name="params_value" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Value" value=""></input>
+                            <input id="params_description" name="params_description" type="text" class="form-control" style="width:220px;font-size: 12px;text-align: center" placeholder="Description"></input>
+                            <button class="btn btn-default" >+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="head" name="head" class="tab-content" style="display:none;">
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <input id="head_key" name="head_key" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Key" value="Content-Type"></input>
+                            <input id="head_value" name="head_value" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Value" value="application/json; charset=utf-8"></input>
+                            <input id="head_description" name="head_description" type="text" class="form-control" style="width:220px;font-size: 12px;text-align: center" placeholder="Description"></input>
+                            <input id="head_key" name="head_key" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Key" value="Accept"></input>
+                            <input id="head_value" name="head_value" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Value"></input>
+                            <input id="head_description" name="head_description" type="text" class="form-control" style="width:220px;font-size: 12px;text-align: center" placeholder="Description"></input>
+                            <input id="head_key" name="head_key" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Key" value="Cookie"></input>
+                            <input id="head_value" name="head_value" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Value"></input>
+                            <input id="head_description" name="head_description" type="text" class="form-control" style="width:220px;font-size: 12px;text-align: center" placeholder="Description"></input>
+                            <button class="btn btn-default">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="auth" name="auth" class="tab-content" style="display:none;">
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <input id="head_key" name="head_key" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Key" value="token"></input>
+                            <input id="head_value" name="head_value" type="text" class="form-control" style="width:280px;font-size: 12px;text-align: center" placeholder="Value" value=""></input>
+                            <input id="head_description" name="head_description" type="text" class="form-control" style="width:220px;font-size: 12px;text-align: center" placeholder="Description"></input>
+                            <button class="btn btn-default">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="assert" name="assert" class="tab-content" style="display: none">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div class="col-md-12">
+{#                            <span style="font-size: 14px"> &nbsp;* 判断当前接口返回值中包含的信息</span>#}
+                            <br>
+                            <div class="input-group">
+                                <span class="input-group-addon" style="font-size: 12px">匹配内容</span>
+                                <textarea class="assert_keywords_old" id="assert_keywords_old" name="assert_keywords_old" rows="2" style="width: 150px;font-size: 12px" spellcheck="false">{{ rec1.assert_keywords_old }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="match" name="match" class="tab-content" style="display: none">
+                <div class="col-md-7">
+                    <div class="table-responsive" style="margin-left: 10px">
+                        <table class="table table-bordered">
+                            <caption> &nbsp;* 正则表达式是对当前接口返回值设置参数后，后续接口请求中可用 {关键字} 动态取值</caption>
+                            <thead>
+                            <tr>
+                            <th style="text-align: center;font-size: 12px">#</th>
+                            <th style="text-align: center;font-size: 12px">描述</th>
+                            <th style="text-align: center;font-size: 12px">关键字</th>
+                            <th style="text-align: center;font-size: 12px">左边界</th>
+                            <th style="text-align: center;font-size: 12px">右边界</th>
+                            <th style="text-align: center;font-size: 12px">索引</th>
+                            <th style="text-align: center;font-size: 12px">添加行</th>
+                            <th style="text-align: center;font-size: 12px">删除行</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbody_resp_add">
+                            <tr>
+                                <td style="width: 30px;white-space: normal;text-align: center;">1</td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_add_name" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 120px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                    <input type="text" name="resp_add_keywords" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                    <input type="text" name="resp_add_left" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                    <input type="text" name="resp_add_right" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                    <input type="text" name="resp_add_index" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="btn-group btn-xs">
+                                    <button type="button" class="btn btn-primary btn-sm"
+                                            onclick="add_resp_add_row(this)">+
+                                    </button>
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="btn-group btn-xs">
+                                    <button type="button" class="btn btn-danger btn-sm" disabled="disabled">-</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+<br>
+     <div class="row">
+      <div class="col-md-7">
+        <ul id="responsetab" class="nav nav-tabs" style="margin-left: 10px">
+           <li style="text-align: center;font-size: 12px"><a href="#response" data-toggle="tab" id="res" style="color: black;font-weight: bold">响应Body</a></li>
+           <li style="text-align: center;font-size: 12px"><a href="#assertresult" data-toggle="tab" id="rst" style="color:black;display: none">断言结果</a></li>
+        </ul>
+      </div>
+      <div id="responsecodehtml"></div>
+    </div>
+
+     <div class="row">
+         <div class="col-md-12" style="margin-left: 10px">
+             <div id="responseTabContent" class="tab-content" style="display: none">
+               <div class="tab-content" id="response">
+                  <textarea id="responsedata" rows="15" name="responsedata" style="width:900px;"></textarea>
+               </div>
+               <div class="tab-content" id="assertresult">
+                 <textarea id="assertrst" rows="5" name="assertrst" style="width:900px;"></textarea>
+               </div>
+             </div>
+         </div>
+     </div>
+   </div>
+
+        </div>
+
+    </div>
+
+
+        {% endfor %}
+{% endif %}
+        <div class="row" id="yes_div1" style="display: none">
+            <div class="col-md-7">
+                <div class="table-responsive" style="margin-left: 10px">
+                    <table class="table table-bordered">
+                        <caption> &nbsp;* 正则表达式是对当前接口返回值设置参数后，后续接口请求中可用 {关键字} 动态取值</caption>
+                        <thead>
+                        <tr>
+                            <th style="text-align: center;font-size: 12px">#</th>
+                            <th style="display: none">id</th>
+                            <th style="text-align: center;font-size: 12px">描述</th>
+                            <th style="text-align: center;font-size: 12px">关键字</th>
+                            <th style="text-align: center;font-size: 12px">左边界</th>
+                            <th style="text-align: center;font-size: 12px">右边界</th>
+                            <th style="text-align: center;font-size: 12px">索引</th>
+                            <th style="text-align: center;font-size: 12px">添加行</th>
+                            <th style="text-align: center;font-size: 12px">删除行</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tbody_resp_edit">
+                        {% if flag_resp == "false" %}
+                            <tr>
+                                <td style="width: 30px;white-space: normal;text-align: center;">1</td>
+                                <td style="display: none"></td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_edit_name" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 120px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_edit_keywords" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_edit_left" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 150px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_edit_right" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="resp_edit_index" class="form-control">
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="btn-group btn-xs">
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                onclick="add_resp_edit_row(this)">+
+                                        </button>
+                                    </div>
+                                </td>
+                                <td style="width: 80px;text-align: center;">
+                                    <div class="btn-group btn-xs">
+                                        <button type="button" class="btn btn-danger btn-sm" disabled="disabled">-</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            {% for rec3 in public_list_resp %}
+                                <tr>
+                                    <td style="width: 30px;white-space: normal;text-align: center;">{{ forloop.counter }}</td>
+                                    <td style="display: none"></td>
+                                    <td style="width: 150px;text-align: center;">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="resp_edit_name" class="form-control" value="{{ rec3.name }}">
+                                        </div>
+                                    </td>
+                                    <td style="width: 120px;text-align: center;">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="resp_edit_keywords" class="form-control" value="{{ rec3.keywords }}">
+                                        </div>
+                                    </td>
+                                    <td style="width: 150px;text-align: center;">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="resp_edit_left" class="form-control" value="{{ rec3.left }}">
+                                        </div>
+                                    </td>
+                                    <td style="width: 150px;text-align: center;">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="resp_edit_right" class="form-control" value="{{ rec3.right }}">
+                                        </div>
+                                    </td>
+                                    <td style="width: 80px;text-align: center;">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="resp_edit_index" class="form-control" value="{{ rec3.index }}">
+                                        </div>
+                                    </td>
+                                    <td style="width: 80px;text-align: center;">
+                                        <div class="btn-group btn-xs">
+                                            <button type="button" class="btn btn-primary btn-sm"
+                                                    onclick="add_resp_edit_row(this)">+
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td style="width: 80px;text-align: center;">
+                                        <div class="btn-group btn-xs">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="del_resp_edit_row(this)">-</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+
+    function add_resp_edit_row(ele) {
+        var root = document.getElementById("tbody_resp_edit");
+        var row_num = $(ele).parent().parent().parent()[0].rowIndex;
+        var newRow = root.insertRow(row_num);
+        var newCell0 = newRow.insertCell();
+        var newCell1 = newRow.insertCell();
+        var newCell2 = newRow.insertCell();
+        var newCell3 = newRow.insertCell();
+        var newCell4 = newRow.insertCell();
+        var newCell5 = newRow.insertCell();
+        var newCell6 = newRow.insertCell();
+        var newCell7 = newRow.insertCell();
+        newCell0.innerHTML = 'new';
+        newCell0.style = "width: 30px;white-space: normal;text-align: center;";
+        newCell1.innerHTML = '<div class="input-group input-group-sm"><input type="text" name="resp_edit_name" class="form-control"></div>';
+        newCell1.style = "width: 150px;text-align: center;";
+        newCell2.innerHTML = '<div class="input-group input-group-sm"><input type="text" name="resp_edit_keywords" class="form-control"></div>';
+        newCell2.style = "width: 120px;text-align: center;";
+        newCell3.innerHTML = '<div class="input-group input-group-sm"><input type="text" name="resp_edit_left" class="form-control"></div>';
+        newCell3.style = "width: 150px;text-align: center;";
+        newCell4.innerHTML = '<div class="input-group input-group-sm"><input type="text" name="resp_edit_right" class="form-control"></div>';
+        newCell4.style = "width: 150px;text-align: center;";
+        newCell5.innerHTML = '<div class="input-group input-group-sm"><input type="text" name="resp_edit_index" class="form-control"></div>';
+        newCell5.style = "width: 80px;text-align: center;";
+        newCell6.innerHTML = '<div class="btn-group btn-xs"><button type="button" class="btn btn-primary btn-sm" onclick="add_resp_edit_row(this)">+</button></div>';
+        newCell6.style = "width: 80px;text-align: center;";
+        newCell7.innerHTML = '<div class="btn-group btn-xs"><button type="button" class="btn btn-danger btn-sm" onclick="del_resp_edit_row(this)">-</button></div>';
+        newCell7.style = "width: 80px;text-align: center;";
+    }
+
+    function del_resp_edit_row(ele) {
+        var root = document.getElementById("tbody_resp_edit");
+        var row_num = $(ele).parent().parent().parent()[0].rowIndex;
+        root.deleteRow(row_num-1);
+    }
+
+    function start_interface_debug(ele) {
+        document.getElementById('responseTabContent').style.display = 'block';
+        document.getElementById('res').style.fontWeight = 'normal';
+        document.getElementById('rst').style.display = 'block';
+        $('#responsedata').empty();
+        $('#assertrst').empty();
+        $('#response_code').empty();
+        var resCodeHtml_pass = '<div class="col-md-3" style="text-align: center;font-size: 12px;color: green">响应码：<span id="response_code"></span> </div>';
+        var resCodeHtml_fail = '<div class="col-md-3" style="text-align: center;font-size: 12px;color: red">响应码：<span id="response_code"></span> </div>';
+        if ($('#edit_name')[0] == undefined || $('#edit_name')[0] == null) {
+            var interface_name = $('#copy_name')[0].value;
+            var interface_body = $('#formated_dict')[0].value;
+            var interface_env = $('#copy_url_host')[0].value;
+            var interface_mode = $('#mode')[0].value;
+            var interface_url = $('#copy_url')[0].value;
+            var interface_head = $('#head_key')[0].value;
+            var interface_params = $('#params_key')[0].value;
+            var interface_assert = $('#assert_keywords_old')[0].value;
+        } else {
+            var interface_name = $('#edit_name')[0].value;
+            var interface_body = $('#formated_dict')[0].value;
+            var interface_env = $('#edit_url_host')[0].value;
+            var interface_mode = $('#mode')[0].value;
+            var interface_url = $('#edit_url')[0].value;
+            var interface_head = $('#head_key')[0].value;
+            var interface_params = $('#params_key')[0].value;
+            var interface_assert = $('#assert_keywords_old')[0].value;
+        }
+        $.ajax({
+            url: "/autotest/apitestcase/debug/",
+            data: JSON.stringify({
+                interface_name: interface_name,
+                interface_env:interface_env,
+                interface_mode:interface_mode,
+                interface_url:interface_url,
+                interface_head:interface_head,
+                interface_params:interface_params,
+                interface_body:interface_body,
+                interface_assert:interface_assert,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }),
+            headers:{'X-CSRFToken': '{{ csrf_token }}'},
+            contentType: 'application/json',
+            type: "POST",
+            traditional: true,
+            success: function (result) {
+                if(result.toLowerCase().includes('html') && result.toLowerCase().includes('body') && result.toLowerCase().includes('head')){
+                    console.log("aaaaa")
+                    result=result.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    if(result.includes('【响应数据】：')){
+                        respones_body = result.split('【响应数据】：')[1].split('【响应时间】')[0]
+                        $('#responsedata').append(respones_body);
+                    }
+                    else {
+                        $('#responsedata').append(result)
+                    }
+                }
+                else {
+                    if(result.includes('【响应数据】：')){
+                        respones_body = result.split('【响应数据】：')[1].split('【响应时间】')[0]
+                        respones_body=JSON.parse(respones_body);
+                        $('#responsedata').append(JSON.stringify(respones_body,null,4));
+                    }
+                    else {
+                        $('#responsedata').append(result)
+                    }
+                }
+                respones_code=result.split('【响应状态码】：')[1].split(' ')[0];
+                if(respones_code==200){
+                    $('#responsecodehtml').html(resCodeHtml_pass);
+                }
+                else {
+                    $('#responsecodehtml').html(resCodeHtml_fail);
+                }
+                $('#response_code').append(respones_code)
+                respones_assert=result.split('【断言】： ')[1]
+                $('#assertrst').append('【断言】： '+respones_assert)
+                console.log(result);
+            },
+            fail: function (result) {
+            }
+        });
+    }
+
+
+</script>
+</body>
+</html>
