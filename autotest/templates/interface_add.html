@@ -96,7 +96,7 @@ Auther:：Fin;  Version：Autotestplat-V2.6
         <br>
 
     <div class="row">
-        <div class="col-md-12" style="margin-left: 10px">
+        <div class="col-md-11" style="margin-left: 10px;border: none">
             <ul id="requesttab" class="nav nav-tabs">
                 <li class="active" style="text-align: center;font-size: 12px"><a style="color: black" href="#requestbody" data-toggle="tab">请求Body </a></li>
                 <li style="text-align: center;font-size: 12px;"><a style="color: black" href="#params" data-toggle="tab">参数 </a></li>
@@ -110,7 +110,7 @@ Auther:：Fin;  Version：Autotestplat-V2.6
                <div class="row">
                    <div class="col-md-10">
                        <div class="input-group">
-                        <textarea class="formated_dict" id="formated_dict" name="formated_dict" rows="5" style="width:900px"></textarea>
+                        <textarea class="formated_dict" id="formated_dict" name="formated_dict" rows="5" style="width:925px"></textarea>
                        </div>
                    </div>
                 </div>
@@ -250,7 +250,7 @@ Auther:：Fin;  Version：Autotestplat-V2.6
             </div>
 
             <div id="match" name="match" class="tab-content" style="display: none">
-                <div class="col-md-7">
+                <div class="col-md-11">
                     <div class="table-responsive" style="margin-left: 10px">
                                     <div class="input-group">
                                         <input type="text" name="resp_add_name" class="form-control" style="width:105px;font-size: 12px;text-align: center" placeholder="描述">
@@ -277,7 +277,7 @@ Auther:：Fin;  Version：Autotestplat-V2.6
     </div>
     <br>
      <div class="row">
-      <div class="col-md-7">
+      <div class="col-md-11">
         <ul id="responsetab" class="nav nav-tabs" style="margin-left: 10px">
            <li style="text-align: center;font-size: 12px"><a href="#response" data-toggle="tab" id='res' style="color: black;font-weight: bold">响应Body</a></li>
            <li style="text-align: center;font-size: 12px"><a href="#requesthead" data-toggle="tab" id="reqh" style="color:black;display: none">请求头</a></li>
@@ -292,16 +292,16 @@ Auther:：Fin;  Version：Autotestplat-V2.6
          <div class="col-md-12" style="margin-left: 10px">
              <div id="responseTabContent" class="tab-content" style="display: none">
                <div class="tab-content" id="response">
-                  <textarea id="responsedata" rows="15" name="responsedata" style="width:900px;"></textarea>
+                  <textarea id="responsedata" rows="15" name="responsedata" style="width:925px;"></textarea>
                </div>
                <div class="tab-content" id="requesthead" style="display: none">
-                  <textarea id="reqhead" rows="5" name="reqhead" style="width:900px;"></textarea>
+                  <textarea id="reqhead" rows="5" name="reqhead" style="width:925px;"></textarea>
                </div>
                <div class="tab-content" id="requestbody" style="display: none">
-                  <textarea id="reqbody" rows="5" name="reqbody" style="width:900px;"></textarea>
+                  <textarea id="reqbody" rows="5" name="reqbody" style="width:925px;"></textarea>
                </div>
                <div class="tab-content" id="assertresult" style="display: none">
-                  <textarea id="assertrst" rows="5" name="assertrst" style="width:900px;"></textarea>
+                  <textarea id="assertrst" rows="5" name="assertrst" style="width:925px;"></textarea>
                </div>
              </div>
          </div>
@@ -326,8 +326,8 @@ Auther:：Fin;  Version：Autotestplat-V2.6
         $('#reqbody').empty();
         $('#assertrst').empty();
         $('#response_code').empty();
-        var resCodeHtml_pass = '<div class="col-md-3" style="text-align: center;font-size: 12px;color: green">响应码：<span id="response_code"></span> </div>';
-        var resCodeHtml_fail = '<div class="col-md-3" style="text-align: center;font-size: 12px;color: red">响应码：<span id="response_code"></span> </div>';
+        var resCodeHtml_pass = '<div class="col-md-3" style="text-align: left;margin-left:-200px;margin-top:17px;font-size: 12px;color: green">响应码：<span id="response_code"></span> </div>';
+        var resCodeHtml_fail = '<div class="col-md-3" style="text-align: left;margin-left:-200px;margin-top:17px;font-size: 12px;color: red">响应码：<span id="response_code"></span> </div>';
         var interface_id = '';
         var interface_name = $('#add_name')[0].value;
         var interface_body = $('#formated_dict')[0].value;
