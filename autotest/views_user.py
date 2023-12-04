@@ -145,12 +145,10 @@ def updateUser(request):
     id = request.POST.get('id')
     user_name = request.POST.get('username')
     user_pwd = request.POST.get('password')
-    print(user_pwd)
     if user_pwd == "undefined":
         make_user_pwd=AuthUser.objects.filter(id=id).first().password
     elif user_pwd=="******":
         make_user_pwd=AuthUser.objects.filter(id=id).first().password
-        print(make_user_pwd)
     else:
         make_user_pwd = make_password(user_pwd)
     contact = request.POST.get('email')
