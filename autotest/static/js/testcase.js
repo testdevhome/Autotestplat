@@ -217,11 +217,11 @@ authEditInput_innerHtml = "<div class=\"input-group\">\
 
 resInputs = 1
 resInput_innerHtml = "<div class=\"input-group\">\
-                                        <input type=\"text\" name=\"resp_add_name\" class=\"form-control\" style=\"width:105px;font-size: 12px;\" placeholder=\"描述\">\
-                                        <input type=\"text\" name=\"resp_add_keywords\" class=\"form-control\" style=\"width:105px;font-size: 12px;\" placeholder=\"关键字\">\
-                                        <input type=\"text\" name=\"resp_add_left\" class=\"form-control\" style=\"width:105px;font-size: 12px;\" placeholder=\"左边界\">\
-                                        <input type=\"text\" name=\"resp_add_right\" class=\"form-control\" style=\"width:105px;font-size: 12px;\" placeholder=\"右边界\">\
-                                        <input type=\"text\" name=\"resp_add_index\" class=\"form-control\" style=\"width:60px;font-size: 12px;\" placeholder=\"索引\">\
+                                        <input type=\"text\" name=\"resp_add_name\" class=\"form-control\" style=\"width:105px;font-size: 12px;text-align: center\" placeholder=\"描述\">\
+                                        <input type=\"text\" name=\"resp_add_keywords\" class=\"form-control\" style=\"width:105px;font-size: 12px;text-align: center\" placeholder=\"关键字\">\
+                                        <input type=\"text\" name=\"resp_add_left\" class=\"form-control\" style=\"width:105px;font-size: 12px;text-align: center\" placeholder=\"左边界\">\
+                                        <input type=\"text\" name=\"resp_add_right\" class=\"form-control\" style=\"width:105px;font-size: 12px;text-align: center\" placeholder=\"右边界\">\
+                                        <input type=\"text\" name=\"resp_add_index\" class=\"form-control\" style=\"width:60px;font-size: 12px;text-align: center\" value='0' placeholder=\"索引\">\
                                         <td style=\"width: 80px;text-align: center;\">\
                                             <div class=\"btn-group\">\
                                                 <button type=\"button\" class=\"btn btn-default\" onclick=\"add_res_add_row(this)\">+</button>\
@@ -242,7 +242,7 @@ resEditInput_innerHtml = "<div class=\"input-group\">\
                                         <input type=\"text\" name=\"resp_edit_keywords\" class=\"form-control\" style=\"width:105px;font-size: 12px;\" placeholder=\"\">\
                                         <input type=\"text\" name=\"resp_edit_left\" class=\"form-control\" style=\"width:105px;font-size: 12px;\" placeholder=\"\">\
                                         <input type=\"text\" name=\"resp_edit_right\" class=\"form-control\" style=\"width:105px;font-size: 12px;\" placeholder=\"\">\
-                                        <input type=\"text\" name=\"resp_edit_index\" class=\"form-control\" style=\"width:50px;font-size: 12px;\" placeholder=\"\">\
+                                        <input type=\"text\" name=\"resp_edit_index\" class=\"form-control\" style=\"width:50px;font-size: 12px;\" value='0' placeholder=\"\">\
                                         <td style=\"width: 80px;text-align: center;\">\
                                             <div class=\"btn-group\">\
                                                 <button type=\"button\" class=\"btn btn-default\" onclick=\"add_res_edit_row(this)\">+</button>\
