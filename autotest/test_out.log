@@ -1,0 +1,17 @@
+【接口名称】: 
+【请求方式】: POST
+【响应关联参数】： {token_Autotestplat}，匹配的第1个值为：fin
+【请求URL】：http://127.0.0.1/autotest/user/getTableData/
+【请求head】：
+{"Accept": "", "Content-Type": "application/json;charset=utf-8", "Cookie": "", "token": "fin"}
+
+【请求参数】：{'': ''}
+【Cookies】：
+
+【响应状态码】：200    OK
+【响应数据】：{"data": [[2, "pbkdf2_sha256$120000$auasduyPIcIm$6Otq65NwuQ/z0pDImICy+xbNXqdSSZdqqk57oOfeNbM=", "2023-12-08T11:25:18.011Z", 0, "fin", "fin", "Autotestplat", "13711112221", 1, 1, "2023-10-04T03:24:35Z"], [4, "pbkdf2_sha256$120000$Sy6uDO27Dtfg$XOZvLV0DLAC0QXtZ1tgnTj+EYzMYvFiegv96plk9EbQ=", "2023-12-04T05:14:34.016Z", 0, "test", "", "ChatGPT", "13800001111", 1, 1, "2023-10-13T06:23:00Z"], [7, "pbkdf2_sha256$120000$5gxslwxrcPYl$Dnk4wwqVsLXN0Hgcbc+W+EqECZB+THuwRcxoSfs9bzU=", "2023-11-30T07:03:02.557Z", 1, "root", "", "Autotestplat", "13822223333", 1, 1, "2023-11-06T00:00:00Z"], [8, "pbkdf2_sha256$120000$hWrOMJTGZ9XP$7zz48zsB2k66Dehhxgna5lQiCVw9PHs7Kvb2wbgClvU=", "2023-12-04T05:39:44.845Z", 1, "admin", "", "Autotestplat", "13822223333", 1, 1, "2023-11-06T00:00:00Z"]]}
+【响应时间】：0.03101 秒
+
+【断言】： 
+【测试结果】： 测试通过
+
