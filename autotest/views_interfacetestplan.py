@@ -3,7 +3,7 @@
 #Auther:：Fin
 #Version：Autotestplat-V2.6
 ############################################
-import json,traceback,re,copy,os,requests,random,time,string
+import json,traceback,re,copy,os,requests,random,time,string,ast
 from django.shortcuts import render_to_response
 from django.db import connection
 from django.db.models import Q
@@ -573,6 +573,7 @@ def save_edit_testplan(request):
                 interfaces1 += name1
         product_id = AutotestplatProduct.objects.filter(product_name=suit_info[4]).first().id
         AutotestplatTestplan.objects.filter(id=suit_info[0]).update(suit_name=suit_info[1],interface_name=interfaces,url_host=suit_info[2], interface_name_display=interfaces1,product_id=product_id,task_progress=None,interface_num=L,run_time='')
+        task = 'autotest.views_interfacetestplan.api_autotest_task'
         interval = suit_info[5]
         task_id = AutotestplatTestplan.objects.filter(id=suit_info[0]).first().task_id
         if interval == "每分钟1次":
@@ -596,15 +597,27 @@ def save_edit_testplan(request):
             min = crontab.split(':')[1]
             task_id = AutotestplatTestplan.objects.filter(id=suit_info[0]).first().task_id
             crontab_exist = PeriodicTask.objects.filter(id=task_id).first()
-            if crontab_exist.crontab_id is not None:
+            if task_id and crontab_exist and crontab_exist.crontab_id is not None:
                 crontab_id = crontab_exist.crontab_id
                 CrontabSchedule.objects.filter(id=crontab_id).update(month_of_year=month, day_of_month=day, hour=hour,
                                                                      minute=min, day_of_week='*')
-            else:
+            elif task_id:
                 CrontabSchedule.objects.create(month_of_year=month, day_of_month=day, hour=hour, minute=min,
                                                day_of_week='*')
                 crontab_id = CrontabSchedule.objects.order_by('-id').first().id
                 PeriodicTask.objects.filter(id=task_id).update(crontab_id=crontab_id)
+            else:
+                CrontabSchedule.objects.create(month_of_year=month, day_of_month=day, hour=hour, minute=min,
+                                               day_of_week='*')
+                crontab_id = CrontabSchedule.objects.order_by('-id').first().id
+                args = '[' + str(suit_info[0]) + ']'
+                description = request.session.get('user', '')
+                enabled = '1'
+                PeriodicTask.objects.create(name=suit_info[0], task=task, args=args, crontab_id=crontab_id, interval_id=None,
+                                            enabled=enabled, description=description)
+                max_task_id = PeriodicTask.objects.order_by('-id')[0].id
+                AutotestplatTestplan.objects.filter(id=suit_info[0]).update(task_id=max_task_id)
+                PeriodicTask.objects.filter(id=max_task_id).update(crontab_id=crontab_id)
         else:
             task_id = AutotestplatTestplan.objects.filter(id=suit_info[0]).first().task_id
             PeriodicTask.objects.filter(id=task_id).update(crontab_id=None)
@@ -996,11 +1009,13 @@ def start_interface_testplan(request):
                                         body[rec] = yanzheng
                                         print_log('【登录验证码】：', ','), print_log(yanzheng)
                             for rec5 in keyword_list5:
-                                if (rec5 in body[rec]):
+                                if (rec5 in str(body[rec])):
                                     try:
-                                        body[rec] = body[rec].replace(rec5, public_dict[
-                                            rec5.replace('{', '').replace('}', '')])
-                                        body[rec] = str(eval(body[rec]))
+                                        var_name = public_dict[rec5.replace('{', '').replace('}', '')]
+                                        var_value = str(eval(var_name))
+                                        body = str(body).replace(rec5, var_name)
+                                        body = str(body).replace(var_name, var_value)
+                                        body = ast.literal_eval(body)
                                     except Exception:
                                         error_info = traceback.format_exc()
                                         print(error_info)
@@ -1481,14 +1496,18 @@ def interfaceTestTask(case_list,test_time,response_time,report_id):
                         if(rec1 in body[rec]):
                             body[rec] = body[rec].replace(rec1, public_dict[rec1.replace('{','').replace('}','')])
                     for rec5 in keyword_list5:
-                        if (rec5 in body[rec]):
+                        if (rec5 in str(body[rec])):
                             try:
-                                body[rec] = body[rec].replace(rec5, public_dict[rec5.replace('{', '').replace('}', '')])
-                                body[rec] = str(eval(body[rec]))
+                                var_name = public_dict[rec5.replace('{', '').replace('}', '')]
+                                var_value = str(eval(var_name))
+                                body = str(body).replace(rec5, var_name)
+                                body = str(body).replace(var_name, var_value)
+                                body = ast.literal_eval(body)
                             except Exception:
                                 error_info = traceback.format_exc()
                                 print(error_info)
-                                return HttpResponse('【ERROR】：参数 ' + rec5 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec5 + ' 的前置接口，以及确认Redis是否已启动')
+                                return HttpResponse(
+                                    '【ERROR】：参数 ' + rec5 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec5 + ' 的前置接口，以及确认Redis是否已启动')
                     for rec2 in keyword_list2:
                         if(rec2 in body[rec]):
                             try:
