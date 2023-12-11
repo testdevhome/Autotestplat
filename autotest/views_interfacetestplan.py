@@ -3,7 +3,7 @@
 #Auther:：Fin
 #Version：Autotestplat-V2.6
 ############################################
-import json,traceback,re,copy,os,requests,random,time,string,ast
+import json,traceback,re,copy,os,requests,random,time,string,ast,hashlib
 from django.shortcuts import render_to_response
 from django.db import connection
 from django.db.models import Q
@@ -18,11 +18,14 @@ from .views_interface import cache,print_log,interface_test_start, assert_test_o
 from django.contrib.auth.decorators import login_required
 from djcelery.models import PeriodicTask, CrontabSchedule, IntervalSchedule
 from Autotestplat.celery import app
+from faker import Faker
+from hashlib import md5
 
 current_dir = os.getcwd()
 logfile = os.path.join(current_dir, 'autotest', 'test_out.log')
 codefile= os.path.join(current_dir, 'autotest', 'code.jpg')
 session = requests.Session()
+fake = Faker("zh_CN")
 
 @login_required
 def interface_testplan(req):
@@ -1436,12 +1439,19 @@ def interfaceTestTask(case_list,test_time,response_time,report_id):
     public_dict2 = {}
     for rec in public_list2:
         public_dict2[rec.keywords] = str((rec.left,rec.right,rec.index))
+    public_list3 = AutotestplatParameter.objects.filter(Q(type='auth'))
+    keyword_list3 = []
+    for rec in public_list3:
+        keyword_list3 = ["{" + rec.keywords + "}" for rec in public_list3]
+    public_dict3 = {}
+    for rec in public_list3:
+        public_dict3[rec.keywords] = str((rec.name, rec.value, rec.login_account, rec.login_password, rec.left, rec.right, rec.keywords))
     public_dict = {}
     public_dict.update(public_dict1)
     public_dict.update(public_dict2)
     public_dict.update(public_dict4)
     public_dict.update(public_dict5)
-
+    public_dict.update(public_dict3)
     for case in case_list:
         try:
             case_id = case[0]
@@ -1482,6 +1492,19 @@ def interfaceTestTask(case_list,test_time,response_time,report_id):
                 elif (head[rec] in keyword_list5):
                     head[rec] = public_dict[head[rec].replace('{', '').replace('}', '')]
                     head[rec] = str(eval(head[rec]))
+                elif (head[rec] in keyword_list3):
+                    head[rec] = public_dict[head[rec].replace('{', '').replace('}', '')]
+                    h = head[rec]
+                    h = ast.literal_eval(h)
+                    url_value = host + h[1]
+                    username_value = h[2]
+                    password_value = h[3]
+                    method_value = "post"
+                    left_value = h[4].replace('"', '\\"')
+                    right_value = h[5].replace('"', '\\"')
+                    keywords_value = h[6]
+                    token_fun = rec + '(' + '"' + url_value + '"' + "," + '"' + method_value + '"' + "," + '"' + username_value + '"' + "," + '"' + password_value + '"' + "," + '"' + left_value + '"' + "," + '"' + right_value + '"' + "," + '"' + keywords_value + '"' + ')'
+                    head[rec] = str(eval(token_fun))
                 elif(head[rec] in keyword_list2):
                     try:
                         head[rec] = cache.get(head[rec].replace('{','').replace('}',''))
@@ -1491,7 +1514,7 @@ def interfaceTestTask(case_list,test_time,response_time,report_id):
                         return HttpResponse('【ERROR】：参数 '+head[rec]+' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 '+head[rec]+' 的前置接口，以及确认Redis是否已启动')
             body = eval(cur_interface.body)
             for rec in body.keys():
-                if(isinstance(body[rec],str)):
+                if(isinstance(body[rec],str) or isinstance(body[rec],list) or isinstance(body[rec],dict)):
                     for rec1 in keyword_list1:
                         if(rec1 in body[rec]):
                             body[rec] = body[rec].replace(rec1, public_dict[rec1.replace('{','').replace('}','')])
@@ -1520,6 +1543,15 @@ def interfaceTestTask(case_list,test_time,response_time,report_id):
                                 error_info = traceback.format_exc()
                                 print(error_info)
                                 return HttpResponse('【ERROR】：参数 '+rec2+' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 '+rec2+' 的前置接口，以及确认Redis是否已启动')
+                    for rec3 in keyword_list3:
+                        if(rec3 in body[rec]):
+                            try:
+                                body[rec] = body[rec].replace(rec3,cache.get(rec3.replace('{', '').replace('}', '')).decode('utf-8'))
+                            except Exception:
+                                error_info = traceback.format_exc()
+                                print(error_info)
+                                return HttpResponse(
+                                    '【ERROR】：参数 ' + rec3 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec3 + ' 的前置接口，以及确认Redis是否已启动')
                     if('select' in body[rec]):
                         try:
                             sql = body[rec]
@@ -1655,3 +1687,39 @@ def interfaceTestTask(case_list,test_time,response_time,report_id):
             return HttpResponse(error_info)
 
 
+
+def token(url_value,method_value,username_value,password_value,left_value,right_value,keywords_value):
+    header = {
+        "Content-Type": "application/json;charset=UTF-8",
+        "Nonce": fake.pystr(min_chars=32, max_chars=32),
+        "Timestamp": str(round(time.time() * 1000))
+    }
+    url_ = url_value
+    password_md5 = md5()
+    password_md5.update(password_value.encode(encoding='utf-8'))
+    # password_hash = hashlib.sha256(password_value.encode(encoding='utf-8'))
+    json_ = {"account":username_value,"password":password_md5.hexdigest(),"authCode":""}
+    if(method_value=='post' or method_value=='POST'):
+        response = requests.post(url=url_, json=json_, headers=header,verify=False)
+    else:
+        response = requests.get(url=url_, json=json_, headers=header,verify=False)
+    left_value=left_value
+    right_value = right_value
+    left = left_value
+    right = right_value
+    reg = left + '.+?' + right
+    result_all = re.findall(reg, response.text)
+    try:
+        result_tmp = result_all[0]
+        start = len(left)
+        end = len(result_tmp) - len(right)
+        result = result_tmp[start:end]
+        cache.set(keywords_value, result)
+        cache.expire(keywords_value, 3600)
+        print_log('【关联参数】： {' + keywords_value + '}，匹配的第' + str(1) + '个值为：' + result)
+    except Exception:
+        error_info = traceback.format_exc()
+        result='error : token value is not found'
+        print(error_info)
+        print_log('【关联参数】： {' + keywords_value + '} 在响应数据中未匹配到，请检测前置接口关键字配置，以及Redis是否已启动')
+    return result
