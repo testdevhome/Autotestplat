@@ -26,8 +26,8 @@ searchableTableColumns = [1,2,3]
 tableURL = 'apptestcase/getTableData/'
 table = 0
 tableButtonOperation = "<a href=\"#\" class=\"#\" onclick=\"run_apptestcase_bycode(this)\"> <span class=\"badge badge-success \" style=\"width: 40px;font-size: 12px\">执行</span> </a>" +
-                       "<a href=\"#\" class=\"#\" onclick=\"openMod(this)\"> <span class=\"badge badge-primary \" style=\"width: 40px;font-size: 12px\">修改</span> </a>" +
-                       "<a href=\"#\" class=\"#\" onclick=\"openCopy(this)\"> <span class=\"badge badge-blue \" style=\"width: 40px;font-size: 12px\">复制</span> </a>" +
+                       "<a href=\"#\" class=\"#\" onclick=\"showMod(this)\"> <span class=\"badge badge-primary \" style=\"width: 40px;font-size: 12px\">修改</span> </a>" +
+                       "<a href=\"#\" class=\"#\" onclick=\"showCopy(this)\"> <span class=\"badge badge-blue \" style=\"width: 40px;font-size: 12px\">复制</span> </a>" +
                        "<a href=\"#\" class=\"#\" onclick=\"showDelModal(this)\"> <span class=\"badge badge-danger \" style=\"width: 40px;font-size: 12px\">删除</span> </a>"
 tableItemsPerPage = 10
 tableColumnsData = [
@@ -117,7 +117,7 @@ caseStepInput_innerHtml = "<div class=\"input-group\" style=\"margin-bottom: 15p
 <button class=\"btn btn-danger\" style=\"width: 40px; margin-left: 5px;\" onclick=\"subCaseStepInput(this)\"> - </button>\
 </div>"
 
-function openAdd(){
+function showAdd(){
   var addModal = $("#addModal")
   var inputFields = addModal.find("[name=addInput]")
   for(var i = 0; i < inputFields.length; i++){
@@ -142,7 +142,7 @@ function openAdd(){
   window.event.stopPropagation()
 }
 
-function openMod(ele){
+function showMod(ele){
     selectedRow = ele.parentNode.parentNode
     app_testcase_code = selectedRow.children[0].innerText
     app_testcase_name = selectedRow.children[1].innerText
@@ -222,7 +222,7 @@ function openMod(ele){
 }
 
 
-function openCopy(ele){
+function showCopy(ele){
     selectedRow = ele.parentNode.parentNode
     app_testcase_code = selectedRow.children[0].innerText
     app_testcase_name = selectedRow.children[1].innerText
