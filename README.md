@@ -1,13 +1,13 @@
 # Autotestplat
 一站式自动化测试平台及解决方案
-Autotestplat-v3.0版本
+Autotestplat-v4.0版本
 
 功能介绍：
-一共7大模块：
-产品/项目，用户，系统参数设置，接口测试用例，测试计划，定时任务，测试报告。<br>
-实现了实时接口性能测试，生成测试脚本，执行测试，测试报告。
+一共3大功能：
+实现了接口自动化测试，7个模块：产品/项目，用户，系统参数设置，接口测试用例，测试计划，定时任务，测试报告。<br>
+实现了实时接口性能测试，生成测试脚本，执行测试，测试报告。<br>
+实现了AppUI自动化设置，用例录入，单个用例运行，全部用例运行。
 <br>
-目前是接口，性能，后续会集入UI，智能化，是开源的强大的一站式自动化测试平台系统。
 
 部署指南：
 python3.6
@@ -40,6 +40,8 @@ django2.1.3
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/testplan.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/addapi.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/report.png)
+![image](https://github.com/testdevhome/Doc/blob/main/pic/performance.png)
+![image](https://github.com/testdevhome/Doc/blob/main/pic/appUI.png)
 
 
     欢迎关注我们的微信公众号，请扫一扫如下图：
