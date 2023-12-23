@@ -95,7 +95,7 @@ caseStepInput_innerHtml = "<div class=\"input-group\" style=\"margin-bottom: 15p
      <option>find_element_by_desc</option>\
      <option>find_element_by_class</option>\
      <option>find_element_by_xpath</option>\
-     <ooption>find_apppackage</oooption>\
+     <option>find_apppackage</option>\
 </select>\
 <input name=\"addInput\" eleName_evelement=\"caseStep_evelement\" class=\"form-control\" placeholder=\"--请输入--\" style=\"width:120px;font-size: 12px;text-align: left\">\
 <select name=\"addInput\" class=\"selectpicker form-control\" id=\"caseStep_optmethod\" eleName_optmethod=\"caseStep_optmethod\" style=\"width:40px;font-size: 12px;text-align: left\">\
