@@ -268,21 +268,6 @@ class AutotestplatAppTestcase(models.Model):
         db_table = 'autotestplat_app_testcase'
 
 
-class AutotestplatAppTestReport(models.Model):
-    id = models.CharField(primary_key=True, max_length=255)
-    product_id = models.CharField(max_length=255, blank=True, null=True)
-    case_total = models.CharField(max_length=255, blank=True, null=True)
-    case_pass = models.CharField(max_length=255, blank=True, null=True)
-    case_fail = models.CharField(max_length=255, blank=True, null=True)
-    case_no = models.CharField(max_length=255, blank=True, null=True)
-    start_time = models.CharField(max_length=255, blank=True, null=True)
-    end_time = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'autotestplat_app_report'
-
-
 class PaginatorTask:
     def __init__(self,obj_count=1,obj_perpage=1,pagetag_current=1,pagetag_dsp_count=1):
         self.obj_count=obj_count
