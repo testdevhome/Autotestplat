@@ -133,10 +133,10 @@ function showAdd(){
   caseStepInputs = 1
   addCaseStepListDiv = document.getElementsByName("addCaseStepList")[0]
   addCaseStepListDiv.innerHTML = ""
-  var elm1 = document.createElement('div')
-  elm1.setAttribute('class', 'row')
-  elm1.innerHTML = caseStepInput_innerHtml
-  addCaseStepListDiv.appendChild(elm1)
+  var ele1 = document.createElement('div')
+  ele1.setAttribute('class', 'row')
+  ele1.innerHTML = caseStepInput_innerHtml
+  addCaseStepListDiv.appendChild(ele1)
   addModal.modal('show')
   addObjects()
   window.event.stopPropagation()
@@ -206,10 +206,10 @@ function showMod(ele){
                            '<button class="btn btn-primary" style="width: 40px; margin-left: 10px;" onclick="addCaseStepInput(this)"> + </button>'+
                            '<button class="btn btn-danger" style="width: 40px; margin-left: 5px;" onclick="subCaseStepInput(this)"> - </button>'+
                         '</div>';
-                var elm1 = document.createElement('div')
-                elm1.setAttribute('class', 'row')
-                elm1.innerHTML = tmp_append
-                modCaseStepListDiv.appendChild(elm1)
+                var ele1 = document.createElement('div')
+                ele1.setAttribute('class', 'row')
+                ele1.innerHTML = tmp_append
+                modCaseStepListDiv.appendChild(ele1)
             }
             $('#modModal').modal();
             modObjects()
@@ -283,10 +283,10 @@ function showCopy(ele){
                            '<button class="btn btn-primary" style="width: 40px; margin-left: 10px;" onclick="addCaseStepInput(this)"> + </button>'+
                            '<button class="btn btn-danger" style="width: 40px; margin-left: 5px;" onclick="subCaseStepInput(this)"> - </button>'+
                         '</div>';
-                var elm1 = document.createElement('div')
-                elm1.setAttribute('class', 'row')
-                elm1.innerHTML = tmp_append
-                copyCaseStepListDiv.appendChild(elm1)
+                var ele1 = document.createElement('div')
+                ele1.setAttribute('class', 'row')
+                ele1.innerHTML = tmp_append
+                copyCaseStepListDiv.appendChild(ele1)
             }
             $('#copyModal').modal();
             copyObjects()
@@ -299,12 +299,12 @@ function showCopy(ele){
 }
 
 function addCaseStepInput(e){
-  var elm1 = document.createElement('div')
+  var ele1 = document.createElement('div')
 
-  elm1.setAttribute('class', 'row')
-  elm1.innerHTML = caseStepInput_innerHtml
+  ele1.setAttribute('class', 'row')
+  ele1.innerHTML = caseStepInput_innerHtml
 
-  e.parentNode.parentNode.parentNode.insertBefore(elm1, e.parentNode.parentNode.nextSibling)
+  e.parentNode.parentNode.parentNode.insertBefore(ele1, e.parentNode.parentNode.nextSibling)
   caseStepInputs += 1
 
   var rowNumberElement = $("[eleName]")
@@ -334,7 +334,7 @@ function addSave(tips="新增成功"){
   var inputFields = $("[name=addInput]")
   for(var i = 0; i < addRequiredFields.length; i++){
       if(inputFields[addRequiredFields[i]].value == ''){
-          return alert("*号信息为必填项！")
+          return alert("*信息为必填项！")
       }
   }
   $.ajax({
@@ -362,7 +362,7 @@ function modSave(tips="修改成功"){
   var inputFields = $("[name=modInput]")
   for(var i = 0; i < modRequiredFields.length; i++){
       if(inputFields[modRequiredFields[i]].value == ''){
-          return alert("*号信息为必填项！")
+          return alert("*信息为必填项！")
       }
   }
   $.ajax({
@@ -391,7 +391,7 @@ function copySave(tips="复制成功"){
   var inputFields = $("[name=copyInput]")
   for(var i = 0; i < copyRequiredFields.length; i++){
       if(inputFields[copyRequiredFields[i]].value == ''){
-          return alert("*号信息为必填项！")
+          return alert("*信息为必填项！")
       }
   }
   $.ajax({
