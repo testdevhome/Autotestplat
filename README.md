@@ -31,6 +31,14 @@ django2.1.3
 第三步、在接口用例中进行接口用例录入调试，设置断言，通过正则表达式设置关联参数，执行；在接口中通过{关键字}设置参数。<br>
 第四步、在测试计划中选择接口用例，定时设置，勾选用例调试。<br>
 第五步、在测试报告中查看测试记录，报告的详情数据。<br>
+ 性能测试:<br>
+第一步、选择接口，输入并发数，持续压测时间，点击生成jmeter脚本。<br>
+第二步、点击测试开始。<br>
+第三步、点击查看结果。<br>
+AppUI测试:<br>
+第一步、系统设置App设置。<br>
+第二步、启动weditor，连接手机，抓取App元素控件，录入用例。<br>
+第三步、执行，查看用例结果。<br>
 
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/userproduct.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/systemsetting.png)
