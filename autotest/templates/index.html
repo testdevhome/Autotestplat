@@ -73,21 +73,36 @@ Auther:：Fin;  Version：Autotestplat-V2.7
         <div class="container" style="padding: 70px 20px; max-width: 1800px;">
         <section class="hk-sec-wrapper">
             <hr>
-            <h5 class="hk-sec-title" style="text-align:center">  Autotestplat-V4.0 功能说明</h5>
+            <h5 class="hk-sec-title" style="text-align:center">  Autotestplat-V5.0 功能说明</h5>
                 实现了接口自动化完整功能，产品，接口用例、参数化，测试计划，定时任务，测试报告。
                 达到了企业级自动化测试平台需求。<br>
                 实现了实时接口性能测试，生成测试脚本，执行测试，测试报告。当前版本测试过程和结果暂时没有设计存储于数据库。
                 <br>
                 实现了AppUI自动化设置，用例录入，单个用例运行，全部用例运行。测试报告当前版本暂时没有设计。
+                <br>
+                实现了WebUI自动化设置，用例录入，单个用例运行，全部用例运行。测试报告当前版本暂时没有设计。
             <br>
             <hr>
-            <h5 class="hk-sec-title" style="text-align:center">  Autotestplat-V4.0 操作手册</h5>
-                操作步聚：
+            <h5 class="hk-sec-title" style="text-align:center">  Autotestplat-V5.0 操作手册</h5>
+                接口测试：
                 <br>第一步、设置用户，设置产品/项目，用户设置<span style="color: red">默认产品</span>，也就是当前正在进入使用的产品。
                 <br>第二步、在系统设置中设置参数，<span style="color: red">环境设置</span>即设置host地址，<span style="color: red">常量</span>即设置固定值作为参数，<span style="color: red">变量</span>可以是时间戳，随机数字、字符等。
                 <br>第三步、在接口用例中进行接口用例录入调试，设置<span style="color: red">断言</span>，通过正则表达式设置<span style="color: red">关联参数</span>，执行；在接口中通过<span style="color: red">{关键字}</span>提取参数值。
                 <br>第四步、在测试计划中选择接口用例，定时设置，勾选调试，更新，增行，减行，更改顺序。
                 <br>第五步、在测试报告中查看测试记录，报告的详情数据。
+                <br>
+                性能测试：
+                <br>第一步、选择接口，输入并发数，持续压测时间，点击生成jmeter脚本。
+                <br>第二步、点击测试开始。
+                <br>第三步、点击查看结果。<br>
+                AppUI测试:
+                <br>第一步、系统设置App设置。
+                <br>第二步、启动weditor，连接手机，抓取App元素控件，录入用例。
+                <br>第三步、执行，查看用例结果。<br>
+                WebUI测试:
+                <br>第一步、系统设置Web设置。
+                <br>第二步、安装谷歌浏览器,版本100.0.4896.75 (正式版本) （32 位）。
+                <br>第三步、执行，查看用例结果。
                 <br><br>
                 安装部署：
                 <br>
