@@ -1,11 +1,12 @@
 # Autotestplat
 一站式自动化测试平台及解决方案
-Autotestplat-v4.0版本
+Autotestplat-v5.0版本
 
 功能介绍：<br>
 实现了接口自动化测试，产品/项目，用户，系统参数设置，接口测试用例，测试计划，定时任务，测试报告。<br>
 实现了实时接口性能测试，生成测试脚本，执行测试，测试报告。<br>
-实现了AppUI自动化设置，用例录入，单个用例运行，全部用例运行。
+实现了AppUI自动化设置，用例录入，单个用例运行，全部用例运行。<br>
+实现了WebUI自动化设置，用例录入，单个用例执行，全部用例执行。
 <br>
 
 部署指南：
@@ -40,6 +41,10 @@ AppUI测试<br>
 第一步、系统设置App设置。<br>
 第二步、启动weditor，连接手机，抓取App元素控件，录入用例。<br>
 第三步、执行，查看用例结果。<br>
+WebUI测试<br>
+第一步、系统设置Web设置。<br>
+第二步、安装谷歌浏览器版本100.0.4896.75 (正式版本) （32 位）。<br>
+第三步、执行，查看用例结果。<br>
 
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/userproduct.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/systemsetting.png)
@@ -50,6 +55,7 @@ AppUI测试<br>
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/report.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/performance.png)
 ![image](https://github.com/testdevhome/Doc/blob/main/pic/appUI.png)
+![image](https://github.com/testdevhome/Doc/blob/main/pic/webUI.png)
 
 
     欢迎关注我们的微信公众号，请扫一扫如下图：
