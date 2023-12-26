@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 ############################################
 #Auther:：Fin
-#Version：Autotestplat-V4.0
+#Version：Autotestplat-V5.0
 ############################################
 import time,json,pymysql,os
 from datetime import datetime
