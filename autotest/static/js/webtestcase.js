@@ -94,13 +94,13 @@ caseStepInput_innerHtml = "<div class=\"input-group\" style=\"margin-bottom: 15p
      <option>find_element_by_desc</option>\
      <option>find_element_by_class</option>\
      <option>find_element_by_xpath</option>\
-     <option>find_apppackage</option>\
+     <option>find_loginIndex</option>\
 </select>\
 <input name=\"addInput\" id=\"caseStep_evelement\" eleName_evelement=\"caseStep_evelement\" class=\"form-control\" placeholder=\"--请输入--\" style=\"width:120px;font-size: 12px;text-align: left\">\
 <select name=\"addInput\" class=\"selectpicker form-control\" id=\"caseStep_optmethod\" eleName_optmethod=\"caseStep_optmethod\" style=\"width:40px;font-size: 12px;text-align: left\">\
      <option>click</option>\
      <option>sendkey</option>\
-     <option>app_start</option>\
+     <option>web_start</option>\
      <option>slide</option>\
      <option>press</option>\
      <option>tap</option>\
@@ -127,13 +127,13 @@ modcaseStepInput_innerHtml = "<div class=\"input-group\" style=\"margin-bottom: 
      <option>find_element_by_desc</option>\
      <option>find_element_by_class</option>\
      <option>find_element_by_xpath</option>\
-     <option>find_apppackage</option>\
+     <option>find_loginIndex</option>\
 </select>\
 <input name=\"modInput\" mod_eleName_evelement=\"caseStep_evelement\" class=\"form-control\" placeholder=\"--请输入--\" style=\"width:120px;font-size: 12px;text-align: left\">\
 <select name=\"modInput\" class=\"selectpicker form-control\" id=\"caseStep_optmethod\" mod_eleName_optmethod=\"caseStep_optmethod\" style=\"width:40px;font-size: 12px;text-align: left\">\
      <option>click</option>\
      <option>sendkey</option>\
-     <option>app_start</option>\
+     <option>web_start</option>\
      <option>slide</option>\
      <option>press</option>\
      <option>tap</option>\
@@ -161,13 +161,13 @@ copycaseStepInput_innerHtml = "<div class=\"input-group\" style=\"margin-bottom:
      <option>find_element_by_desc</option>\
      <option>find_element_by_class</option>\
      <option>find_element_by_xpath</option>\
-     <option>find_apppackage</option>\
+     <option>find_loginIndex</option>\
 </select>\
 <input name=\"copyInput\" copy_eleName_evelement=\"caseStep_evelement\" class=\"form-control\" placeholder=\"--请输入--\" style=\"width:120px;font-size: 12px;text-align: left\">\
 <select name=\"copyInput\" class=\"selectpicker form-control\" id=\"caseStep_optmethod\" copy_eleName_optmethod=\"caseStep_optmethod\" style=\"width:40px;font-size: 12px;text-align: left\">\
      <option>click</option>\
      <option>sendkey</option>\
-     <option>app_start</option>\
+     <option>web_start</option>\
      <option>slide</option>\
      <option>press</option>\
      <option>tap</option>\
@@ -589,7 +589,7 @@ function run_webtestcase_byproduct(e,tips="运行成功"){
           }
       },
       error: (rst) =>{
-          return alert('运行有误，请检查appium或uiautomator2的安装配置、系统设置中App设置、手机连接设置等信息是否正确 !')
+          return alert('运行有误，请检查selenium的安装配置、系统设置中Web设置等信息是否正确 !')
       },
   })
 }
