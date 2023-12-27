@@ -583,8 +583,10 @@ def saveEditTestplan(request):
                 name1 = interface_list[i].split('_')[3]
                 id1 = interface_list[i].split('_')[2]
                 id_list_final.append(id1)
-            else:
+            elif(tmp_name1!=''):
                 name1 = interface_list[i].split('_')[2]
+            else:
+                name1 = ''
             if(L == 1):
                 interfaces += interface_list[i]
                 interfaces1 += name1
@@ -659,7 +661,7 @@ def saveEditTestplan(request):
             if (rec.startswith('testplan_interface') == True):
                 tmp_id_insert = rec.split('_')[2]
                 id_list.append(tmp_id_insert)
-            else:
+            elif(rec!=''):
                 tmp_id = rec.split('_')[1]
                 suit_id1 = suit_info[0]
                 suit_name1 = suit_info[1]
