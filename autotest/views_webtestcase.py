@@ -441,7 +441,7 @@ def testcase_template_selenium(user_product_id,web_testcase_code):
                     casestepResult(case_id, 'fail')
             elif optmethod == 'sleep':
                 try:
-                    sleep(int(evelement))
+                    sleep(int(testdata))
                     casestepResult(case_id, 'pass')
                 except:
                     casestepResult(case_id, 'fail')
@@ -464,45 +464,20 @@ def testcase_template_selenium(user_product_id,web_testcase_code):
 
 
 def testcase_template_cypress(user_product_id,web_testcase_code):
-    webset = AutotestplatParameter.objects.filter(type='web')
-    if webset:
-        platformVersion = webset.first().login_account
-        deviceName = webset.first().login_password
-        webPackage = webset.first().left
-        webActivity = webset.first().right
-    else:
-        platformVersion = ''
-        deviceName = ''
-        webPackage = ''
-        webActivity = ''
-        return HttpResponse("未正确设置Web运行环境信息")
-    print("android settings is "+platformVersion+" "+deviceName+" "+webPackage+" "+webActivity)
-    desired_caps = {}
-    desired_caps['platformName'] = 'Android'
-    desired_caps['platformVersion'] = platformVersion
-    desired_caps['deviceName'] = deviceName
-    desired_caps['webPackage'] = webPackage
-    desired_caps['webActivity'] = webActivity
-    desired_caps['resetKeyboard'] = 'true'
-    desired_caps['unicodeKeyboard'] = 'true'
     time.sleep(1)
     print("autotest case %s start..." % web_testcase_code)
-    try:
-        driver = webdriver.Remote('http://127.0.0.1:4723/wd/hub', desired_caps)
-    except:
-        print("启动selenium运行环境错误，请检测是否正确安装配置和启动")
-    time.sleep(3)
-    x = driver.get_window_size()['width']
-    y = driver.get_window_size()['height']
-    x1 = int(x * 0.75)
-    y1 = int(y * 0.5)
-    x2 = int(x * 0.05)
+    print("autotest product_id %s start..." % user_product_id)
+    chrome_driver_path = r"" + current_dir + "\chromedriver.exe"
+    driver = webdriver.Chrome(executable_path=chrome_driver_path)
     if (web_testcase_code == ''):
-        sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.product_id=" + str(user_product_id) + " ORDER BY web_testcase_code_order ASC "
-        caseResultInit(user_product_id,'未执行')
+        sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.product_id=" + str(
+            user_product_id) + " ORDER BY web_testcase_code_order ASC "
+        caseResultInit(user_product_id, '未执行')
     else:
-        sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.web_testcase_code=" + str(web_testcase_code) + " ORDER BY id ASC "
-    coon = pymysql.connect(user='root', passwd='test123456', db='autotestplat', port=3306, host='127.0.0.1',charset='utf8')
+        sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.web_testcase_code=" + str(
+            web_testcase_code) + " ORDER BY id ASC "
+    coon = pymysql.connect(user='root', passwd='test123456', db='autotestplat', port=3306, host='127.0.0.1',
+                           charset='utf8')
     cursor = coon.cursor()
     aa = cursor.execute(sql)
     info = cursor.fetchmany(aa)
@@ -519,8 +494,15 @@ def testcase_template_cypress(user_product_id,web_testcase_code):
                 web_testcase_code = case[7]
             except Exception as e:
                 return '测试用例格式不正确！%s' % e
-            driver.implicitly_wait(30)
-            if optmethod == 'click' and findmethod == 'find_element_by_id':
+            if optmethod == 'web_start':
+                try:
+                    driver.implicitly_wait(10)
+                    driver.maximize_window()
+                    driver.get(evelement + testdata)
+                    casestepResult(case_id, 'pass')
+                except:
+                    casestepResult(case_id, 'fail')
+            elif optmethod == 'click' and findmethod == 'find_element_by_id':
                 try:
                     driver.find_element_by_id(evelement).click()
                     casestepResult(case_id, 'pass')
@@ -528,59 +510,13 @@ def testcase_template_cypress(user_product_id,web_testcase_code):
                     casestepResult(case_id, 'fail')
             elif optmethod == 'click' and findmethod == 'find_element_by_name':
                 try:
-                    driver.find_element_by_android_uiautomator(f'new UiSelector().text(\"{evelement}\")').click()
+                    driver.find_element_by_name(evelement).click()
                     casestepResult(case_id, 'pass')
                 except:
                     casestepResult(case_id, 'fail')
-            elif optmethod == 'sendkey' and findmethod == 'find_element_by_id':
+            elif optmethod == 'click' and findmethod == 'find_element_by_class':
                 try:
-                    driver.find_element_by_id(evelement).send_keys(testdata)
-                    casestepResult(case_id, 'pass')
-                except:
-                    casestepResult(case_id, 'fail')
-            elif optmethod == 'sendkey' and findmethod == 'find_element_by_name':
-                try:
-                    driver.find_element_by_android_uiautomator(f'new UiSelector().text(\"{evelement}\")').send_keys(testdata)
-                    casestepResult(case_id, 'pass')
-                except:
-                    casestepResult(case_id, 'fail')
-            elif optmethod == 'slide' and findmethod == 'up':
-                try:
-                    sleep(3)
-                    x = driver.get_window_size()['width']
-                    y = driver.get_window_size()['height']
-                    x1 = int(x * 0.5)
-                    y1 = int(y * 0.75)
-                    y2 = int(y * 0.25)
-                    driver.swipe(x1, y1, x1, y2, 1000)
-                    casestepResult(case_id, 'pass')
-                except:
-                    casestepResult(case_id, 'fail')
-            elif optmethod == 'slide' and findmethod == 'down':
-                try:
-                    sleep(3)
-                    x = driver.get_window_size()['width']
-                    y = driver.get_window_size()['height']
-                    x1 = int(x * 0.5)
-                    y1 = int(y * 0.25)
-                    y2 = int(y * 0.75)
-                    driver.swipe(x1, y1, x1, y2, 1000)
-                    casestepResult(case_id, 'pass')
-                except:
-                    casestepResult(case_id, 'fail')
-            elif optmethod == 'press' and findmethod == 'find_element_by_id':
-                try:
-                    action1 = TouchAction(driver)
-                    el = driver.find_element_by_id(evelement)
-                    action1.long_press(el).wait(10000).perform()
-                    casestepResult(case_id, 'pass')
-                except:
-                    casestepResult(case_id, 'fail')
-            elif optmethod == 'tap' and findmethod == 'position':
-                try:
-                    sleep(8)
-                    eve_list = evelement.split(',')
-                    driver.tap([(eve_list[0], eve_list[1]), (eve_list[2], eve_list[3])], 500)
+                    driver.find_element_by_class(evelement).click()
                     casestepResult(case_id, 'pass')
                 except:
                     casestepResult(case_id, 'fail')
@@ -590,13 +526,35 @@ def testcase_template_cypress(user_product_id,web_testcase_code):
                     casestepResult(case_id, 'pass')
                 except:
                     casestepResult(case_id, 'fail')
-            elif optmethod == 'sleep':
+            elif optmethod == 'sendkey' and findmethod == 'find_element_by_id':
                 try:
-                    sleep(int(evelement))
+                    driver.find_element_by_id(evelement).clear()
+                    driver.find_element_by_id(evelement).send_keys(testdata)
                     casestepResult(case_id, 'pass')
                 except:
                     casestepResult(case_id, 'fail')
-        stepresult_bycode = AutotestplatWebTestcase.objects.filter(web_testcase_code=web_testcase_code).values_list('web_testcase_stepresult')
+            elif optmethod == 'sendkey' and findmethod == 'find_element_by_name':
+                try:
+                    driver.find_element_by_name(evelement).clear()
+                    driver.find_element_by_name(evelement).send_keys(testdata)
+                    casestepResult(case_id, 'pass')
+                except:
+                    casestepResult(case_id, 'fail')
+            elif optmethod == 'sendkey' and findmethod == 'find_element_by_xpath':
+                try:
+                    driver.find_element_by_xpath(evelement).clear()
+                    driver.find_element_by_xpath(evelement).send_keys(testdata)
+                    casestepResult(case_id, 'pass')
+                except:
+                    casestepResult(case_id, 'fail')
+            elif optmethod == 'sleep':
+                try:
+                    sleep(int(testdata))
+                    casestepResult(case_id, 'pass')
+                except:
+                    casestepResult(case_id, 'fail')
+        stepresult_bycode = AutotestplatWebTestcase.objects.filter(web_testcase_code=web_testcase_code).values_list(
+            'web_testcase_stepresult')
         tmp = []
         for item in stepresult_bycode:
             tmp += [str(item[0])]
@@ -606,7 +564,7 @@ def testcase_template_cypress(user_product_id,web_testcase_code):
             caseResult(web_testcase_code, 'failed')
         else:
             caseResult(web_testcase_code, 'pass')
-    sleep(5)
+    sleep(2)
     print("autotest case %s ...end" % web_testcase_code)
     coon.commit()
     cursor.close()
@@ -615,45 +573,20 @@ def testcase_template_cypress(user_product_id,web_testcase_code):
 
 
 def testcase_template_playwright(user_product_id,web_testcase_code):
-    webset = AutotestplatParameter.objects.filter(type='web')
-    if webset:
-        platformVersion = webset.first().login_account
-        deviceName = webset.first().login_password
-        webPackage = webset.first().left
-        webActivity = webset.first().right
-    else:
-        platformVersion = ''
-        deviceName = ''
-        webPackage = ''
-        webActivity = ''
-        return HttpResponse("未正确设置Andorid web运行环境信息")
-    print("android settings is "+platformVersion+" "+deviceName+" "+webPackage+" "+webActivity)
-    desired_caps = {}
-    desired_caps['platformName'] = 'Android'
-    desired_caps['platformVersion'] = platformVersion
-    desired_caps['deviceName'] = deviceName
-    desired_caps['webPackage'] = webPackage
-    desired_caps['webActivity'] = webActivity
-    desired_caps['resetKeyboard'] = 'true'
-    desired_caps['unicodeKeyboard'] = 'true'
     time.sleep(1)
     print("autotest case %s start..." % web_testcase_code)
-    try:
-        driver = webdriver.Remote('http://127.0.0.1:4723/wd/hub', desired_caps)
-    except:
-        print("启动webium运行环境错误，请检测是否正确安装配置和启动")
-    time.sleep(3)
-    x = driver.get_window_size()['width']
-    y = driver.get_window_size()['height']
-    x1 = int(x * 0.75)
-    y1 = int(y * 0.5)
-    x2 = int(x * 0.05)
+    print("autotest product_id %s start..." % user_product_id)
+    chrome_driver_path = r"" + current_dir + "\chromedriver.exe"
+    driver = webdriver.Chrome(executable_path=chrome_driver_path)
     if (web_testcase_code == ''):
-        sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.product_id=" + str(user_product_id) + " ORDER BY web_testcase_code_order ASC "
-        caseResultInit(user_product_id,'未执行')
+        sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.product_id=" + str(
+            user_product_id) + " ORDER BY web_testcase_code_order ASC "
+        caseResultInit(user_product_id, '未执行')
     else:
-        sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.web_testcase_code=" + str(web_testcase_code) + " ORDER BY id ASC "
-    coon = pymysql.connect(user='root', passwd='test123456', db='autotestplat', port=3306, host='127.0.0.1',charset='utf8')
+        sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.web_testcase_code=" + str(
+            web_testcase_code) + " ORDER BY id ASC "
+    coon = pymysql.connect(user='root', passwd='test123456', db='autotestplat', port=3306, host='127.0.0.1',
+                           charset='utf8')
     cursor = coon.cursor()
     aa = cursor.execute(sql)
     info = cursor.fetchmany(aa)
@@ -670,8 +603,15 @@ def testcase_template_playwright(user_product_id,web_testcase_code):
                 web_testcase_code = case[7]
             except Exception as e:
                 return '测试用例格式不正确！%s' % e
-            driver.implicitly_wait(30)
-            if optmethod == 'click' and findmethod == 'find_element_by_id':
+            if optmethod == 'web_start':
+                try:
+                    driver.implicitly_wait(10)
+                    driver.maximize_window()
+                    driver.get(evelement + testdata)
+                    casestepResult(case_id, 'pass')
+                except:
+                    casestepResult(case_id, 'fail')
+            elif optmethod == 'click' and findmethod == 'find_element_by_id':
                 try:
                     driver.find_element_by_id(evelement).click()
                     casestepResult(case_id, 'pass')
@@ -679,59 +619,13 @@ def testcase_template_playwright(user_product_id,web_testcase_code):
                     casestepResult(case_id, 'fail')
             elif optmethod == 'click' and findmethod == 'find_element_by_name':
                 try:
-                    driver.find_element_by_android_uiautomator(f'new UiSelector().text(\"{evelement}\")').click()
+                    driver.find_element_by_name(evelement).click()
                     casestepResult(case_id, 'pass')
                 except:
                     casestepResult(case_id, 'fail')
-            elif optmethod == 'sendkey' and findmethod == 'find_element_by_id':
+            elif optmethod == 'click' and findmethod == 'find_element_by_class':
                 try:
-                    driver.find_element_by_id(evelement).send_keys(testdata)
-                    casestepResult(case_id, 'pass')
-                except:
-                    casestepResult(case_id, 'fail')
-            elif optmethod == 'sendkey' and findmethod == 'find_element_by_name':
-                try:
-                    driver.find_element_by_android_uiautomator(f'new UiSelector().text(\"{evelement}\")').send_keys(testdata)
-                    casestepResult(case_id, 'pass')
-                except:
-                    casestepResult(case_id, 'fail')
-            elif optmethod == 'slide' and findmethod == 'up':
-                try:
-                    sleep(3)
-                    x = driver.get_window_size()['width']
-                    y = driver.get_window_size()['height']
-                    x1 = int(x * 0.5)
-                    y1 = int(y * 0.75)
-                    y2 = int(y * 0.25)
-                    driver.swipe(x1, y1, x1, y2, 1000)
-                    casestepResult(case_id, 'pass')
-                except:
-                    casestepResult(case_id, 'fail')
-            elif optmethod == 'slide' and findmethod == 'down':
-                try:
-                    sleep(3)
-                    x = driver.get_window_size()['width']
-                    y = driver.get_window_size()['height']
-                    x1 = int(x * 0.5)
-                    y1 = int(y * 0.25)
-                    y2 = int(y * 0.75)
-                    driver.swipe(x1, y1, x1, y2, 1000)
-                    casestepResult(case_id, 'pass')
-                except:
-                    casestepResult(case_id, 'fail')
-            elif optmethod == 'press' and findmethod == 'find_element_by_id':
-                try:
-                    action1 = TouchAction(driver)
-                    el = driver.find_element_by_id(evelement)
-                    action1.long_press(el).wait(10000).perform()
-                    casestepResult(case_id, 'pass')
-                except:
-                    casestepResult(case_id, 'fail')
-            elif optmethod == 'tap' and findmethod == 'position':
-                try:
-                    sleep(8)
-                    eve_list = evelement.split(',')
-                    driver.tap([(eve_list[0], eve_list[1]), (eve_list[2], eve_list[3])], 500)
+                    driver.find_element_by_class(evelement).click()
                     casestepResult(case_id, 'pass')
                 except:
                     casestepResult(case_id, 'fail')
@@ -741,13 +635,35 @@ def testcase_template_playwright(user_product_id,web_testcase_code):
                     casestepResult(case_id, 'pass')
                 except:
                     casestepResult(case_id, 'fail')
-            elif optmethod == 'sleep':
+            elif optmethod == 'sendkey' and findmethod == 'find_element_by_id':
                 try:
-                    sleep(int(evelement))
+                    driver.find_element_by_id(evelement).clear()
+                    driver.find_element_by_id(evelement).send_keys(testdata)
                     casestepResult(case_id, 'pass')
                 except:
                     casestepResult(case_id, 'fail')
-        stepresult_bycode = AutotestplatWebTestcase.objects.filter(web_testcase_code=web_testcase_code).values_list('web_testcase_stepresult')
+            elif optmethod == 'sendkey' and findmethod == 'find_element_by_name':
+                try:
+                    driver.find_element_by_name(evelement).clear()
+                    driver.find_element_by_name(evelement).send_keys(testdata)
+                    casestepResult(case_id, 'pass')
+                except:
+                    casestepResult(case_id, 'fail')
+            elif optmethod == 'sendkey' and findmethod == 'find_element_by_xpath':
+                try:
+                    driver.find_element_by_xpath(evelement).clear()
+                    driver.find_element_by_xpath(evelement).send_keys(testdata)
+                    casestepResult(case_id, 'pass')
+                except:
+                    casestepResult(case_id, 'fail')
+            elif optmethod == 'sleep':
+                try:
+                    sleep(int(testdata))
+                    casestepResult(case_id, 'pass')
+                except:
+                    casestepResult(case_id, 'fail')
+        stepresult_bycode = AutotestplatWebTestcase.objects.filter(web_testcase_code=web_testcase_code).values_list(
+            'web_testcase_stepresult')
         tmp = []
         for item in stepresult_bycode:
             tmp += [str(item[0])]
@@ -757,7 +673,7 @@ def testcase_template_playwright(user_product_id,web_testcase_code):
             caseResult(web_testcase_code, 'failed')
         else:
             caseResult(web_testcase_code, 'pass')
-    sleep(5)
+    sleep(2)
     print("autotest case %s ...end" % web_testcase_code)
     coon.commit()
     cursor.close()
