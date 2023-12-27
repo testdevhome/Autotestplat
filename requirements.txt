@@ -18,4 +18,3 @@ mysqlclient==1.4.6 -i https://pypi.tuna.tsinghua.edu.cn/simple
 paramiko==3.3.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 psutil==5.9.5 -i https://pypi.tuna.tsinghua.edu.cn/simple
 pywin32==305 -i https://pypi.tuna.tsinghua.edu.cn/simple
-
