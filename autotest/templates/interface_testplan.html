@@ -1238,6 +1238,7 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                     var interface_names = result['interface_name'].split(',');
                     var updates = result['update'].split(',');
                     var interface_ids = result['interface_id'].split(',');
+                    var interface_exist = result['interface_exist']
                     for (var i = 0; i < interface_names.length; i++) {
                         if (updates[i]=='1'){
                                 update_link = '<button class="btn btn-primary" style="font-size: 12px;width: 40px;height: 24px;padding-left: 6px;line-height: 10px;" id="update" onclick="update_testplan_interface(this)">更新</button>'
@@ -1287,7 +1288,13 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                         }
                         $('#tbody_interface1').append(tmp_append);
                     }
-                    setTimeout(alert('该接口已更新，已保存！'),1000)
+                    if(interface_exist=='1'){
+                        setTimeout(alert('该接口已更新，已保存！'),1000)
+                    }
+                    else {
+                        setTimeout(alert('原接口已被删除，请手动删除该接口！'),1000)
+                    }
+
                 },
                 fail: function (result) {
                     debugger
