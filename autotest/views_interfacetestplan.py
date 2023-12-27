@@ -28,7 +28,7 @@ session = requests.Session()
 fake = Faker("zh_CN")
 
 @login_required
-def interface_testplan(req):
+def interfaceTestplan(req):
     username = req.session.get('user', '')
     if AuthUser.objects.filter(username=username).first().is_superuser == 1:
         suits = AutotestplatTestplan.objects.all().order_by('-id')
@@ -110,7 +110,7 @@ def interface_testplan(req):
     c.update({'page_list': page_list,'num': num, 'interfaces_all':interfaces_all,'env_paras':env_para,'product_alls':product_all,'intervals':interval})
     return render_to_response("interface_testplan.html",c)
 
-def add_testplan(request):
+def addTestplan(request):
     if request.method == "POST":
         raw_data = request.body
         raw_data = json.loads(raw_data)
@@ -223,7 +223,7 @@ def add_testplan(request):
         AutotestplatTestplan.objects.filter(id=suit_id1).update(interface_name=interface_name_list,task_id=max_task_id)
         return HttpResponse('insert success!')
 
-def del_testplan(request):
+def delTestplan(request):
     if request.method == "POST":
         raw_data = request.body
         raw_data = json.loads(raw_data)
@@ -244,7 +244,7 @@ def del_testplan(request):
         AutotestplatTestplanInterfaceOrder.objects.filter(suit_id=id1).delete()
         return HttpResponse('delete success!')
 
-def search_testplan(req):
+def searchTestplan(req):
     username = req.session.get('user', '')
     key_words_product_id = req.GET.get('key_words_product_id', '')
     key_words_suit = req.GET.get('key_words_suit', '')
@@ -309,7 +309,7 @@ def search_testplan(req):
     c.update({'page_list': page_list, 'num': num, 'interfaces_all':interfaces_all})
     return render_to_response("interface_testplan.html",c)
 
-def search_testplan_apitestcase(req):
+def searchTestplanApiTestcase(req):
     if req.method == "POST":
         raw_data = req.body
         tname = req.GET.get('testcase_name','')
@@ -318,7 +318,7 @@ def search_testplan_apitestcase(req):
         print("product_id is " + pid)
     return HttpResponse("success")
 
-def show_edit_testplan(request):
+def showEditTestplan(request):
     if request.method == "POST":
         raw_data = request.body
         raw_data = json.loads(raw_data)
@@ -342,19 +342,12 @@ def show_edit_testplan(request):
                     interface_names += "testplan_interface_"+str(id2)+"_"+names
                     testplan_interface_id = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_id
                     testplan_interface_name = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_name
-                    interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
                     testplan_interface_url = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().url
-                    interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
                     testplan_interface_head = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().head
-                    interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
                     testplan_interface_body = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body
-                    interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
                     testplan_interface_body_format = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body_format
-                    interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
                     testplan_interface_mode = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().mode
-                    interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
                     testplan_interface_assert_keywords_old = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().assert_keywords_old
-                    interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
                     testplan_interface_res = AutotestplatParameter.objects.filter(module_id=id2).filter(product_id='testplan')
                     if testplan_interface_res:
                         testplan_interface_res_name=testplan_interface_res.first().name
@@ -389,6 +382,23 @@ def show_edit_testplan(request):
                         interface_res_right = ''
                         interface_res_index = ''
                         res = interface_res_name + interface_res_keywords + interface_res_value + interface_res_left + interface_res_right + interface_res_index
+                    interface = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id)
+                    if interface:
+                        interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
+                        interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
+                        interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
+                        interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
+                        interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
+                        interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
+                        interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
+                    else:
+                        interface_name=''
+                        interface_url=''
+                        interface_head=''
+                        interface_body=''
+                        interface_body_format=''
+                        interface_mode=''
+                        interface_assert_keywords_old=''
                     if testplan_interface_name != interface_name:
                         update_list += '1'
                     elif testplan_interface_url != interface_url:
@@ -416,19 +426,12 @@ def show_edit_testplan(request):
                     interface_names += "testplan_interface_" + str(id2) + "_" + names + ","
                     testplan_interface_id = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_id
                     testplan_interface_name = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().interface_name
-                    interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
                     testplan_interface_url = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().url
-                    interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
                     testplan_interface_head = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().head
-                    interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
                     testplan_interface_body = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body
-                    interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
                     testplan_interface_body_format = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().body_format
-                    interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
                     testplan_interface_mode = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().mode
-                    interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
                     testplan_interface_assert_keywords_old = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=id1).first().assert_keywords_old
-                    interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
                     testplan_interface_res = AutotestplatParameter.objects.filter(module_id=id2).filter(product_id='testplan')
                     if testplan_interface_res:
                         testplan_interface_res_name = testplan_interface_res.first().name
@@ -463,6 +466,24 @@ def show_edit_testplan(request):
                         interface_res_right = ''
                         interface_res_index = ''
                         res = interface_res_name + interface_res_keywords + interface_res_value + interface_res_left + interface_res_right + interface_res_index
+                    interface=AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id)
+                    if interface:
+                        interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
+                        interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
+                        interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
+                        interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
+                        interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
+                        interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
+                        interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
+                    else:
+                        interface_name=''
+                        interface_url=''
+                        interface_head=''
+                        interface_body=''
+                        interface_body_format=''
+                        interface_body_format=''
+                        interface_mode=''
+                        interface_assert_keywords_old=''
                     if testplan_interface_name != interface_name:
                         update_list += '1'+ ","
                     elif testplan_interface_url != interface_url:
@@ -481,7 +502,6 @@ def show_edit_testplan(request):
                         update_list += '1'+ ","
                     else:
                         update_list += '0'+ ","
-
         suit_info.product_id = AutotestplatProduct.objects.filter(id=suit_info.product_id).first().product_name
         crontab = PeriodicTask.objects.filter(id=suit_info.task_id)
         if crontab:
@@ -528,7 +548,7 @@ def show_edit_testplan(request):
                       'interface_id':interface_ids,}
         return HttpResponse(json.dumps(suit_info1), content_type='application/json')
 
-def del_row(request):
+def delRow(request):
     if request.method == "POST":
         raw_data = request.body
         raw_data = json.loads(raw_data)
@@ -537,7 +557,7 @@ def del_row(request):
             AutotestplatTestplanInterface.objects.filter(id=del_id).delete()
         return HttpResponse('delete success!')
 
-def del_row_edit(request):
+def delRowEdit(request):
     if request.method == "POST":
         raw_data = request.body
         raw_data = json.loads(raw_data)
@@ -547,7 +567,7 @@ def del_row_edit(request):
             AutotestplatParameter.objects.filter(module_id=del_id,product_id='testplan').delete()
         return HttpResponse('delete success!')
 
-def save_edit_testplan(request):
+def saveEditTestplan(request):
     if request.method == "POST":
         raw_data = request.body
         raw_data = json.loads(raw_data)
@@ -696,7 +716,7 @@ def save_edit_testplan(request):
         return HttpResponse('update_use_status success!')
 
 
-def update_testplan_interface(request):
+def updateTestplanInterface(request):
     if request.method == "POST":
         raw_data = request.body
         raw_data = json.loads(raw_data)
@@ -704,14 +724,26 @@ def update_testplan_interface(request):
         testplan_id = update_info[0]
         testplan_interface_id = update_info[2]
         interface_id = update_info[5]
-        interface_name = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().name
-        interface_url = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().url
-        interface_head = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().head
-        interface_body = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().body
-        interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().body_format
-        interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().mode
-        interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().assert_keywords_old
-        AutotestplatTestplanInterface.objects.filter(id=testplan_interface_id).filter(suit_id=testplan_id).filter(interface_id=interface_id).update(interface_name=interface_name,url=interface_url,head=interface_head,body=interface_body,body_format=interface_body_format,mode=interface_mode,assert_keywords_old=interface_assert_keywords_old)
+        interface = AutotestplatInterfaceTestcase.objects.filter(id=interface_id)
+        if interface:
+            interface_name = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().name
+            interface_url = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().url
+            interface_head = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().head
+            interface_body = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().body
+            interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().body_format
+            interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().mode
+            interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().assert_keywords_old
+            AutotestplatTestplanInterface.objects.filter(id=testplan_interface_id).filter(suit_id=testplan_id).filter(interface_id=interface_id).update(interface_name=interface_name,url=interface_url,head=interface_head,body=interface_body,body_format=interface_body_format,mode=interface_mode,assert_keywords_old=interface_assert_keywords_old)
+            interface_exist=1
+        else:
+            interface_name=''
+            interface_url=''
+            interface_head=''
+            interface_body=''
+            interface_body_format=''
+            interface_mode=''
+            interface_assert_keywords_old=''
+            interface_exist=0
         case_res = AutotestplatParameter.objects.filter(module_id=interface_id).exclude(product_id='testplan')
         if case_res:
             case_res_name = case_res.first().name
@@ -745,19 +777,12 @@ def update_testplan_interface(request):
                 interface_names += "testplan_interface_"+str(id2)+"_"+names
                 testplan_interface_id = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().interface_id
                 testplan_interface_name = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().interface_name
-                interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
                 testplan_interface_url = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().url
-                interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
                 testplan_interface_head = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().head
-                interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
                 testplan_interface_body = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().body
-                interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
                 testplan_interface_body_format = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().body_format
-                interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
                 testplan_interface_mode = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().mode
-                interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
                 testplan_interface_assert_keywords_old = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().assert_keywords_old
-                interface_assert_keywords_old  = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
                 testplan_interface_res = AutotestplatParameter.objects.filter(module_id=id2).filter(product_id='testplan')
                 if testplan_interface_res:
                     testplan_interface_res_name = testplan_interface_res.first().name
@@ -792,6 +817,23 @@ def update_testplan_interface(request):
                     interface_res_right = ''
                     interface_res_index = ''
                     res = interface_res_name + interface_res_keywords + interface_res_value + interface_res_left + interface_res_right + interface_res_index
+                interface = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id)
+                if interface:
+                    interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
+                    interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
+                    interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
+                    interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
+                    interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
+                    interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
+                    interface_assert_keywords_old  = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
+                else:
+                    interface_name=''
+                    interface_url=''
+                    interface_head=''
+                    interface_body=''
+                    interface_body_format=''
+                    interface_mode=''
+                    interface_assert_keywords_old=''
                 if testplan_interface_name != interface_name:
                     update_list += '1'
                 elif testplan_interface_url != interface_url:
@@ -817,19 +859,12 @@ def update_testplan_interface(request):
                 interface_names += "testplan_interface_" + str(id2) + "_" + names + ","
                 testplan_interface_id = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().interface_id
                 testplan_interface_name = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().interface_name
-                interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
                 testplan_interface_url = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().url
-                interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
                 testplan_interface_head = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().head
-                interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
                 testplan_interface_body = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().body
-                interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
                 testplan_interface_body_format = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().body_format
-                interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
                 testplan_interface_mode = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().mode
-                interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
                 testplan_interface_assert_keywords_old = AutotestplatTestplanInterface.objects.filter(id=id2).filter(suit_id=testplan_id).first().assert_keywords_old
-                interface_assert_keywords_old  = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
                 testplan_interface_res = AutotestplatParameter.objects.filter(module_id=id2).filter(product_id='testplan')
                 if testplan_interface_res:
                     testplan_interface_res_name = testplan_interface_res.first().name
@@ -864,6 +899,23 @@ def update_testplan_interface(request):
                     interface_res_right = ''
                     interface_res_index = ''
                     res = interface_res_name + interface_res_keywords + interface_res_value + interface_res_left + interface_res_right + interface_res_index
+                interface = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id)
+                if interface:
+                    interface_name = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().name
+                    interface_url = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().url
+                    interface_head = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().head
+                    interface_body = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body
+                    interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().body_format
+                    interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().mode
+                    interface_assert_keywords_old  = AutotestplatInterfaceTestcase.objects.filter(id=testplan_interface_id).first().assert_keywords_old
+                else:
+                    interface_name=''
+                    interface_url=''
+                    interface_head=''
+                    interface_body=''
+                    interface_body_format=''
+                    interface_mode=''
+                    interface_assert_keywords_old=''
                 if testplan_interface_name != interface_name:
                     update_list += '1' + ","
                 elif testplan_interface_url != interface_url:
@@ -887,7 +939,8 @@ def update_testplan_interface(request):
                       'id_list': id_list,
                       'interface_name':interface_names,
                       'update':update_list,
-                      'interface_id':interface_ids,}
+                      'interface_id':interface_ids,
+                      'interface_exist':interface_exist,}
     return HttpResponse(json.dumps(suit_info1), content_type='application/json')
 
 
@@ -895,7 +948,7 @@ def update_testplan_interface(request):
 test_time = ''
 response_time = ''
 report_id = str(datetime.now().strftime("%Y%m%d%H%M%S%f"))
-def start_interface_testplan(request):
+def startInterfaceTestplan(request):
     if request.method == "POST":
         try:
             raw_data = request.body
