@@ -153,7 +153,7 @@ function appCaseTableDataInit(){
         info: false,
         lengthChange: false,
         searching: true,
-        order: [[6, "order"]],
+        order: [[7, "order"]],
         columns: tableColumnsData,
         columnDefs: [
             {
