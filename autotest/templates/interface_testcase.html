@@ -1,0 +1,625 @@
+﻿<!Doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+<!---------------------------------------------------------
+Auther:：Fin;  Version：Autotestplat-V2.7
+----------------------------------------------------------->
+<head>
+    <meta charset="UTF-8">
+    <title> 接口用例 </title>
+    <link href="/static/dist/css/style.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/dt.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/navbar.css" rel="stylesheet" type="text/css">
+    <script src="/static/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <script src="/static/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/static/src/localfiles/bootstrap.min.js"></script>
+    <script src="/static/src/localfiles/jquery.dataTables.min.js"></script>
+    <script src="/static/src/localfiles/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/vendors/laydate/laydate.js" type="text/javascript"></script>
+    <script src="/static/js/public.js"></script>
+    <script src="/static/js/testcase.js"></script>
+    <script>
+         window.onload = function(){
+            if(loginVerify() == 200){
+                infoInit()
+            };
+            var selectElement = document.getElementById('select-option');
+            var options = selectElement.options;
+            for (var i = 0; i < options.length; i++) {
+                if (options[i].text === "{{ product_name }}") {
+                    options[i].style.display = 'none';
+                    break;
+                }
+            }
+
+            $(document).ready(function() {
+             $.ajax({
+                 url: '/autotest/apitestcase/module/get/',
+                 type: 'POST',
+                 success: function (data) {
+                     renderTree(data);
+                     },
+                 error: function (error) {
+                     console.error('Error:', error);
+                 }
+             });
+
+             function renderTree(data) {
+                 var treeElement = $('.tree');
+                 treeElement.empty();
+                 let clickEvent = false;
+                 function renderNode(node) {
+                     for (i = 0; i < node.length; i++) {
+                         if (node[i][2] == 0) {
+                             let li = document.createElement('li');
+                             li.textContent = node[i][1];
+                             li.dataset.Id = node[i][0];
+                             li.style.fontSize = '13px';
+                             li.style.marginTop = '2px';
+                             let addbtn = document.createElement('button');
+                             addbtn.className = 'btn btn-primary';
+                             addbtn.style.width = '15px';
+                             addbtn.style.height = '15px';
+                             addbtn.style.paddingLeft = '2px';
+                             addbtn.style.lineHeight = '0px';
+                             addbtn.style.float = 'right';
+                             addbtn.onclick = function () {
+                                 showAddChildModule(li.textContent);
+                             };
+                             addbtn.textContent = '+';
+                             let modbtn = document.createElement('button');
+                             modbtn.className = 'btn btn-primary';
+                             modbtn.style.width = '15px';
+                             modbtn.style.height = '15px';
+                             modbtn.style.paddingLeft = '2px';
+                             modbtn.style.paddingRight = '2px';
+                             modbtn.style.lineHeight = '0px';
+                             modbtn.onclick = function () {
+                                 showModModule(li.dataset.Id, li.textContent);
+                             };
+                             modbtn.textContent = '/';
+                             modbtn.style.marginLeft = '3px';
+                             modbtn.style.float = 'right';
+                             let delbtn = document.createElement('button');
+                             delbtn.className = 'btn btn-danger';
+                             delbtn.style.width = '15px';
+                             delbtn.style.height = '15px';
+                             delbtn.style.paddingLeft = '2px';
+                             delbtn.style.paddingRight = '2px';
+                             delbtn.style.lineHeight = '0px';
+                             delbtn.onclick = function () {
+                                 showDelMoudle(li.dataset.Id, li.textContent);
+                             };
+                             delbtn.textContent = '-';
+                             delbtn.style.marginLeft = '3px'
+                             delbtn.style.float = 'right';
+                             li.append(delbtn, modbtn, addbtn);
+                             addbtn.style.display = 'none';
+                             modbtn.style.display = 'none';
+                             delbtn.style.display = 'none';
+                             li.addEventListener('mouseover', function () {
+                                 addbtn.style.display = 'block';
+                                 modbtn.style.display = 'block';
+                                 delbtn.style.display = 'block';
+                                 this.classList.add('node-hovered');
+                                 event.stopPropagation();
+                             });
+                             li.addEventListener('click', showTableData);
+                             li.addEventListener('mouseout', function () {
+                                 if (clickEvent != li.dataset.Id) {
+                                     this.classList.remove('node-hovered')
+                                 }
+                                 addbtn.style.display = 'none';
+                                 modbtn.style.display = 'none';
+                                 delbtn.style.display = 'none';
+                                 event.stopPropagation();
+                             });
+                             treeElement.append(li);
+                         } else {
+                             for (j = 0; j < node.length; j++) {
+                                 var eledata = node[j][1]
+                                 var pid = node[j][0]
+                                 if (node[i][2] == node[j][0]) {
+                                     var targetLi = $('li:contains(' + eledata + ')');
+                                     let ulElement = document.createElement('ul');
+                                     let newLi = document.createElement('li');
+                                     newLi.style.marginLeft = '0px';
+                                     newLi.style.fontSize = '13px'
+                                     newLi.textContent = node[i][1];
+                             newLi.dataset.Id = node[i][0];
+                             newLi.dataset.parentId = pid;
+                             let abtn = document.createElement('button');
+                             abtn.className = 'btn btn-primary';
+                             abtn.style.width = '15px';
+                             abtn.style.height = '15px';
+                             abtn.style.paddingLeft = '2px';
+                             abtn.style.lineHeight = '0px';
+                             abtn.style.float = 'right';
+                             abtn.onclick = function () {
+                                 showAddNextChildModule(newLi.textContent);
+                             };
+                             abtn.textContent = '+';
+                             let mbtn = document.createElement('button');
+                             mbtn.className = 'btn btn-primary';
+                             mbtn.style.width = '15px';
+                             mbtn.style.height = '15px';
+                             mbtn.style.paddingLeft = '2px';
+                             mbtn.style.paddingRight = '2px';
+                             mbtn.style.lineHeight = '0px';
+                             mbtn.onclick = function () {
+                                 showModModule(newLi.dataset.Id, newLi.textContent);
+                             };
+                             mbtn.textContent = '/';
+                             mbtn.style.marginLeft = '3px';
+                             mbtn.style.float = 'right';
+                             let dbtn = document.createElement('button');
+                             dbtn.className = 'btn btn-danger';
+                             dbtn.style.width = '15px';
+                             dbtn.style.height = '15px';
+                             dbtn.style.paddingLeft = '2px';
+                             dbtn.style.paddingRight = '2px';
+                             dbtn.style.lineHeight = '0px';
+                             dbtn.onclick = function () {
+                                 showDelChildMoudle(newLi.dataset.Id, newLi.textContent);
+                             };
+                             dbtn.textContent = '-';
+                             dbtn.style.marginLeft = '3px'
+                             dbtn.style.float = 'right';
+                             newLi.addEventListener('mouseover', function () {
+                                 this.classList.add('node-hovered');
+                                 newLi.append(dbtn, mbtn);
+                                 abtn.style.display = 'block';
+                                 mbtn.style.display = 'block';
+                                 dbtn.style.display = 'block';
+                                 event.stopPropagation();
+                             });
+                             newLi.addEventListener('click', showTableData);
+                             newLi.addEventListener('click', showParentTableData);
+                             newLi.addEventListener('mouseout', function () {
+                                 if (clickEvent != newLi.dataset.Id) {
+                                     this.classList.remove('node-hovered')
+                                 }
+                                 abtn.style.display = 'none';
+                                 mbtn.style.display = 'none';
+                                 dbtn.style.display = 'none';
+                                 event.stopPropagation();
+                             });
+                             ulElement.append(newLi)
+                             targetLi.append(ulElement);
+                         }
+                     }
+                 }
+             }
+
+         }
+
+         function showTableData(event) {
+             const id = event.target.dataset.Id;
+             let selectedNodes = document.querySelectorAll('.node-hovered');
+             for (let i = 0; i < selectedNodes.length; i++) {
+                 selectedNodes[i].classList.remove('node-hovered');
+             }
+             apiCaseTableData(id)
+             event.target.classList.add('node-hovered');
+             clickEvent = id;
+         }
+
+         function showParentTableData(event) {
+             const id = event.target.dataset.parentId;
+             console.log(`Showing table data for ParentID: ${id}`);
+         }
+
+         function showCurTableData(event) {
+             const id = event.target.dataset.curId;
+             console.log(`Showing table data for CurID: ${id}`);
+         }
+
+         Object.values(data).forEach(function (node) {
+             console.log(node);
+             renderNode(node);
+         });
+
+     }
+});
+        }
+    </script>
+
+</head>
+<body>
+    <div class="row" >
+        <div class="col-sm">
+            <ul class="nav nav-pills nav-pills-success nav-pills-square nav-light bg-white pa-15 fixed-top">
+                <li class="nav-item">
+                    <a class="nav-link" href={% url 'index' %}>首 页</a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'product' %} class="nav-link"> 产品管理 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apitestcase' %} class="nav-link active"> 接口用例 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apitestplan' %} class="nav-link"> 测试计划 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apireport' %} class="nav-link"> 测试报告 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'parasettings' %} class="nav-link"> 系统设置 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'user' %} class="nav-link "> 用户管理 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apiperformance' %} class="nav-link"> 性能测试 </a>
+                </li>
+                <li class="nav-item dropdown" id="uiDropdown">
+                <a id="uitest" class="nav-link"> UI测试 </a>
+                <ul class="dropdown-menu" id="uiDropdownMenu">
+                    <li><a href={% url 'apptestcase' %} class="nav-link"> AppUI测试 </a></li>
+                    <li><a href={% url 'webtestcase' %} class="nav-link"> WebUI测试 </a></li>
+                </ul>
+                </li>
+                <li class="nav-item" id="cur_product" style="margin-left: 150px">
+                    <select id="select-option" name="setInput"  onchange="saveOption()" style="height: 40px;font-size: 12px; border: none;color: inherit">
+                        <option style="font-size: 12px">{{ product_name }}</option>
+                        {% for product in product_alls %}
+                        <option style="font-size: 12px">
+                        {% if product.product_name == product_name %}
+                            {{ product.product_name }} ✓
+                        {% else %}
+                            {{ product.product_name }}
+                       {% endif %}
+                       </option>
+                       {% endfor %}
+                    </select>
+                </li>
+                <li class="nav-item" id="navUser">
+                    <a href="#" class="nav-link" id="userName"></a>
+                </li>
+                <li class="nav-item" id="logout">
+                    <button class="btn btn-danger" onclick="logout()" style="font-size: 13px">退 出</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+<div id="outterDiv" class="hk-wrapper screenHeight">
+    <div class="container" style="padding: 70px 20px; max-width: 1800px;">
+        <section class="hk-sec-wrapper">
+            <div class="row" style="padding: 0px 0px; margin: 10px 0;" id="searchFields">
+                <div class="input-group"  style="width: 22%; margin-right: 20px;" >
+                    <span class="input-group-text">用例名称: </span>
+                    <input name="searchField" class="form-control" placeholder="&#45;&#45;请输入&#45;&#45;" >
+                    </div>
+                 <div class="input-group"  style="width: 22%; margin-right: 20px;">
+                     <span class="input-group-text">URL</span>
+                     <input name="searchField" class="form-control" placeholder="&#45;&#45;请输入&#45;&#45;" >
+                 </div>
+                <button class="btn btn-primary btn-sm" style="margin-left: 5%;width: 57px;height: 34px;font-size: 14px" onclick="searchAPI()">查询</button>
+                <button class="btn btn-primary btn-sm" id="add" style="margin-left: 20px;width: 57px;height: 34px;font-size: 14px" onclick="show_add_window(this)">添加</button>
+            </div>
+
+        <div class="row" style="padding: 0px 0px; margin: 10px 0;" >
+        <div class="col-md-2">
+            <div><br>
+                <span style="font-size: 14px;font-weight: bold;">用例模块</span>&nbsp;&nbsp;
+                <td style="width: 40px;text-align: left;">
+                    <button class="btn btn-default" style="width: 20px; height: 20px;border-radius: 50%;padding-left: 2px;line-height: 0px;font-size:18px;float: right;background-color:#f0f0f0; color: black;" onclick="showAddModule(this)"> + </button>
+                </td>
+            </div><br>
+            <ul id="treeMenu" class="tree"></ul>
+        </div>
+
+        <div class="col-md-10">
+            <hr>
+            <table id="table" class="table table-hover" style="width:100%; text-align: left;  border-bottom: solid; border-width: 0.5px; border-color: #0003;">
+                <thead>
+                    <tr>
+                        <th class="dt-head-center" style="width: 5%; text-align: left;">ID</th>
+                        <th class="dt-head-center" style="width: 20%; text-align: left;">用例名称</th>
+                        <th class="dt-head-center" style="width: 5%; text-align: left;">请求</th>
+                        <th class="dt-head-center" style="width: 15%; text-align: left;">URL</th>
+                        <th class="dt-head-center" style="width: 8%; text-align: left;">创建人</th>
+                        <th class="dt-head-center" style="width: 7%; text-align: left;display: none">产品</th>
+                        <th class="dt-head-center" style="width: 5%; text-align: left;display: none">模块</th>
+                        <th class="dt-head-center" style="width: 15%;text-align: left;">操作</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        </div>
+        </section>
+    </div>
+</div>
+
+
+    <div class="modal fade" id="add_window" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 1112px">
+              <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">添加接口</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="frame_add_window" class="frame_add_window" name='frame_add_window' src="" width="100%" height="640px" allowTransparency="true" style="background-color:transparent;border: 0;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <<div class="modal fade" id="edit_window" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 1112px">
+               <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">修改接口</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="frame_edit_window" class="frame_edit_window" name='frame_edit_window' src="" width="100%" height="650px" allowTransparency="true" style="background-color:transparent;border: 0;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="copy_window" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 1112px">
+              <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">复制用例</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="frame_copy_window" class="frame_copy_window" name='frame_copy_window' src="" width="100%" height="650px" allowTransparency="true" style="background-color:transparent;border: 0;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+      <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">删除确认</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 28px;">用例编码</span>
+                        <input name="delInput" disabled="disabled" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 28px;">用例名称</span>
+                        <input name="delInput" disabled="disabled" class="form-control">
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="width: 15%; margin-bottom: 10px; margin-left: 50%;transform: translate(-50%,0);" onclick="del(this)">确定</button>
+            </div>
+        </div>
+     </div>
+
+     <div class="modal fade" id="addModuleModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增模块</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group" style="margin-bottom: 15px;">
+                                <span class="input-group-text" style="width: 130px; padding-left: 18px;"><span style="color: red;">* </span>模块名称</span>
+                                <input name="addInput1" class="form-control" placeholder="--请输入--">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="addModuleSave('新增成功')">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div class="modal fade" id="addChildModuleModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增子模块</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group" style="margin-bottom: 15px;">
+                                 <span class="input-group-text" style="width: 130px; padding-left: 28px;">所属模块</span>
+                                 <input name="addInput2" class="form-control" disabled>
+                            </div>
+                            <div class="input-group" style="margin-bottom: 15px;">
+                                <span class="input-group-text" style="width: 130px; padding-left: 18px;"><span style="color: red;">* </span>子模块名称</span>
+                                <input name="addInput2" class="form-control" placeholder="--请输入--">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="addChildModuleSave('新增成功')">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modModuleModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">编辑模块</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group" style="margin-bottom: 15px;display: none">
+                                <span class="input-group-text" style="width: 110px; padding-left: 28px;">模块编号</span>
+                                <input name="modInput1" disabled="disabled" class="form-control">
+                            </div>
+                            <div class="input-group" style="margin-bottom: 15px;">
+                                <span class="input-group-text" style="width: 110px; padding-left: 28px;"><span style="color: red;">* </span>模块名称</span>
+                                <input name="modInput1" class="form-control" placeholder="--请输入--">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="modModuleSave('修改成功')">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="deleteModuleModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">删除确认</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 15px;display: none">
+                        <span class="input-group-text" style="width: 130px; padding-left: 28px;">模块编号</span>
+                        <input name="delInput1" disabled="disabled" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 28px;">模块名称</span>
+                        <input name="delInput1" disabled="disabled" class="form-control">
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="width: 15%; margin-bottom: 10px; margin-left: 50%;transform: translate(-50%,0);" onclick="delModule(this)">确定</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="deleteChildModuleModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">删除确认</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 15px;display: none">
+                        <span class="input-group-text" style="width: 130px; padding-left: 28px;">模块编号</span>
+                        <input name="delInput2" disabled="disabled" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 28px;">模块名称</span>
+                        <input name="delInput2" disabled="disabled" class="form-control">
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="width: 15%; margin-bottom: 10px; margin-left: 50%;transform: translate(-50%,0);" onclick="delChildModule(this)">确定</button>
+            </div>
+        </div>
+    </div>
+
+
+<script type="text/javascript">
+    function show_public_para(ele) {
+        var frameSrc = "/show_public_para/";
+        $("#frame_public_window").attr("src", frameSrc);
+        $('#public_para').modal();
+    }
+
+    function show_sign_role(ele) {
+        var frameSrc = "/show_sign_role/";
+        $("#frame_sign_window").attr("src", frameSrc);
+        $('#sign_role').modal();
+    }
+
+    function show_add_window(ele) {
+        element=ele.parentNode.parentNode
+        var selectedNode = element.querySelector('li.node-hovered');
+        if(selectedNode){
+            var selectedNode_id = selectedNode.getAttribute('data--id');
+        }
+        else {
+            selectedNode_id=0
+        }
+        var frameSrc = "/autotest/apitestcase/show_add_window/"+selectedNode_id;
+        $("#frame_add_window").attr("src", frameSrc);
+        $('#add_window').modal()
+        $('#add_window').find('.modal-title').text('添加接口');
+    }
+
+    function show_edit_interface(ele,id,action) {
+        selectedRow = ele.parentNode.parentNode
+        id = selectedRow.children[0].innerText
+        var frameSrc = "/autotest/apitestcase/show_edit_interface/"+id+"/"+action+"/";
+        $("#frame_edit_window").attr("src", frameSrc);
+        $('#edit_window').modal();
+        $('#edit_window').find('.modal-title').text('编辑接口：' + id);
+    }
+
+    function show_copy_interface(ele,id,action) {
+        selectedRow = ele.parentNode.parentNode
+        id = selectedRow.children[0].innerText
+        var frameSrc = "/autotest/apitestcase/show_edit_interface/"+id+"/"+action+"/";
+        $("#frame_copy_window").attr("src", frameSrc);
+        $('#copy_window').modal();
+        $('#copy_window').find('.modal-title').text('复制接口：' + id);
+    }
+
+
+    function show_request_data(ele) {
+        $('.textarea').empty();
+        var id1 = $(ele).parent().parent().parent().find('td')[1].textContent;
+        var name1 = $(ele).parent().parent().parent().find('td')[2].textContent;
+        console.log(id1);
+        $.ajax({
+            url: "/apitestcase/show_request_data/",
+            data: JSON.stringify({
+                id1: id1,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }),
+            headers:{'X-CSRFToken': '{{ csrf_token }}'},
+            contentType: 'application/json',
+            type: "POST",
+            traditional: true,
+            success: function (result) {
+                $('.textarea').append(result);
+                console.log(result);
+            },
+            fail: function (result) {
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

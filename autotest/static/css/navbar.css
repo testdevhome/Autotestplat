@@ -1,0 +1,111 @@
+
+        .textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 0;
+            height: 600px;
+        }
+        .textarea1 {
+            width: 100%;
+            box-sizing: border-box;
+            border: 0;
+            height: 350px;
+        }
+        .headline > li {
+            font-weight: bold;
+            list-style: none;
+            float: left;
+            margin-left: 20px;
+        }
+        .btn.staticB {
+            color: #324148;
+            background-color: #eaecec;
+            border-color: #eaecec;
+        }
+        .btn.staticB.activeB{
+            color: #fff;
+            background-color: #00acf0;
+            border-color: #00acf0;
+        }
+        .tooltipm {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltipm .tooltiptextm {
+            visibility: hidden;
+            width: 380px;
+            background-color: #d6d9daee;
+            color: #000;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            top: 150%;
+            left: 50%;
+            margin-left: -190px;
+        }
+        .tooltipm .tooltiptextm::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent #d6d9dadd transparent;
+        }
+        .tooltipm:hover .tooltiptextm {
+            visibility: visible;
+            z-index: 2;
+        }
+        #logout
+        {
+            position: absolute;
+            right: 50px;
+        }
+        #navUser
+        {
+            position: absolute;
+            right: 140px;
+        }
+        a {
+            cursor:pointer;
+            text-decoration:none
+        }
+        td {
+            font-size: 14px;
+        }
+        .screenHeight{
+            min-height: calc(100vh);
+        }
+
+        #select-option {
+            height: 40px;
+            font-size: 12px;
+            border: none;
+            color: inherit;
+            text-align: left;
+        }
+
+        #select-option option {
+            font-size: 13px;
+        }
+
+        #select-option option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .tree ul {
+            position: relative;
+            padding-left: 1em;
+        }
+
+        .node-hovered {
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+
+        .node-hovered > ul, .node-hovered > li {
+            background-color: white;
+        }
