@@ -1,0 +1,289 @@
+<!Doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+<!---------------------------------------------------------
+Auther:：Fin;  Version：Autotestplat-V5.0
+----------------------------------------------------------->
+<head>
+    <meta charset="UTF-8">
+    <title> WebUI测试</title>
+    <link href="/static/dist/css/style.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/dt.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/navbar.css" rel="stylesheet" type="text/css">
+    <script src="/static/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <script src="/static/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/static/src/localfiles/bootstrap.min.js"></script>
+    <script src="/static/src/localfiles/jquery.dataTables.min.js"></script>
+    <script src="/static/src/localfiles/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/vendors/laydate/laydate.js" type="text/javascript"></script>
+    <script src="/static/js/public.js"></script>
+    <script src="/static/js/webtestcase.js"></script>
+    <script>
+        window.onload = function(){
+            if(loginVerify() == 200){
+                infoInit()
+            }
+            var selectElement = document.getElementById('select-option');
+            var options = selectElement.options;
+            for (var i = 0; i < options.length; i++) {
+                if (options[i].text === "{{ product_name }}") {
+                    options[i].style.display = 'none';
+                    break;
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="row" >
+        <div class="col-sm">
+            <ul class="nav nav-pills nav-pills-success nav-pills-square nav-light bg-white pa-15 fixed-top">
+                <li class="nav-item">
+                    <a class="nav-link" href={% url 'index' %}>首 页</a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'product' %} class="nav-link"> 产品管理 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apitestcase' %} class="nav-link"> 接口用例 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apitestplan' %} class="nav-link"> 测试计划 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apireport' %} class="nav-link"> 测试报告 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'parasettings' %} class="nav-link"> 系统设置 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'user' %} class="nav-link "> 用户管理 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apiperformance' %} class="nav-link"> 性能测试 </a>
+                </li>
+                <li class="nav-item dropdown" id="uiDropdown">
+                <a id="uitest" class="nav-link active"> WebUI测试 </a>
+                <ul class="dropdown-menu" id="uiDropdownMenu">
+                    <li><a href={% url 'apptestcase' %} class="nav-link"> AppUI测试 </a></li>
+                    <li><a href={% url 'webtestcase' %} class="nav-link active"> WebUI测试 </a></li>
+                </ul>
+                </li>
+                <li class="nav-item" id="cur_product" style="margin-left: 130px">
+                    <select id="select-option" name="setInput"  onchange="saveOption()" style="height: 40px;font-size: 12px; border: none;color: inherit">
+                        <option style="font-size: 12px">{{ product_name }}</option>
+                        {% for product in product_alls %}
+                        <option style="font-size: 12px">
+                        {% if product.product_name == product_name %}
+                            {{ product.product_name }} ✓
+                        {% else %}
+                            {{ product.product_name }}
+                       {% endif %}
+                       </option>
+                       {% endfor %}
+                    </select>
+                </li>
+                <li class="nav-item" id="navUser">
+                    <a href="#" class="nav-link" id="userName"></a>
+                </li>
+                <li class="nav-item" id="logout">
+                    <button class="btn btn-danger" onclick="logout()" style="font-size: 13px">退 出</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="outterDiv" class="hk-wrapper screenHeight">
+        <div class="container" style="padding: 70px 20px; max-width: 1800px;">
+        <section class="hk-sec-wrapper">
+            <div class="row" style="padding: 0px 0px; margin: 10px 0;" id="searchFields">
+                <div class="input-group"  style="width: 22%; margin-right: 20px;" >
+                    <span class="input-group-text">用例名称: </span>
+                    <input name="searchField" class="form-control" placeholder="--请输入--" >
+                    </div>
+                <div class="input-group"  style="width: 22%; margin-right: 20px;">
+                    <span class="input-group-text">测试结果: </span>
+                    <input name="searchField" class="form-control" placeholder="--请输入--" >
+                </div>
+
+                <button class="btn btn-primary btn-sm" style="margin-left: 5%;width: 57px;height: 34px;font-size: 14px" onclick="searchClick()">查询</button>
+                <button class="btn btn-primary btn-sm" id="add" style="margin-left: 20px;width: 57px;height: 34px;font-size: 14px" onclick="showAdd()">新增</button>
+                <button class="btn btn-green btn-sm" id="runall" style="margin-left: 220px;width: 110px;height: 34px;font-size: 14px" onclick="run_webtestcase_byproduct()">执行全部用例</button>
+            </div>
+
+            <hr>
+            <table id="table" class="table table-hover" style="width:100%; text-align: left;  border-bottom: solid; border-width: 0.5px; border-color: #0003;">
+                <thead>
+                    <tr>
+                        <th class="dt-head-center" style="width: 5%; text-align: left;">用例编号</th>
+                        <th class="dt-head-center" style="width: 15%; text-align: left;">用例名称</th>
+                        <th class="dt-head-center" style="width: 8%; text-align: left;">测试结果</th>
+                        <th class="dt-head-center" style="width: 6%; text-align: left;">创建人</th>
+                        <th class="dt-head-center" style="width: 11%; text-align: left;">执行时间</th>
+                        <th class="dt-head-center" style="width: 7%; text-align: left;">产品</th>
+                        <th class="dt-head-center" style="width: 5%; text-align: left;">排序</th>
+                        <th class="dt-head-center" style="width: 14%;text-align: left;">操作</th>
+                    </tr>
+                </thead>
+            </table>
+        </section>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 1200px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增用例</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group" style="margin-bottom: 15px;">
+                                <span class="input-group-text" style="width: 110px; padding-left: 5px;"><span style="color: red;">* </span>用例名称</span>
+                                <input style="max-width: 920px" name="addInput" class="form-control" placeholder="--请输入--">
+                            </div>
+                            <div class="row">
+                                  <thead>
+                                    <tr>
+                                        <span style="margin-left: 30px;font-size: 15px;color: gray">用例步聚</span>
+                                        <span style="margin-left: 30px;font-size: 15px;color: gray"><span style="color: red;">* </span>测试对象名称描述</span>
+                                        <span style="margin-left: 50px;font-size: 15px;color: gray"><span style="color: red;">* </span>定位方法</span>
+                                        <span style="margin-left: 110px;font-size: 15px;color: grey"><span style="color: red;">* </span>元素</span>
+                                        <span style="margin-left: 140px;font-size: 15px;color: grey"><span style="color: red;">* </span>操作方法</span>
+                                        <span style="margin-left: 30px;font-size: 15px;color: grey"><span style="color: red;">* </span>测试数据</span>
+                                        <span style="margin-left: 25px;font-size: 15px;color: grey"><span style="color: red;">* </span>断言数据</span>
+                                        <span style="margin-left: 20px;font-size: 15px;color: grey"><span style="color: red;">* </span>测试结果</span>
+                                    </tr>
+                                </thead>
+                            </div>
+                            <div class="col" name="addCaseStepList" style="max-height: 495px; overflow-y: scroll; padding-left: 25px; border-left: 1px solid black;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="addSave('新增成功')">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 1200px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">修改用例</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group" style="margin-bottom: 15px;">
+                                <span class="input-group-text" style="width: 110px; padding-left: 5px;"><span style="color: red;">* </span>用例名称</span>
+                                <input style="max-width: 920px" name="modInput" class="form-control" placeholder="--请输入--">
+                            </div>
+                            <div class="input-group" style="margin-bottom: 15px;">
+                                <span class="input-group-text" style="width: 110px; padding-left: 5px;"><span style="color: red;">* </span>用例排序</span>
+                                <input style="max-width: 920px" name="modInput" class="form-control" placeholder="--请输入--">
+                            </div>
+                            <div class="row">
+                                  <thead>
+                                    <tr>
+                                        <span style="margin-left: 30px;font-size: 15px;color: gray">用例步聚</span>
+                                        <span style="margin-left: 30px;font-size: 15px;color: gray"><span style="color: red;">* </span>测试对象名称描述</span>
+                                        <span style="margin-left: 50px;font-size: 15px;color: gray"><span style="color: red;">* </span>定位方法</span>
+                                        <span style="margin-left: 110px;font-size: 15px;color: grey"><span style="color: red;">* </span>元素</span>
+                                        <span style="margin-left: 140px;font-size: 15px;color: grey"><span style="color: red;">* </span>操作方法</span>
+                                        <span style="margin-left: 30px;font-size: 15px;color: grey"><span style="color: red;">* </span>测试数据</span>
+                                        <span style="margin-left: 25px;font-size: 15px;color: grey"><span style="color: red;">* </span>断言数据</span>
+                                        <span style="margin-left: 20px;font-size: 15px;color: grey"><span style="color: red;">* </span>测试结果</span>
+                                    </tr>
+                                </thead>
+                            </div>
+                            <div class="col" id="modCaseStepList" name="modCaseStepList" style="max-height: 495px; overflow-y: scroll; padding-left: 25px; border-left: 1px solid black;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="modSave('修改成功')">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+      <div class="modal fade" id="copyModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="max-width: 1200px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">复制用例</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group" style="margin-bottom: 15px;">
+                                <span class="input-group-text" style="width: 110px; padding-left: 5px;"><span style="color: red;">* </span>用例名称</span>
+                                <input style="max-width: 920px" name="copyInput" class="form-control" placeholder="--请输入--">
+                            </div>
+                            <div class="row">
+                                  <thead>
+                                    <tr>
+                                        <span style="margin-left: 30px;font-size: 15px;color: gray">用例步聚</span>
+                                        <span style="margin-left: 30px;font-size: 15px;color: gray"><span style="color: red;">* </span>测试对象名称描述</span>
+                                        <span style="margin-left: 50px;font-size: 15px;color: gray"><span style="color: red;">* </span>定位方法</span>
+                                        <span style="margin-left: 110px;font-size: 15px;color: grey"><span style="color: red;">* </span>元素</span>
+                                        <span style="margin-left: 140px;font-size: 15px;color: grey"><span style="color: red;">* </span>操作方法</span>
+                                        <span style="margin-left: 30px;font-size: 15px;color: grey"><span style="color: red;">* </span>测试数据</span>
+                                        <span style="margin-left: 25px;font-size: 15px;color: grey"><span style="color: red;">* </span>断言数据</span>
+                                        <span style="margin-left: 20px;font-size: 15px;color: grey"><span style="color: red;">* </span>测试结果</span>
+                                    </tr>
+                                </thead>
+                            </div>
+                            <div class="col" id="copyCaseStepList" name="copyCaseStepList" style="max-height: 495px; overflow-y: scroll; padding-left: 25px; border-left: 1px solid black;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="copySave('复制成功')">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">删除确认</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 28px;">用例编码</span>
+                        <input name="delInput" disabled="disabled" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 28px;">用例名称</span>
+                        <input name="delInput" disabled="disabled" class="form-control">
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="width: 15%; margin-bottom: 10px; margin-left: 50%;transform: translate(-50%,0);" onclick="del(this)">确定</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
