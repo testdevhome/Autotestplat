@@ -359,6 +359,7 @@ function set(tips="设置成功"){
                 operationSelectValue('set')
                 alert(tips)
                 $("#setModal").modal('hide')
+                window.location.reload()
             }
             else{
                 console.log(rst)
@@ -830,9 +831,6 @@ function multipleAdd(ele){
 }
 
 
-/**
- * @param {*} e
- */
 function add_params_add_row(e) {
     var elm1 = document.createElement('div')
     elm1.setAttribute('class', 'row')
@@ -842,9 +840,7 @@ function add_params_add_row(e) {
     paramsInputs += 1
 }
 
-/**
- * @param {*} e
- */
+
 function del_params_add_row(e){
   if(paramsInputs == 1){
     alert("至少保留一个输入框")
@@ -855,9 +851,7 @@ function del_params_add_row(e){
 }
 
 
-/**
- * @param {*} e
- */
+
 function add_head_add_row(e) {
     var elm1 = document.createElement('div')
     elm1.setAttribute('class', 'row')
@@ -867,9 +861,7 @@ function add_head_add_row(e) {
     headInputs += 1
 }
 
-/**
- * @param {*} e
- */
+
 function del_head_add_row(e){
     if(headInputs == 1){
         alert("至少保留一个输入框")
@@ -879,9 +871,7 @@ function del_head_add_row(e){
     headInputs -= 1
 }
 
-/**
- * @param {*} e
- */
+
 function add_head_edit_row(e) {
     var elm1 = document.createElement('div')
     elm1.setAttribute('class', 'row')
@@ -904,9 +894,6 @@ function del_head_edit_row(e){
 }
 
 
-/**
- * @param {*} e
- */
 function add_auth_edit_row(e) {
     var elm1 = document.createElement('div')
     elm1.setAttribute('class', 'row')
@@ -916,9 +903,7 @@ function add_auth_edit_row(e) {
     authEditInputs += 1
 }
 
-/**
- * @param {*} e
- */
+
 function del_auth_edit_row(e){
   if(authEditInputs == 1){
     alert("至少保留一个输入框")
@@ -928,9 +913,7 @@ function del_auth_edit_row(e){
   authEditInputs -= 1
 }
 
-/**
- * @param {*} e
- */
+
 function add_params_edit_row(e) {
     var elm1 = document.createElement('div')
     elm1.setAttribute('class', 'row')
@@ -940,9 +923,7 @@ function add_params_edit_row(e) {
     paramsEditInputs += 1
 }
 
-/**
- * @param {*} e
- */
+
 function del_params_edit_row(e){
   if(paramsEditInputs == 1){
     alert("至少保留一个输入框")
@@ -953,9 +934,6 @@ function del_params_edit_row(e){
 }
 
 
-/**
- * @param {*} e
- */
 function add_res_add_row(e) {
     var elm1 = document.createElement('div')
     elm1.setAttribute('class', 'row')
@@ -965,9 +943,7 @@ function add_res_add_row(e) {
     resInputs += 1
 }
 
-/**
- * @param {*} e
- */
+
 function del_res_add_row(e){
   if(resInputs == 1){
     alert("至少保留一个输入框")
@@ -978,9 +954,6 @@ function del_res_add_row(e){
 }
 
 
-/**
- * @param {*} e
- */
 function add_res_edit_row(e) {
     var elm1 = document.createElement('div')
     elm1.setAttribute('class', 'row')
@@ -990,9 +963,6 @@ function add_res_edit_row(e) {
     resEditInputs += 1
 }
 
-/**
- * @param {*} e
- */
 function del_res_edit_row(e){
   if(resEditInputs == 1){
     alert("至少保留一个输入框")
@@ -1001,7 +971,6 @@ function del_res_edit_row(e){
   e.parentNode.parentNode.parentNode.removeChild(e.parentNode.parentNode)
   resEditInputs -= 1
 }
-
 
 
 function showAddModule(){
@@ -1054,7 +1023,6 @@ function showModModule(id,ele){
     window.event.stopPropagation()
 }
 
-
 function showAddNextChildModule(ele){
     alert("仅支持添加到二级节点")
     window.event.stopPropagation()
@@ -1080,7 +1048,6 @@ function showDelChildMoudle(id,name){
     window.event.stopPropagation()
 }
 
-
 function addModuleSave(tips="新增成功"){
   var inputFields = $("[name=addInput1]")
   for(var i = 0; i < addModuleRequiredFields.length; i++){
@@ -1095,7 +1062,6 @@ function addModuleSave(tips="新增成功"){
       data: AjaxObjectData(addModuleFieldNames,inputFields),
       success: (rst) => {
           if(rst === '200'){
-              // operationSelectValue('add')
               alert(tips)
               $("#addModal").modal('hide')
               window.location.reload()
@@ -1125,7 +1091,6 @@ function addChildModuleSave(tips="新增成功"){
       data: AjaxObjectData(addChildModuleFieldNames,inputFields),
       success: (rst) => {
           if(rst === '200'){
-              // operationSelectValue('add')
               alert(tips)
               $("#addModal").modal('hide')
               window.location.reload()
