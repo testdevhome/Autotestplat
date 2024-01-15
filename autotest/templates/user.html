@@ -69,7 +69,7 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                 </ul>
                 </li>
                  <li class="nav-item" id="cur_product" style="margin-left: 130px">
-                    <select id="select-option" name="setInput"  onchange="saveOption()">
+                    <select id="select-option" onchange="saveOption()">
                         <option>{{ product_name }}</option>
                         {% for product in product_alls %}
                         <option>
@@ -104,8 +104,8 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                     <span style="font-size: 12px;height: 35px" class="input-group-text">角色名称: </span>
                     <select style="font-size: 12px;height: 35px" name="searchField" class="form-control custom-select" ></select>
                 </div>
-                <button style="font-size: 12px;height: 35px" class="btn btn-primary" style="margin-left: 5%;width: 57px;height: 34px;font-size: 14px" onclick="searchClick()">查询</button>
-                <button style="font-size: 12px;height: 35px" class="btn btn-primary" style="margin-left: 20px;width: 57px;height: 34px;font-size: 14px" onclick="showAddModal(this)">添加</button>
+                <button class="btn btn-primary" style="margin-left: 5%;width: 57px;height: 34px;font-size: 14px" onclick="searchClick()">查询</button>
+                <button class="btn btn-primary" style="margin-left: 20px;width: 57px;height: 34px;font-size: 14px" onclick="showAddModal(this)">添加</button>
             </div>
             <hr>
             <table id="table" class="table table-hover" style="width:100%; text-align: left;  border-bottom: solid; border-width: 0.5px; border-color: #0003;" data-sort="false">
