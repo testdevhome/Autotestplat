@@ -1,6 +1,6 @@
 # Autotestplat
 一站式自动化测试平台及解决方案
-Autotestplat-v5.1.2版本
+Autotestplat-v5.2.2版本
 
 功能介绍：<br>
 实现了接口自动化测试，产品/项目，用户，系统参数设置，接口测试用例，测试计划，定时任务，测试报告。<br>
@@ -13,8 +13,8 @@ Autotestplat-v5.1.2版本
 python3.6
 django2.1.3
 更高版本待后续更新...<br>
-1、下载和安装python 3.6、git、mysql、redis等安装包https://github.com/testdevhome/installPackage<br>
-2、git clone https://github.com/testdevhome/Autotestplat<br>
+1、下载和安装python 3.6、git、mysql、redis等安装包https://githubfast.com/testdevhome/installPackage<br>
+2、git clone https://githubfast.com/testdevhome/Autotestplat<br>
 3、cd Autotestplat <br>
 4、pip install -r requirements.txt<br>
 5、创建和导入数据库<br>
@@ -46,21 +46,21 @@ WebUI测试<br>
 第二步、安装谷歌浏览器版本100.0.4896.75 (正式版本) （32 位）。<br>
 第三步、执行，查看用例结果。<br>
 
-![image](https://github.com/testdevhome/Doc/blob/main/pic/userproduct.png)
-![image](https://github.com/testdevhome/Doc/blob/main/pic/systemsetting.png)
-![image](https://github.com/testdevhome/Doc/blob/main/pic/testcase.png)
-![image](https://github.com/testdevhome/Doc/blob/main/pic/edittestcase.png)
-![image](https://github.com/testdevhome/Doc/blob/main/pic/testplan.png)
-![image](https://github.com/testdevhome/Doc/blob/main/pic/addapi.png)
-![image](https://github.com/testdevhome/Doc/blob/main/pic/report.png)
-![image](https://github.com/testdevhome/Doc/blob/main/pic/performance.png)
-![image](https://github.com/testdevhome/Doc/blob/main/pic/appUI.png)
-![image](https://github.com/testdevhome/Doc/blob/main/pic/webUI.png)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic/userproduct.png)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic/systemsetting.png)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic/testcase.png)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic/edittestcase.png)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic/testplan.png)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic/addapi.png)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic/report.png)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic/performance.png)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic/appUI.png)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic/webUI.png)
 
 
     欢迎关注我们的微信公众号，请扫一扫如下图：
 
-![image](https://github.com/testdevhome/Doc/blob/main/pic-V1.0/testdevhome.jpg)
+![image](https://githubfast.com/testdevhome/Doc/blob/main/pic-V1.0/testdevhome.jpg)
 
 
 
