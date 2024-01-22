@@ -1,0 +1,268 @@
+<!Doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+<!---------------------------------------------------------
+Auther:：Fin;  Version：Autotestplat-V2.7
+----------------------------------------------------------->
+<head>
+    <meta charset="UTF-8">
+    <title> 用户管理 </title>
+    <link href="/static/dist/css/style.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/dt.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/navbar.css" rel="stylesheet" type="text/css">
+    <script src="/static/vendors/jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <script src="/static/vendors/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/static/src/localfiles/bootstrap.min.js"></script>
+    <script src="/static/src/localfiles/jquery.dataTables.min.js"></script>
+    <script src="/static/src/localfiles/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/vendors/laydate/laydate.js" type="text/javascript"></script>
+    <script src="/static/js/public.js"></script>
+    <script src="/static/js/user.js"></script>
+    <script>
+        window.onload = function(){
+            if(loginVerify() == 200){
+                infoInit()
+            }
+            var selectElement = document.getElementById('select-option');
+            var options = selectElement.options;
+            for (var i = 0; i < options.length; i++) {
+                if (options[i].text === "{{ product_name }}") {
+                    options[i].style.display = 'none';
+                    break;
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="row" >
+        <div class="col-sm">
+            <ul class="nav nav-pills nav-pills-success nav-pills-square nav-light bg-white pa-15 fixed-top">
+                <li class="nav-item">
+                    <a href={% url 'product' %} class="nav-link"> 产品管理 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apitestcase' %} class="nav-link"> 接口用例 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apitestplan' %} class="nav-link"> 测试计划 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apireport' %} class="nav-link"> 测试报告 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'apiperformance' %} class="nav-link"> 性能测试 </a>
+                </li>
+                <li class="nav-item dropdown" id="uiDropdown">
+                <a id="uitest" class="nav-link"> UI测试 </a>
+                <ul class="dropdown-menu" id="uiDropdownMenu">
+                    <li><a href={% url 'apptestcase' %} class="nav-link"> AppUI测试 </a></li>
+                    <li><a href={% url 'webtestcase' %} class="nav-link"> WebUI测试 </a></li>
+                </ul>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'parasettings' %} class="nav-link"> 系统设置 </a>
+                </li>
+                <li class="nav-item">
+                    <a href={% url 'user' %} class="nav-link active"> 用户管理 </a>
+                </li>
+                <li class="nav-item" id="cur_product" style="margin-left: 200px">
+                    <select id="select-option" name="setInput"  onchange="saveOption()">
+                        <option>{{ product_name }}</option>
+                        {% for product in product_alls %}
+                        <option>
+                        {% if product.product_name == product_name %}
+                            {{ product.product_name }} ✓
+                        {% else %}
+                            {{ product.product_name }}
+                       {% endif %}
+                       </option>
+                       {% endfor %}
+                    </select>
+                </li>
+                <li class="nav-item dropdown-user" id="navUser">
+                    <a href="#" class="nav-link" id="userName" style="font-size: 13px"></a>
+                <ul class="dropdown-menu" id="userDropdownMenu">
+                    <li> <a href="https://docs.qq.com/doc/DSVNlZ0xoUWpHYlpx?u=2f0ea49eb4e247f5b3c604c3d58ef026" class="nav-link" style="font-size: 13px" target="_black">使用手册</a></li>
+                    <li><a class="nav-link" onclick="logout()" style="font-size: 12px"> 退出 </a></li>
+                </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="outterDiv" class="hk-wrapper screenHeight">
+        <div class="container" style="padding: 70px 20px; max-width: 1800px;">
+        <section class="hk-sec-wrapper">
+            <div class="row" style="padding: 0px 0px; margin: 10px 0;" id="searchFields">
+                <div class="input-group"  style="width: 30%; margin-right: 20px;" >
+                    <span style="font-size: 12px;height: 35px" class="input-group-text">用户名称: </span>
+                    <input style="font-size: 12px;height: 35px" name="searchField" class="form-control" placeholder="--请输入--" >
+                </div>
+                <div class="input-group"  style="width: 30%; margin-right: 20px;">
+                    <span style="font-size: 12px;height: 35px" class="input-group-text">角色名称: </span>
+                    <select style="font-size: 12px;height: 35px" name="searchField" class="form-control custom-select" ></select>
+                </div>
+                <button class="btn btn-primary" style="margin-left: 5%;width: 57px;height: 34px;font-size: 14px" onclick="searchClick()">查询</button>
+                <button class="btn btn-primary" style="margin-left: 20px;width: 57px;height: 34px;font-size: 14px" onclick="showAddModal(this)">添加</button>
+            </div>
+            <hr>
+            <table id="table" class="table table-hover" style="width:100%; text-align: left;  border-bottom: solid; border-width: 0.5px; border-color: #0003;" data-sort="false">
+                <thead>
+                    <tr>
+                        <th class="dt-head-center" style="width: 5%; text-align: left; line-height: 0px;padding-top: 0px;font-weight: bold;">ID</th>
+                        <th class="dt-head-center" style="width: 10%; text-align: left; line-height: 0px;padding-top: 0px;font-weight: bold;">用户名称</th>
+                        <th class="dt-head-center" style="width: 10%; text-align: left; line-height: 0px;padding-top: 0px;font-weight: bold;">用户密码</th>
+                        <th class="dt-head-center" style="width: 10%; text-align: left; line-height: 0px;padding-top: 0px;font-weight: bold;">联系方式</th>
+                        <th class="dt-head-center" style="width: 10%; text-align: left; line-height: 0px;padding-top: 0px;font-weight: bold;">用户角色</th>
+                        <th class="dt-head-center" style="width: 10%; text-align: left; line-height: 0px;padding-top: 0px;font-weight: bold;">设置默认产品</th>
+                        <th class="dt-head-center" style="width: 15%; text-align: left; line-height: 0px;padding-top: 0px;font-weight: bold;">操作</th>
+                    </tr>
+                </thead>
+            </table>
+        </section>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">添加用户</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>用户名称</span>
+                        <input name="addInput1" class="form-control" placeholder="--请输入--">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>用户密码</span>
+                        <input name="addInput1" class="form-control" placeholder="--请输入--" type="password">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>联系方式</span>
+                        <input name="addInput1" class="form-control" placeholder="--请输入--">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>角色名称</span>
+                        <input name="addInput1" class="form-control" value="普通用户" placeholder="--请输入--" disabled>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>默认产品</span>
+                        <select  name="addInput1" class="form-control custom-select"></select>
+                    </div>
+                </div>
+                <button class="btn btn-success " style="width: 15%; margin-bottom: 10px; margin-left: 50%;transform: translate(-50%,0);" onclick="add()">确 定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="setModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">设置默认产品</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 55px;">ID</span>
+                        <input name="setInput" disabled="disabled" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>用户名称</span>
+                        <input name="setInput" class="form-control" placeholder="--请输入--" disabled>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;display: none">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;display: none"><span style="color: red;">* </span>用户密码</span>
+                        <input name="setInput" class="form-control" placeholder="--请输入--" style="display: none">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;display: none">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;display: none"><span style="color: red;">* </span>联系方式</span>
+                        <input name="setInput" class="form-control" placeholder="--请输入--" style="display: none">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;display: none">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;display: none"><span style="color: red;">* </span>用户角色</span>
+                        <input name="setInput" class="form-control" placeholder="--请输入--" style="display: none">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>默认产品</span>
+                        <select  name="setInput" class="form-control custom-select"></select>
+                    </div>
+                </div>
+                <button class="btn btn-success" style="width: 15%; margin-bottom: 10px; margin-left: 50%;transform: translate(-50%,0);" onclick="set()">保 存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modifyModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">修改用户</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 15px;display: none">
+                        <span class="input-group-text" style="width: 130px; padding-left: 55px;">ID</span>
+                        <input name="modInput" disabled="disabled" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>用户名称</span>
+                        <input name="modInput" class="form-control" placeholder="--请输入--">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>用户密码</span>
+                        <input name="modInput" class="form-control" placeholder="--请输入--" type="password">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>联系方式</span>
+                        <input name="modInput" class="form-control" placeholder="--请输入--">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;display: none">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;"><span style="color: red;">* </span>用户角色</span>
+                        <select  name="modInput" class="form-control custom-select" disabled></select>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;display: none">
+                        <span class="input-group-text" style="width: 130px; padding-left: 25px;display: none"><span style="color: red;">* </span>默认产品</span>
+                        <select  name="modInput" class="form-control custom-select" disabled style="display: none"></select>
+                    </div>
+                </div>
+                <button class="btn btn-success" style="width: 15%; margin-bottom: 10px; margin-left: 50%;transform: translate(-50%,0);" onclick="modUser()">保 存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">删除确认</h5>
+                    <button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 55px;">ID</span>
+                        <input name="delInput" disabled="disabled" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <span class="input-group-text" style="width: 130px; padding-left: 30px;">用户名称</span>
+                        <input name="delInput" disabled="disabled" class="form-control">
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="width: 15%; margin-bottom: 10px; margin-left: 50%;transform: translate(-50%,0);" onclick="del(this)">确 定</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
