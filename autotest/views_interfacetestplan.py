@@ -12,7 +12,7 @@ from django.core.cache import cache
 from django.template.context_processors import csrf
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
-from datetime import datetime
+from datetime import datetime,timedelta
 from django.http import HttpResponse
 from .views_interface import cache,print_log,interface_test_start, assert_test_old
 from django.contrib.auth.decorators import login_required
@@ -78,12 +78,13 @@ def interfaceTestplan(req):
         else:
             interval_id = None
         if crontab_id!=None and crontab_id!='':
-            runtime_year = datetime.now().year
-            runtime_month = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][5]
-            runtime_day = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][4]
+            # runtime_year = datetime.now().year
+            # runtime_month = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][5]
+            # runtime_day = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][4]
             runtime_hour = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][2]
             runtime_min = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][1]
-            runtime = str(runtime_year) + '-' + runtime_month + '-' + runtime_day + ' ' + runtime_hour + ':' + runtime_min
+            #runtime = str(runtime_year) + '-' + runtime_month + '-' + runtime_day + ' ' + runtime_hour + ':' + runtime_min
+            runtime = '每天 ' + runtime_hour + ':' + runtime_min + ' 执行'
             new_id.task_id = runtime
         elif interval_id!=None and interval_id!='':
             runtime_every = IntervalSchedule.objects.filter(id=interval_id).values_list()[0][1]
@@ -136,7 +137,8 @@ def addTestplan(request):
         name_exist = AutotestplatTestplan.objects.filter(suit_name=suit_list[0]).first()
         if name_exist:
             return HttpResponse(f'测试计划[{suit_list[0]}]已存在，请重新填写')
-        suit_info1 = AutotestplatTestplan(suit_name=suit_list[0],url_host=suit_list[1],charger=suit_list[2],product_id=product_id,interface_name=interfaces,interface_name_display=interfaces1,task_progress=None,interface_num=L,run_time='')
+        run_time_value = suit_list[5] if suit_list[5] and suit_list[5] != '' else ''
+        suit_info1 = AutotestplatTestplan(suit_name=suit_list[0],url_host=suit_list[1],charger=suit_list[2],product_id=product_id,interface_name=interfaces,interface_name_display=interfaces1,task_progress=None,interface_num=L,run_time=run_time_value)
         suit_info1.save()
         suit_id1 = AutotestplatTestplan.objects.order_by('-id')[0].id
         suit_name1 = AutotestplatTestplan.objects.filter(id=suit_id1).first().suit_name
@@ -145,19 +147,19 @@ def addTestplan(request):
         crontab = suit_list[5]
         interval = suit_list[6]
         if crontab !=None and crontab!='':
-            year = crontab.split('-')[0]
-            month = crontab.split('-')[1]
-            day = crontab.split('-')[2].split(' ')[0]
-            hour = crontab.split(':')[0].split(' ')[1]
+            # year = crontab.split('-')[0]
+            # month = crontab.split('-')[1]
+            # day = crontab.split('-')[2].split(' ')[0]
+            hour = crontab.split(':')[0]
             min = crontab.split(':')[1]
-            CrontabSchedule.objects.create(month_of_year=month, day_of_month=day, hour=hour, minute=min, day_of_week='*')
+            CrontabSchedule.objects.create(month_of_year='*', day_of_month='*', hour=hour, minute=min, day_of_week='*')
             crontab_id = CrontabSchedule.objects.order_by('-id').first().id
             args = '[' + str(suit_id1) + ']'
             description = request.session.get('user', '')
             enabled = '1'
-            PeriodicTask.objects.create(name=name, task=task, args=args, crontab_id=crontab_id, interval_id=None,
+            PeriodicTask.objects.create(name=str(suit_id1), task=task, args=args, crontab_id=crontab_id, interval_id=None,
                                         enabled=enabled, description=description)
-            max_task_id = PeriodicTask.objects.order_by('-id')[0].id
+            max_task_id = PeriodicTask.objects.filter(crontab_id=crontab_id).first().id
         elif interval !=None and interval!='':
             if interval == "每分钟1次":
                 interval_id = '5'
@@ -183,20 +185,37 @@ def addTestplan(request):
             interface_name1 = interface_list[i].split('_')[2]
             url1 = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().url
             assert_use_new1 = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().assert_use_new
-            assert_keywords_old1 = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().assert_keywords_old
-            assert_keywords_is_contain1 = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().assert_keywords_is_contain
+            assert_keywords_old1 = AutotestplatInterfaceTestcase.objects.filter(
+                id=interface_id).first().assert_keywords_old
+            assert_keywords_is_contain1 = AutotestplatInterfaceTestcase.objects.filter(
+                id=interface_id).first().assert_keywords_is_contain
             body_format = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().body_format,
             formated_dict = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().body,
             update_cookie1 = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().update_cookie,
             mode1 = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().mode,
             head1 = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().head,
+            # 确保 body 是 JSON 字符串格式（双引号）
+            try:
+                body_value = formated_dict[0]
+                if body_value:
+                    # 尝试解析为 Python 对象
+                    body_obj = eval(body_value) if not body_value.startswith('{') and not body_value.startswith(
+                        '[') else json.loads(body_value)
+                    # 重新序列化为标准 JSON 格式
+                    if isinstance(body_obj, (dict, list)):
+                        formated_dict = (json.dumps(body_obj, ensure_ascii=False),)
+            except Exception:
+                # 如果解析失败，保持原值
+                pass
             para_suit_info = AutotestplatTestplanInterface(suit_id=suit_id1, suit_name=suit_name1,
-                                                       interface_id=interface_id,interface_name=interface_name1, url=url1,
-                                                       body_format=body_format[0], body=formated_dict[0], mode=mode1[0],
-                                                       update_cookie=update_cookie1[0], head=head1[0],
-                                                       assert_keywords_is_contain=assert_keywords_is_contain1,
-                                                       assert_use_new=assert_use_new1,
-                                                       assert_keywords_old=assert_keywords_old1)
+                                                           interface_id=interface_id, interface_name=interface_name1,
+                                                           url=url1,
+                                                           body_format=body_format[0], body=formated_dict[0],
+                                                           mode=mode1[0],
+                                                           update_cookie=update_cookie1[0], head=head1[0],
+                                                           assert_keywords_is_contain=assert_keywords_is_contain1,
+                                                           assert_use_new=assert_use_new1,
+                                                           assert_keywords_old=assert_keywords_old1)
             para_suit_info.save()
             print(para_suit_info, ' insert interface success!')
             max_id = AutotestplatTestplanInterface.objects.order_by('-id')[0].id
@@ -246,21 +265,25 @@ def delTestplan(request):
         AutotestplatTestplanInterfaceOrder.objects.filter(suit_id=id1).delete()
         return HttpResponse('delete success!')
 
+
 def searchTestplan(req):
     username = req.session.get('user', '')
     key_words_product_id = req.GET.get('key_words_product_id', '')
     key_words_suit = req.GET.get('key_words_suit', '')
     key_words_name = req.GET.get('key_words_name', '')
     key_words_charger = req.GET.get('key_words_charger', '')
-    interfaces_all = AutotestplatInterfaceTestcase.objects.all().order_by('-product_id','order')
-    if key_words_product_id =='':
+    interfaces_all = AutotestplatInterfaceTestcase.objects.all().order_by('-product_id', 'order')
+    if key_words_product_id == '':
         if AuthUser.objects.filter(username=username).first().is_superuser == 1:
             product_id = ""
         else:
             product_id = AuthUser.objects.filter(username=username).first().last_name
     else:
         product_id = AutotestplatProduct.objects.filter(product_name=key_words_product_id).first().id
-    suits = AutotestplatTestplan.objects.filter(Q(suit_name__icontains=key_words_suit),Q(product_id__icontains=product_id),Q(interface_name__icontains=key_words_name),Q(charger__icontains=key_words_charger)).order_by('id')
+    suits = AutotestplatTestplan.objects.filter(Q(suit_name__icontains=key_words_suit),
+                                                Q(product_id__icontains=product_id),
+                                                Q(interface_name__icontains=key_words_name),
+                                                Q(charger__icontains=key_words_charger)).order_by('id')
     new_suits = []
     for id in suits:
         new_id = id
@@ -274,13 +297,14 @@ def searchTestplan(req):
         else:
             interval_id = None
         if crontab_id != None and crontab_id != '':
-            runtime_year = datetime.now().year
-            runtime_month = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][5]
-            runtime_day = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][4]
+            # runtime_year = datetime.now().year
+            # runtime_month = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][5]
+            # runtime_day = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][4]
             runtime_hour = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][2]
             runtime_min = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][1]
-            runtime = str(
-                runtime_year) + '-' + runtime_month + '-' + runtime_day + ' ' + runtime_hour + ':' + runtime_min
+            # runtime = str(
+            #     runtime_year) + '-' + runtime_month + '-' + runtime_day + ' ' + runtime_hour + ':' + runtime_min
+            runtime = '每天 ' + runtime_hour + ':' + runtime_min + ' 执行'
             new_id.task_id = runtime
         elif interval_id != None and interval_id != '':
             runtime_every = IntervalSchedule.objects.filter(id=interval_id).values_list()[0][1]
@@ -307,9 +331,23 @@ def searchTestplan(req):
         page_list = paginator.page(1)
     except EmptyPage:
         page_list = paginator.page(paginator.num_pages)
+
+    # 获取产品相关信息（与 interfaceTestplan 函数保持一致）
+    if AuthUser.objects.filter(username=username).first().is_superuser == 1:
+        product_name = ''
+    else:
+        product_id_user = AuthUser.objects.filter(username=username).first().last_name
+        product_name = AutotestplatProduct.objects.filter(
+            id=product_id_user).first().product_name if product_id_user else ''
+    product_all = AutotestplatProduct.objects.filter(delete_flag='N')
+    env_para = AutotestplatParameter.objects.filter(type="env")
+    interval = IntervalSchedule.objects.all().order_by('-id')
+
     c = csrf(req)
-    c.update({'page_list': page_list, 'num': num, 'interfaces_all':interfaces_all})
-    return render_to_response("interface_testplan.html",c)
+    c.update({'page_list': page_list, 'num': num, 'interfaces_all': interfaces_all, 'product_name': product_name,
+              'product_alls': product_all, 'env_paras': env_para, 'intervals': interval})
+    return render_to_response("interface_testplan.html", c)
+
 
 def searchTestplanApiTestcase(req):
     if req.method == "POST":
@@ -516,12 +554,13 @@ def showEditTestplan(request):
         else:
             interval_id = None
         if crontab_id != None:
-            runtime_year = datetime.now().year
-            runtime_month = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][5]
-            runtime_day = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][4]
+            # runtime_year = datetime.now().year
+            # runtime_month = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][5]
+            # runtime_day = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][4]
             runtime_hour = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][2]
             runtime_min = CrontabSchedule.objects.filter(id=crontab_id).values_list()[0][1]
-            run_time = str(runtime_year) + '-' + runtime_month + '-' + runtime_day + ' ' + runtime_hour + ':' + runtime_min
+            #run_time = str(runtime_year) + '-' + runtime_month + '-' + runtime_day + ' ' + runtime_hour + ':' + runtime_min
+            run_time = runtime_hour + ':' + runtime_min
             run_interval = None
         elif interval_id != None:
             interval_id = PeriodicTask.objects.filter(id=suit_info.task_id).first().interval_id
@@ -536,7 +575,7 @@ def showEditTestplan(request):
             run_time = None
         else:
             run_interval = None
-            run_time = None
+            run_time = suit_info.run_time if suit_info.run_time else None
         suit_info1 = {'id1':id1,
                       'suit_name':suit_info.suit_name,
                       'url_host':suit_info.url_host,
@@ -599,55 +638,58 @@ def saveEditTestplan(request):
                 interfaces += interface_list[i]
                 interfaces1 += name1
         product_id = AutotestplatProduct.objects.filter(product_name=suit_info[4]).first().id
-        AutotestplatTestplan.objects.filter(id=suit_info[0]).update(suit_name=suit_info[1],interface_name=interfaces,url_host=suit_info[2], interface_name_display=interfaces1,product_id=product_id,task_progress=None,interface_num=L,run_time='')
+        crontab = suit_info[6]
+        run_time_value = crontab if crontab and crontab != '' else ''
+        AutotestplatTestplan.objects.filter(id=suit_info[0]).update(suit_name=suit_info[1],interface_name=interfaces,url_host=suit_info[2], interface_name_display=interfaces1,product_id=product_id,task_progress=None,interface_num=L,run_time=run_time_value)
         task = 'autotest.views_interfacetestplan.api_autotest_task'
         interval = suit_info[5]
         task_id = AutotestplatTestplan.objects.filter(id=suit_info[0]).first().task_id
         if interval == "每分钟1次":
-            PeriodicTask.objects.filter(id=task_id).update(interval_id=5)
+            PeriodicTask.objects.filter(id=task_id).update(interval_id=5,crontab_id=None)
         elif interval == "每小时6次":
-            PeriodicTask.objects.filter(id=task_id).update(interval_id=4)
+            PeriodicTask.objects.filter(id=task_id).update(interval_id=4,crontab_id=None)
         elif interval == "每天1次":
-            PeriodicTask.objects.filter(id=task_id).update(interval_id=3)
+            PeriodicTask.objects.filter(id=task_id).update(interval_id=3,crontab_id=None)
         elif interval == "每天10次":
-            PeriodicTask.objects.filter(id=task_id).update(interval_id=2)
+            PeriodicTask.objects.filter(id=task_id).update(interval_id=2,crontab_id=None)
         elif interval == "每天4次":
-            PeriodicTask.objects.filter(id=task_id).update(interval_id=1)
+            PeriodicTask.objects.filter(id=task_id).update(interval_id=1,crontab_id=None)
         else:
             PeriodicTask.objects.filter(id=task_id).update(interval_id=None)
         crontab = suit_info[6]
         if crontab != '' and crontab != None:
-            year = crontab.split('-')[0]
-            month = crontab.split('-')[1]
-            day = crontab.split('-')[2].split(' ')[0]
-            hour = crontab.split(':')[0].split(' ')[1]
+            # year = crontab.split('-')[0]
+            # month = crontab.split('-')[1]
+            # day = crontab.split('-')[2].split(' ')[0]
+            hour = crontab.split(':')[0]
             min = crontab.split(':')[1]
             task_id = AutotestplatTestplan.objects.filter(id=suit_info[0]).first().task_id
             crontab_exist = PeriodicTask.objects.filter(id=task_id).first()
             if task_id and crontab_exist and crontab_exist.crontab_id is not None:
                 crontab_id = crontab_exist.crontab_id
-                CrontabSchedule.objects.filter(id=crontab_id).update(month_of_year=month, day_of_month=day, hour=hour,
+                CrontabSchedule.objects.filter(id=crontab_id).update(month_of_year='*', day_of_month='*', hour=hour,
                                                                      minute=min, day_of_week='*')
             elif task_id:
-                CrontabSchedule.objects.create(month_of_year=month, day_of_month=day, hour=hour, minute=min,
+                CrontabSchedule.objects.create(month_of_year='*', day_of_month='*', hour=hour, minute=min,
                                                day_of_week='*')
                 crontab_id = CrontabSchedule.objects.order_by('-id').first().id
-                PeriodicTask.objects.filter(id=task_id).update(crontab_id=crontab_id)
+                PeriodicTask.objects.filter(id=task_id).update(crontab_id=crontab_id, interval_id=None)
             else:
-                CrontabSchedule.objects.create(month_of_year=month, day_of_month=day, hour=hour, minute=min,
+                CrontabSchedule.objects.create(month_of_year='*', day_of_month='*', hour=hour, minute=min,
                                                day_of_week='*')
                 crontab_id = CrontabSchedule.objects.order_by('-id').first().id
                 args = '[' + str(suit_info[0]) + ']'
                 description = request.session.get('user', '')
                 enabled = '1'
-                PeriodicTask.objects.create(name=suit_info[0], task=task, args=args, crontab_id=crontab_id, interval_id=None,
+                PeriodicTask.objects.create(name=str(suit_info[0]), task=task, args=args, crontab_id=crontab_id, interval_id=None,
                                             enabled=enabled, description=description)
-                max_task_id = PeriodicTask.objects.order_by('-id')[0].id
+                max_task_id = PeriodicTask.objects.filter(crontab_id=crontab_id).first().id
                 AutotestplatTestplan.objects.filter(id=suit_info[0]).update(task_id=max_task_id)
-                PeriodicTask.objects.filter(id=max_task_id).update(crontab_id=crontab_id)
+                PeriodicTask.objects.filter(id=max_task_id).update(crontab_id=crontab_id, interval_id=None)
         else:
             task_id = AutotestplatTestplan.objects.filter(id=suit_info[0]).first().task_id
-            PeriodicTask.objects.filter(id=task_id).update(crontab_id=None)
+            if task_id:
+                PeriodicTask.objects.filter(id=task_id).update(crontab_id=None, interval_id=None)
         tmp_list = AutotestplatTestplanInterface.objects.filter(suit_id=suit_info[0])
         for rec in tmp_list:
             interface_status1 = AutotestplatTestplanInterface.objects.filter(id=rec.id).update(suit_name=suit_info[1])
@@ -658,34 +700,52 @@ def saveEditTestplan(request):
         AutotestplatTestplanInterfaceOrder.objects.filter(suit_id=suit_info[0]).delete()
         suit_info_list = AutotestplatTestplan.objects.filter(id=suit_info[0])[0]
         id_list = []
-        tmp_id_list = suit_info_list.interface_name.split(',')
+        tmp_id_list = suit_info_list.interface_name.split(',') if suit_info_list.interface_name else []
         for rec in tmp_id_list:
+            if not rec or rec == '':
+                continue
             if (rec.startswith('testplan_interface') == True):
                 tmp_id_insert = rec.split('_')[2]
                 id_list.append(tmp_id_insert)
-            elif(rec!=''):
+            else:
                 tmp_id = rec.split('_')[1]
                 suit_id1 = suit_info[0]
                 suit_name1 = suit_info[1]
-                interface_id1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().id
-                interface_name1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().name
-                url1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().url
-                assert_use_new1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().assert_use_new
-                assert_keywords_old1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().assert_keywords_old
-                assert_keywords_is_contain1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().assert_keywords_is_contain
-                body_format = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().body_format,
-                formated_dict = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().body,
-                update_cookie1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().update_cookie,
-                mode1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().mode,
-                head1 = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first().head,
-                para_suit_info = AutotestplatTestplanInterface(suit_id=suit_id1, suit_name=suit_name1,interface_id=interface_id1,
-                                                                   interface_name=interface_name1, url=url1,
-                                                                   body_format=body_format[0], body=formated_dict[0],
-                                                                   mode=mode1[0],
-                                                                   update_cookie=update_cookie1[0], head=head1[0],
-                                                                   assert_keywords_is_contain=assert_keywords_is_contain1,
-                                                                   assert_use_new=assert_use_new1,
-                                                                   assert_keywords_old=assert_keywords_old1)
+                interface_obj = AutotestplatInterfaceTestcase.objects.filter(id=tmp_id).first()
+                if not interface_obj:
+                    continue
+                interface_id1 = interface_obj.id
+                interface_name1 = interface_obj.name
+                url1 = interface_obj.url
+                assert_use_new1 = interface_obj.assert_use_new
+                assert_keywords_old1 = interface_obj.assert_keywords_old
+                assert_keywords_is_contain1 = interface_obj.assert_keywords_is_contain
+                body_format = interface_obj.body_format,
+                formated_dict = interface_obj.body,
+                update_cookie1 = interface_obj.update_cookie,
+                mode1 = interface_obj.mode,
+                head1 = interface_obj.head,
+                try:
+                    body_value = formated_dict[0]
+                    if body_value:
+                        # 尝试解析为 Python 对象
+                        body_obj = eval(body_value) if not body_value.startswith('{') and not body_value.startswith(
+                            '[') else json.loads(body_value)
+                        # 重新序列化为标准 JSON 格式
+                        if isinstance(body_obj, (dict, list)):
+                            formated_dict = (json.dumps(body_obj, ensure_ascii=False),)
+                except Exception:
+                    # 如果解析失败，保持原值
+                    pass
+                para_suit_info = AutotestplatTestplanInterface(suit_id=suit_id1, suit_name=suit_name1,
+                                                               interface_id=interface_id1,
+                                                               interface_name=interface_name1, url=url1,
+                                                               body_format=body_format[0], body=formated_dict[0],
+                                                               mode=mode1[0],
+                                                               update_cookie=update_cookie1[0], head=head1[0],
+                                                               assert_keywords_is_contain=assert_keywords_is_contain1,
+                                                               assert_use_new=assert_use_new1,
+                                                               assert_keywords_old=assert_keywords_old1)
                 para_suit_info.save()
                 max_id = AutotestplatTestplanInterface.objects.order_by('-id')[0].id
                 id_list.append(max_id)
@@ -716,7 +776,7 @@ def saveEditTestplan(request):
                 interfaceid = interface[0]
                 interfacename = interface[4]
                 interface_name_list += 'testplan_interface_' + str(interfaceid) + '_' + interfacename + ','
-        AutotestplatTestplan.objects.filter(id=suit_info[0]).update(interface_name=interface_name_list,task_progress=None,interface_num=i_num,run_time='')
+        AutotestplatTestplan.objects.filter(id=suit_info[0]).update(interface_name=interface_name_list,task_progress=None,interface_num=i_num,run_time=run_time_value)
         return HttpResponse('update_use_status success!')
 
 
@@ -736,8 +796,25 @@ def updateTestplanInterface(request):
             interface_body = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().body
             interface_body_format = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().body_format
             interface_mode = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().mode
-            interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(id=interface_id).first().assert_keywords_old
-            AutotestplatTestplanInterface.objects.filter(id=testplan_interface_id).filter(suit_id=testplan_id).filter(interface_id=interface_id).update(interface_name=interface_name,url=interface_url,head=interface_head,body=interface_body,body_format=interface_body_format,mode=interface_mode,assert_keywords_old=interface_assert_keywords_old)
+            interface_assert_keywords_old = AutotestplatInterfaceTestcase.objects.filter(
+                id=interface_id).first().assert_keywords_old
+            # 确保 body 是 JSON 字符串格式（双引号）
+            try:
+                if interface_body:
+                    # 尝试解析为 Python 对象
+                    body_obj = eval(interface_body) if not interface_body.startswith(
+                        '{') and not interface_body.startswith('[') else json.loads(interface_body)
+                    # 重新序列化为标准 JSON 格式
+                    if isinstance(body_obj, (dict, list)):
+                        interface_body = json.dumps(body_obj, ensure_ascii=False)
+            except Exception:
+                # 如果解析失败，保持原值
+                pass
+            AutotestplatTestplanInterface.objects.filter(id=testplan_interface_id).filter(suit_id=testplan_id).filter(
+                interface_id=interface_id).update(interface_name=interface_name, url=interface_url, head=interface_head,
+                                                  body=interface_body, body_format=interface_body_format,
+                                                  mode=interface_mode,
+                                                  assert_keywords_old=interface_assert_keywords_old)
             interface_exist=1
         else:
             interface_name=''
@@ -1048,71 +1125,130 @@ def startInterfaceTestplan(request):
                             return HttpResponse(
                                 '【ERROR】：参数 ' + head[rec] + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' +
                                 head[rec] + ' 的前置接口，以及确认Redis是否已启动')
+                
+                # === 新增：自动从 Redis 加载 Cookie 到请求头 ===
+                cached_cookies = cache.get('auto_cookies_all')
+                if cached_cookies:
+                    try:
+                        cookie_dict = json.loads(cached_cookies.decode('utf-8'))
+                        if cookie_dict:
+                            cookie_string = '; '.join([f"{k}={v}" for k, v in cookie_dict.items()])
+                            # 直接设置请求头的 Cookie 字段，不操作 session.cookies
+                            head['Cookie'] = cookie_string
+                            print_log(f'【自动注入Cookie】：已将 {len(cookie_dict)} 个Cookie注入请求头')
+                            print_log(f'【DEBUG】Cookie值：{cookie_string}')
+                    except Exception as e:
+                        print_log(f'【WARNING】加载Cookie失败：{str(e)}')
+                # ================================================
+                
                 is_login_api = False
                 n = 0
                 while (n < 5):
                     body = eval(cur_interface.body)
-                    for rec in body.keys():
-                        if (isinstance(body[rec], str)):
-                            for rec1 in keyword_list1:
-                                if (rec1 in body[rec]):
-                                    if ('captcha' not in rec1):
-                                        body[rec] = body[rec].replace(rec1, public_dict[
-                                            rec1.replace('{', '').replace('}', '')])
-                                    else:
-                                        is_login_api = True
-                                        yanzheng_url = public_dict[rec1.replace('{', '').replace('}', '')]
-                                        haha = request_get(yanzheng_url, {}, {}, 0)
-                                        with open(codefile, 'wb') as f:
-                                            f.write(haha.content)
-                                        yanzheng = getcaptcha()
-                                        body[rec] = yanzheng
-                                        print_log('【登录验证码】：', ','), print_log(yanzheng)
-                            for rec5 in keyword_list5:
-                                if (rec5 in str(body[rec])):
-                                    try:
-                                        var_name = public_dict[rec5.replace('{', '').replace('}', '')]
-                                        var_value = str(eval(var_name))
-                                        body = str(body).replace(rec5, var_name)
-                                        body = str(body).replace(var_name, var_value)
-                                        body = ast.literal_eval(body)
-                                    except Exception:
-                                        error_info = traceback.format_exc()
-                                        print(error_info)
-                                        return HttpResponse(
-                                            '【ERROR】：参数 ' + rec5 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec5 + ' 的前置接口，以及确认Redis是否已启动')
-                            for rec2 in keyword_list2:
-                                if (rec2 in body[rec]):
-                                    try:
-                                        parares = cache.get(rec2.replace('{', '').replace('}', ''))
-                                        if parares==None:
-                                            print_log('【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认Redis是否已启动')
+                    if isinstance(body, dict):
+                        for rec in body.keys():
+                            if (isinstance(body[rec], str)):
+                                for rec1 in keyword_list1:
+                                    if (rec1 in body[rec]):
+                                        if ('captcha' not in rec1):
+                                            body[rec] = body[rec].replace(rec1, public_dict[
+                                                rec1.replace('{', '').replace('}', '')])
                                         else:
-                                            body[rec] = body[rec].replace(rec2, cache.get(rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                                            is_login_api = True
+                                            yanzheng_url = public_dict[rec1.replace('{', '').replace('}', '')]
+                                            haha = request_get(yanzheng_url, {}, {}, 0)
+                                            with open(codefile, 'wb') as f:
+                                                f.write(haha.content)
+                                            yanzheng = getcaptcha()
+                                            body[rec] = yanzheng
+                                            print_log('【登录验证码】：', ','), print_log(yanzheng)
+                                for rec5 in keyword_list5:
+                                    if (rec5 in str(body[rec])):
+                                        try:
+                                            var_name = public_dict[rec5.replace('{', '').replace('}', '')]
+                                            var_value = str(eval(var_name))
+                                            body = str(body).replace(rec5, var_name)
+                                            body = str(body).replace(var_name, var_value)
+                                            body = ast.literal_eval(body)
+                                        except Exception:
+                                            error_info = traceback.format_exc()
+                                            print(error_info)
+                                            return HttpResponse(
+                                                '【ERROR】：参数 ' + rec5 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec5 + ' 的前置接口，以及确认 Redis 是否已启动')
+                                for rec2 in keyword_list2:
+                                    if (rec2 in body[rec]):
+                                        try:
+                                            parares = cache.get(rec2.replace('{', '').replace('}', ''))
+                                            if parares == None:
+                                                print_log(
+                                                    '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认 Redis 是否已启动')
+                                            else:
+                                                body[rec] = body[rec].replace(rec2, cache.get(
+                                                    rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                                        except Exception:
+                                            error_info = traceback.format_exc()
+                                            print(error_info)
+                                            return HttpResponse(
+                                                '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认 Redis 是否已启动')
+                                for rec3 in keyword_list3:
+                                    if (rec3 in body[rec]):
+                                        para = copy.deepcopy(body)
+                                        body[rec] = sign_nb(para)
+                                if ('select' in body[rec]):
+                                    try:
+                                        sql = body[rec]
+                                        cursor = connection.cursor()
+                                        cursor.execute(sql)
+                                        data = cursor.fetchall()
+                                        print(u'查询的结果为： ', data[0][0])
+                                        body[rec] = data[0][0]
                                     except Exception:
-                                        error_info = traceback.format_exc()
-                                        print(error_info)
-                                        return HttpResponse('【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认Redis是否已启动')
-                            for rec3 in keyword_list3:
-                                if (rec3 in body[rec]):
-                                    para = copy.deepcopy(body)
-                                    body[rec] = sign_nb(para)
-                            if ('select' in body[rec]):
+                                        body[rec] = '【ERROR】：查询结果为空！'
+                    elif isinstance(body, list):
+                        body_str = str(body)
+                        for rec5 in keyword_list5:
+                            if (rec5 in body_str):
                                 try:
-                                    sql = body[rec]
-                                    cursor = connection.cursor()
-                                    cursor.execute(sql)
-                                    data = cursor.fetchall()
-                                    print(u'查询的结果为： ', data[0][0])
-                                    body[rec] = data[0][0]
+                                    var_name = public_dict[rec5.replace('{', '').replace('}', '')]
+                                    var_value = str(eval(var_name))
+                                    body_str = body_str.replace(rec5, var_value)
                                 except Exception:
-                                    body[rec] = '【ERROR】：查询结果为空！'
+                                    error_info = traceback.format_exc()
+                                    print(error_info)
+                                    return HttpResponse(
+                                        '【ERROR】：参数 ' + rec5 + ' 没有参数值，请确认系统参数设置是否正确')
+                        for rec2 in keyword_list2:
+                            if (rec2 in body_str):
+                                try:
+                                    body_str = body_str.replace(rec2, cache.get(
+                                        rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                                except Exception:
+                                    error_info = traceback.format_exc()
+                                    print(error_info)
+                                    return HttpResponse('【ERROR】：参数 ' + rec2 + ' 没有参数值')
+                        try:
+                            body = ast.literal_eval(body_str)
+                        except Exception:
+                            error_info = traceback.format_exc()
+                            print(error_info)
+                            return HttpResponse('【ERROR】：JSON 数组格式有误')
+                    else:
+                        return HttpResponse('【ERROR】：body 参数格式错误，应为字典或列表格式')
                     mode = cur_interface.mode
                     body_format = cur_interface.body_format
                     starttime = datetime.now()
                     response, cookie = interface_test_start(url, body, head, mode, body_format, True)
                     endtime = datetime.now()
                     response_time = (endtime - starttime).total_seconds()
+                    try:
+                        import requests.utils
+                        cookie_dict = requests.utils.dict_from_cookiejar(session.cookies)
+                        if cookie_dict:
+                            cache.set('auto_cookies_all', json.dumps(cookie_dict))
+                            cache.expire('auto_cookies_all', 3600)
+                            print_log(f'【自动保存Cookie】：已保存 {len(cookie_dict)} 个Cookie到Redis')
+                    except Exception as e:
+                        print_log(f'【WARNING】保存Cookie失败：{str(e)}')
                     update_cookie = cur_interface.update_cookie
                     public_resp = AutotestplatParameter.objects.filter(module_id=int(cur_id))
                     if (str(public_resp) != '[]'):
@@ -1449,26 +1585,35 @@ def api_autotest_task(suit_id):
         global report_id
         test_time = time.strftime("%Y-%m-%d %H:%M:%S")
         report_id = str(datetime.now().strftime("%Y%m%d%H%M%S%f"))
+        print(f'【Celery 任务开始】suit_id={suit_id}, report_id={report_id}, 时间={test_time}')
         sql = "select t3.interface_id,t2.interface_name,t2.suit_id,t2.suit_name,t2.mode,t2.url,t2.body,t2.assert_keywords_old from autotestplat_testplan t1 INNER JOIN autotestplat_testplan_interface t2 on t1.id=t2.suit_id INNER JOIN autotestplat_testplan_interface_order t3 on t2.suit_id=t3.suit_id and t2.id=t3.interface_id where t2.suit_id="+str(suit_id)+" order by t1.product_id"
         cursor = connection.cursor()
         aa = cursor.execute(sql)
         interface_list = cursor.fetchmany(aa)
-        run_interface_num=0
+        print(f'【Celery 任务】查询到 {len(interface_list)} 个接口')
+        run_interface_num = 0
         for rec in interface_list:
             case_list = []
             case_list.append(rec)
-            interfaceTestTask(case_list,test_time,response_time,report_id)
-            run_interface_num +=1
-            AutotestplatTestplan.objects.filter(id=rec[2]).update(task_progress=run_interface_num,run_time=test_time)
-        interfacepass=AutotestplatTestplanInterfaceResult.objects.filter(report_id=report_id).filter(result=0).count()
-        interfaceall=len(interface_list)
-        testcase_pass_pers = '{:.0%}'.format(interfacepass / interfaceall)
+            try:
+                interfaceTestTask(case_list, test_time, response_time, report_id)
+                run_interface_num += 1
+                print(f'【Celery 任务】接口 {run_interface_num} 执行成功')
+            except Exception as e:
+                print(f'【Celery 任务】接口执行失败：{str(e)}')
+                print(traceback.format_exc())
+            AutotestplatTestplan.objects.filter(id=rec[2]).update(task_progress=run_interface_num, run_time=test_time)
+        interfacepass = AutotestplatTestplanInterfaceResult.objects.filter(report_id=report_id).filter(result=0).count()
+        interfaceall = len(interface_list)
+        print(f'【Celery 任务】通过数：{interfacepass}, 总数：{interfaceall}')
+        testcase_pass_pers = '{:.0%}'.format(interfacepass / interfaceall) if interfaceall > 0 else '0%'
         AutotestplatTestplanInterfaceResult.objects.filter(report_id=report_id).update(pass_pers=testcase_pass_pers)
+        print(f'【Celery 任务】报告已生成：{report_id}')
         cursor.close()
     except Exception:
         error_info = traceback.format_exc()
-        print(error_info)
-        return HttpResponse(error_info)
+        print(f'【Celery 任务异常】{error_info}')
+        return error_info
 
 def interfaceTestTask(case_list,test_time,response_time,report_id):
     res_flags = []
@@ -1569,62 +1714,131 @@ def interfaceTestTask(case_list,test_time,response_time,report_id):
                         error_info = traceback.format_exc()
                         print(error_info)
                         return HttpResponse('【ERROR】：参数 '+head[rec]+' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 '+head[rec]+' 的前置接口，以及确认Redis是否已启动')
+            
+            # === 新增：自动从 Redis 加载 Cookie 到请求头 ===
+            cached_cookies = cache.get('auto_cookies_all')
+            if cached_cookies:
+                try:
+                    cookie_dict = json.loads(cached_cookies.decode('utf-8'))
+                    if cookie_dict:
+                        cookie_string = '; '.join([f"{k}={v}" for k, v in cookie_dict.items()])
+                        # 直接设置请求头的 Cookie 字段，不操作 session.cookies
+                        head['Cookie'] = cookie_string
+                        print_log(f'【自动注入Cookie】：已将 {len(cookie_dict)} 个Cookie注入请求头')
+                        print_log(f'【DEBUG】Cookie值：{cookie_string}')
+                except Exception as e:
+                    print_log(f'【WARNING】加载Cookie失败：{str(e)}')
+            # ================================================
+            
             body = eval(cur_interface.body)
-            for rec in body.keys():
-                if(isinstance(body[rec],str) or isinstance(body[rec],list) or isinstance(body[rec],dict)):
-                    for rec1 in keyword_list1:
-                        if(rec1 in body[rec]):
-                            body[rec] = body[rec].replace(rec1, public_dict[rec1.replace('{','').replace('}','')])
-                    for rec5 in keyword_list5:
-                        if (rec5 in str(body[rec])):
+            print(f'【DEBUG】body 类型：{type(body)}, 内容：{str(body)[:200]}')
+
+            # 处理字典类型的 body
+            if isinstance(body, dict):
+                for rec in body.keys():
+                    if (isinstance(body[rec], str) or isinstance(body[rec], list) or isinstance(body[rec], dict)):
+                        for rec1 in keyword_list1:
+                            if (rec1 in body[rec]):
+                                body[rec] = body[rec].replace(rec1, public_dict[rec1.replace('{', '').replace('}', '')])
+                        for rec5 in keyword_list5:
+                            if (rec5 in str(body[rec])):
+                                try:
+                                    var_name = public_dict[rec5.replace('{', '').replace('}', '')]
+                                    var_value = str(eval(var_name))
+                                    body = str(body).replace(rec5, var_name)
+                                    body = str(body).replace(var_name, var_value)
+                                    body = ast.literal_eval(body)
+                                except Exception:
+                                    error_info = traceback.format_exc()
+                                    print(error_info)
+                                    return HttpResponse(
+                                        '【ERROR】：参数 ' + rec5 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec5 + ' 的前置接口，以及确认 Redis 是否已启动')
+                        for rec2 in keyword_list2:
+                            if (rec2 in body[rec]):
+                                try:
+                                    parares = cache.get(rec2.replace('{', '').replace('}', ''))
+                                    if parares == None:
+                                        print_log(
+                                            '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认 Redis 是否已启动')
+                                    else:
+                                        body[rec] = body[rec].replace(rec2, cache.get(
+                                            rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                                except Exception:
+                                    error_info = traceback.format_exc()
+                                    print(error_info)
+                                    return HttpResponse(
+                                        '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认 Redis 是否已启动')
+                        for rec3 in keyword_list3:
+                            if (rec3 in body[rec]):
+                                try:
+                                    body[rec] = body[rec].replace(rec3, cache.get(
+                                        rec3.replace('{', '').replace('}', '')).decode('utf-8'))
+                                except Exception:
+                                    error_info = traceback.format_exc()
+                                    print(error_info)
+                                    return HttpResponse(
+                                        '【ERROR】：参数 ' + rec3 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec3 + ' 的前置接口，以及确认 Redis 是否已启动')
+                        if ('select' in body[rec]):
                             try:
-                                var_name = public_dict[rec5.replace('{', '').replace('}', '')]
-                                var_value = str(eval(var_name))
-                                body = str(body).replace(rec5, var_name)
-                                body = str(body).replace(var_name, var_value)
-                                body = ast.literal_eval(body)
+                                sql = body[rec]
+                                cursor = connection.cursor()
+                                cursor.execute(sql)
+                                data = cursor.fetchall()
+                                print(u'查询的结果为： ', data[0][0])
+                                body[rec] = data[0][0]
                             except Exception:
-                                error_info = traceback.format_exc()
-                                print(error_info)
-                                return HttpResponse(
-                                    '【ERROR】：参数 ' + rec5 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec5 + ' 的前置接口，以及确认Redis是否已启动')
-                    for rec2 in keyword_list2:
-                        if(rec2 in body[rec]):
-                            try:
-                                parares = cache.get(rec2.replace('{', '').replace('}', ''))
-                                if parares == None:
-                                    print_log('【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec2 + ' 的前置接口，以及确认Redis是否已启动')
-                                else:
-                                    body[rec] = body[rec].replace(rec2,cache.get(rec2.replace('{', '').replace('}', '')).decode('utf-8'))
-                            except Exception:
-                                error_info = traceback.format_exc()
-                                print(error_info)
-                                return HttpResponse('【ERROR】：参数 '+rec2+' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 '+rec2+' 的前置接口，以及确认Redis是否已启动')
-                    for rec3 in keyword_list3:
-                        if(rec3 in body[rec]):
-                            try:
-                                body[rec] = body[rec].replace(rec3,cache.get(rec3.replace('{', '').replace('}', '')).decode('utf-8'))
-                            except Exception:
-                                error_info = traceback.format_exc()
-                                print(error_info)
-                                return HttpResponse(
-                                    '【ERROR】：参数 ' + rec3 + ' 没有参数值，请确认系统参数设置是否正确，是否已执行返回 ' + rec3 + ' 的前置接口，以及确认Redis是否已启动')
-                    if('select' in body[rec]):
+                                body[rec] = '【ERROR】：查询结果为空！'
+
+            # 处理列表类型的 body（JSON 数组）
+            elif isinstance(body, list):
+                print(f'【DEBUG】检测到 body 是列表类型，开始处理...')
+                body_str = str(body)
+                for rec5 in keyword_list5:
+                    if (rec5 in body_str or '{{' + rec5[1:-1] + '}}' in body_str):
                         try:
-                            sql = body[rec]
-                            cursor = connection.cursor()
-                            cursor.execute(sql)
-                            data = cursor.fetchall()
-                            print(u'查询的结果为： ',data[0][0])
-                            body[rec] = data[0][0]
+                            var_name = public_dict[rec5.replace('{', '').replace('}', '')]
+                            var_value = str(eval(var_name))
+                            # 先替换双层大括号，再替换单层大括号
+                            body_str = body_str.replace('{{' + rec5[1:-1] + '}}', var_value)
+                            body_str = body_str.replace(rec5, var_value)
                         except Exception:
-                            body[rec] = '【ERROR】：查询结果为空！'
+                            error_info = traceback.format_exc()
+                            print(error_info)
+                            return HttpResponse('【ERROR】：参数 ' + rec5 + ' 没有参数值')
+                for rec2 in keyword_list2:
+                    if (rec2 in body_str or '{{' + rec2[1:-1] + '}}' in body_str):
+                        try:
+                            body_str = body_str.replace('{{' + rec2[1:-1] + '}}', cache.get(
+                                rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                            body_str = body_str.replace(rec2, cache.get(
+                                rec2.replace('{', '').replace('}', '')).decode('utf-8'))
+                        except Exception:
+                            error_info = traceback.format_exc()
+                            print(error_info)
+                            return HttpResponse('【ERROR】：参数 ' + rec2 + ' 没有参数值')
+                try:
+                    body = ast.literal_eval(body_str)
+                except Exception:
+                    error_info = traceback.format_exc()
+                    print(error_info)
+                    return HttpResponse('【ERROR】：JSON 数组格式有误')
+
             mode = cur_interface.mode
             body_format = cur_interface.body_format
             starttime = datetime.now()
             response,cookie = interface_test_start(url,body,head,mode,body_format,False)
             endtime = datetime.now()
             response_time = (endtime - starttime).total_seconds()
+            
+            # === 新增代码：无论是否配置正则，每次请求后都自动保存 Cookie ===
+            if session.cookies:
+                for cookie_name, cookie_value in session.cookies.items():
+                    cache.set(f"Cookie_{cookie_name}", cookie_value)
+                    print_log(f'【自动保存Cookie】：已更新 {cookie_name}')
+            # =========================================================
+            
+            print(
+                f'【接口响应】URL={url[:100]}..., 响应时间={response_time}秒，状态码={response[:100] if response else "None"}...')
             update_cookie = cur_interface.update_cookie
             public_resp = AutotestplatParameter.objects.filter(module_id=int(case_id),type='res')
             if(str(public_resp) != '[]'):
@@ -1730,18 +1944,50 @@ def interfaceTestTask(case_list,test_time,response_time,report_id):
                         assert_keywords_old = data[0][0]
                     except Exception:
                         assert_keywords_old = '【ERROR】：查询结果为空！'
-                result1 = assert_test_old(response,assert_keywords_old,True)
+                result1 = assert_test_old(response, assert_keywords_old, True)
             suit_id1 = cur_interface.suit_id
             suit_name1 = cur_interface.suit_name
             product_id = cur_testplan.product_id
             product_name = AutotestplatProduct.objects.filter(id=product_id).first().product_name
-            result_info = AutotestplatTestplanInterfaceResult(report_id=report_id,product_id=product_id,product_name=product_name,suit_id=suit_id1,suit_name=suit_name1,suit_interface_id=case_id,interface_name=interface_name,url=url,body=body,mode=mode,assert_keywords_old=assert_keywords_old,response_time=response_time,task_mode="定时任务",response=response,result=result1,date_time=test_time)
-            result_info.save()
+            print(f'\n【保存测试结果】==================')
+            print(f'  report_id: {report_id}')
+            print(f'  interface_name: {interface_name}')
+            print(f'  case_id: {case_id}')
+            print(f'  result: {result1}')
+            print(f'  product_id: {product_id}')
+            print(f'  suit_id: {suit_id1}')
+            try:
+                result_info = AutotestplatTestplanInterfaceResult(
+                    report_id=report_id,
+                    product_id=product_id,
+                    product_name=product_name,
+                    suit_id=suit_id1,
+                    suit_name=suit_name1,
+                    suit_interface_id=case_id,
+                    interface_name=interface_name,
+                    url=url,
+                    body=body,
+                    mode=mode,
+                    assert_keywords_old=assert_keywords_old,
+                    response_time=str(response_time),
+                    task_mode="定时任务",
+                    response=response,
+                    result=str(result1),
+                    date_time=test_time
+                )
+                result_info.save()
+                print(f'【保存成功】result_id={result_info.id}, report_id={report_id}')
+                print(f'==================\n')
+            except Exception as e:
+                print(f'【保存失败】{str(e)}')
+                print(f'错误详情：{traceback.format_exc()}')
+                print(f'==================\n')
+                raise
             return result1
         except Exception:
             error_info = traceback.format_exc()
-            print(error_info)
-            return HttpResponse(error_info)
+            print(f'【接口执行异常】{error_info}')
+            return error_info
 
 
 

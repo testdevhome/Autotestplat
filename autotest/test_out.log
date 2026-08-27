@@ -1,14 +1,137 @@
-【接口名称】: 用户列表接口-随机数字参数4mod
-【请求方式】: POST
-【请求URL】：http://127.0.0.1/autotest/user/getTableData/
-【请求head】：{"Accept": "", "Content-Type": "application/json;charset=utf-8", "Cookie": "", "token": "{token}"}
-【请求参数】：{'username': '76006146790'}
-【Cookies】：
+【接口名称】: 登录接口
+【请求方式】: GET
+【自动注入Cookie】：已将 1 个Cookie注入请求头
+【DEBUG】检查 rec5: {charRandom} 是否在 NTY1NzExNDMwMDM= 中
+【DEBUG】检查 rec5: {timeRandom} 是否在 NTY1NzExNDMwMDM= 中
+【DEBUG】检查 rec5: {numRandom} 是否在 NTY1NzExNDMwMDM= 中
+【DEBUG】检查 rec5: {TIME} 是否在 NTY1NzExNDMwMDM= 中
+【DEBUG】检查 rec5: {charRandom} 是否在 YUExMjM0NTY= 中
+【DEBUG】检查 rec5: {timeRandom} 是否在 YUExMjM0NTY= 中
+【DEBUG】检查 rec5: {numRandom} 是否在 YUExMjM0NTY= 中
+【DEBUG】检查 rec5: {TIME} 是否在 YUExMjM0NTY= 中
+【DEBUG】检查 rec5: {charRandom} 是否在 false 中
+【DEBUG】检查 rec5: {timeRandom} 是否在 false 中
+【DEBUG】检查 rec5: {numRandom} 是否在 false 中
+【DEBUG】检查 rec5: {TIME} 是否在 false 中
+【请求URL】：https://ohmsuat.yunda56.com:8090/ohms/login?ohmsUserNm=NTY1NzExNDMwMDM%3D&ohmsUserPwd=YUExMjM0NTY%3D&rememberMe=false
+【请求head】：{"Accept": "", "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8", "Cookie": "ohmsSessionID=8004dd1d-8047-4d20-b349-1b05d54f7f5a"}
+【请求参数】：{'ohmsUserNm': 'NTY1NzExNDMwMDM=', 'ohmsUserPwd': 'YUExMjM0NTY=', 'rememberMe': 'false'}
+【Cookies】：ohmsSessionID=8004dd1d-8047-4d20-b349-1b05d54f7f5a; ohmsSessionID=d1f72227-2d14-4711-b4f2-e9aae6f6e7e8
 
-【响应状态码】：200    OK
-【响应数据】：{"data": [[2, "pbkdf2_sha256$120000$auasduyPIcIm$6Otq65NwuQ/z0pDImICy+xbNXqdSSZdqqk57oOfeNbM=", "2024-01-08T23:18:20.383Z", 0, "fin", "fin", "Autotestplat", "13711112221", 1, 1, "2023-10-04T03:24:35Z"], [4, "pbkdf2_sha256$120000$Sy6uDO27Dtfg$XOZvLV0DLAC0QXtZ1tgnTj+EYzMYvFiegv96plk9EbQ=", "2023-12-04T05:14:34.016Z", 0, "test", "", "ChatGPT", "13800001111", 1, 1, "2023-10-13T06:23:00Z"], [7, "pbkdf2_sha256$120000$5gxslwxrcPYl$Dnk4wwqVsLXN0Hgcbc+W+EqECZB+THuwRcxoSfs9bzU=", "2023-11-30T07:03:02.557Z", 1, "root", "", "Autotestplat", "13822223333", 1, 1, "2023-11-06T00:00:00Z"], [8, "pbkdf2_sha256$120000$hWrOMJTGZ9XP$7zz48zsB2k66Dehhxgna5lQiCVw9PHs7Kvb2wbgClvU=", "2023-12-04T05:39:44.845Z", 1, "admin", "", "Autotestplat", "13822223333", 1, 1, "2023-11-06T00:00:00Z"]]}
-【响应时间】：0.030801 秒
+【响应状态码】：200    
+【响应数据】：<!DOCTYPE html>
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>登录快运交接单服务系统</title>
+    <meta name="description" content="快运交接单服务系统">
+    <link href="/ohms/img/favicon.svg" rel="shortcut icon" type="image/svg+xml"/>
+    <link href="/ohms/css/bootstrap.min.css?v=20260506081808" rel="stylesheet"/>
+    <link href="/ohms/css/font-awesome.min.css?v=20260506081808" rel="stylesheet"/>
+    <link href="/ohms/css/style.css?v=20260506081808" rel="stylesheet"/>
+    <link href="/ohms/css/login.min.css?v=20260506081808" rel="stylesheet"/>
+    <link href="/ohms/frame/css/sys-ui.css?v=20260506081808" rel="stylesheet"/>
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <!--<link rel="shortcut icon" href="../static/favicon.ico"/>-->
+    <style type="text/css">label.error { position:inherit;  }</style>
+    <script>
+        if(window.top!==window.self){window.top.location=window.location};
+    </script>
 
-【断言】： fin
+    <style type="text/css">
+        body.signin {
+            background:url("/ohms/img/login-background2.png") no-repeat center fixed;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-size: 100% 100%;
+        }
+        .signinpanel .form-control {
+            height: 45px;
+        }
+        .signinpanel .btn {
+            height: 45px;
+        }
+
+        .login-item{
+            position:relative;
+            margin-top:15px;
+        }
+        .login-item-verify-code{
+            position:absolute;
+            top:0;
+            right:0;
+            width:120px;
+            height:45px;
+            border-left:1px solid #ccc;
+            background-size: 100% 100%;
+        }
+
+    </style>
+</head>
+
+<body class="signin">
+    <div style="position: fixed;top:10%;left: 5%">
+        <img  src="/ohms/img/logo-1.png"  />
+        <span style="color: rgba(250,190,0,1);padding-left: 5px;font-size: 20px;">快运交接单服务系统</span>
+    </div>
+
+    <div class="signinpanel" style="width: 100%;">
+        <div class="row">
+            <div class="col-sm-8">
+            </div>
+            <div class="col-sm-4" style="width: 20%;">
+                <form id="signupForm">
+                    <h4 class="no-margins">登录：</h4>
+                    <input type="text"     name="ohmsNm" class="form-control uname" placeholder="用户名" value="" />
+                    <input type="password" name="ohmsPwd" class="form-control pword" placeholder="密码"   value="" autocomplete="off" />
+                    
+                    <div class="checkbox-custom m-t">
+				        <input type="checkbox" id="rememberme" name="rememberme"> <label for="rememberme">记住我</label>
+				    </div>
+                    <button class="btn btn-success btn-block" id="btnSubmit" data-loading="正在验证登录，请稍后...">登录</button>
+                </form>
+            </div>
+        </div>
+        <!--<div class="signup-footer">
+            <div class="pull-left">
+                @2019 上海乾臻信息科技有限公司  版权所有 <br>
+            </div>
+        </div>-->
+    </div>
+    <div>
+        <i style="position: fixed;bottom:2%;left: 40%;font-style:normal">上海乾臻信息科技有限公司  版权所有</i>
+    </div>
+<script> var ctx = "\/ohms\/"; var captchaType = "number"; </script>
+<!-- 全局js -->
+<script src="/ohms/js/jquery.min.js?v=20260506081808"></script>
+<script src="/ohms/js/bootstrap.min.js?v=20260506081808"></script>
+<!-- 验证插件 -->
+<script src="/ohms/ajax/libs/validate/jquery.validate.min.js?v=20260506081808"></script>
+<script src="/ohms/ajax/libs/validate/messages_zh.min.js?v=20260506081808"></script>
+<script src="/ohms/ajax/libs/layer/layer.min.js?v=20260506081808"></script>
+<script src="/ohms/ajax/libs/blockUI/jquery.blockUI.js?v=20260506081808"></script>
+<script src="/ohms/frame/js/sys-ui.js?v=4.0.0"></script>
+<script src="/ohms/frame/login.js?v=20260506081808"></script>
+</body>
+</html>
+
+【响应时间】：0.666862 秒【自动保存Cookie】：已从响应头捕获并保存 1 个Cookie到Redis
+
+【自动保存Cookie】：已更新 ohmsSessionID
+【自动保存Cookie】：已更新 ohmsSessionID
+【关联参数】： {ohmsSessionID} 在响应数据中未匹配到，请检测前置接口关键字配置，以及Redis是否已启动
+【自动保存Cookie】：已动态更新 Cookie_ohmsSessionID = 8004dd1d-8047-4d20-b...
+【自动保存Cookie】：已动态更新 Cookie_ohmsSessionID = d1f72227-2d14-4711-b...
+
+【断言】： 
 【测试结果】： 测试通过
 

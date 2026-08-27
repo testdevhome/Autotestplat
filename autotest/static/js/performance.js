@@ -1,4 +1,5 @@
 setProgressURL = 'apiperformance/progress/'
+checkStatusURL = 'apiperformance/status/'
 
 
 function search_performance_interface() {
@@ -145,14 +146,14 @@ function search_performance_interface() {
             return;
         }
         else if(num_bf == ''){
-            alert('请输入“并发数”')
+            alert('请输入"并发数"')
             return;
         }
         else if(num_sj == ''){
-            alert('请输入“持续运行时间”')
+            alert('请输入"持续运行时间"')
             return;
         }
-
+    
         $('.jmeter_status').empty().append('状态：准备执行');
         $.ajax({
             url: "/autotest/apiperformance/prepare/",
@@ -163,34 +164,82 @@ function search_performance_interface() {
             success: function(result) {
                 console.log(result);
                 if(result == 'success'){
-
+    
                     $('.jmeter_status').empty().append('<progress id="progressBar" value="0" max=""></progress>')
                      var progressBar = document.getElementById('progressBar');
-                     var duration = document.getElementById('num_sj').value;
-                     var increment = parseInt(duration) * 60;
+                     var duration = parseInt(document.getElementById('num_sj').value);
+                     var increment = duration * 60;
                      progressBar.max = increment;
-                     let startTime = new Date();
-
-                    var intervalId = setInterval(function() {
-                         let now = new Date();
-                         let elapsed = now - startTime;
-                         let seconds = Math.floor(elapsed / 1000);
-                         progressBar.value =  seconds % 60;
-                         $.ajax({
-                            url: appURL+setProgressURL,
-                            type: 'POST',
-                            data: JSON.stringify({
-                                progress:  progressBar.value,
-                                progress_total: increment,
-                            }),
-                            success: (rst) => {
-                                console.log("success")
+    
+                    // 【关键修改】：启动 JMeter 并立即开始轮询真实状态
+                    $.ajax({
+                        url: "/autotest/apiperformance/start/",
+                        headers:{'X-CSRFToken': '{{ csrf_token }}'},
+                        contentType: 'application/json;charset=utf-8',
+                        type: "POST",
+                        traditional: true,
+                        success: function(result) {
+                            if(result == 'success'){
+                                $('.jmeter_status').empty().append('状态：测试进行中');
+                                    
+                                // 启动状态轮询
+                                var statusCheckInterval = setInterval(function() {
+                                    $.ajax({
+                                        url: appURL + checkStatusURL,
+                                        type: 'GET',
+                                        success: function(statusData) {
+                                            if(statusData.running) {
+                                                // JMeter 仍在运行，更新进度条
+                                                progressBar.value = statusData.progress;
+                                                    
+                                                // 更新数据库中的进度
+                                                $.ajax({
+                                                    url: appURL + setProgressURL,
+                                                    type: 'POST',
+                                                    data: JSON.stringify({
+                                                        progress: statusData.progress,
+                                                        progress_total: increment,
+                                                    }),
+                                                    success: (rst) => {
+                                                        console.log("进度更新成功")
+                                                    }
+                                                });
+                                            } else {
+                                                // JMeter 已结束
+                                                clearInterval(statusCheckInterval);
+                                                $('.jmeter_status').empty().append('状态：测试完成');
+                                                progressBar.value = increment;
+                                                    
+                                                // 更新最终状态
+                                                $.ajax({
+                                                    url: appURL + setProgressURL,
+                                                    type: 'POST',
+                                                    data: JSON.stringify({
+                                                        progress: increment,
+                                                        progress_total: increment,
+                                                    }),
+                                                    success: (rst) => {
+                                                        console.log("最终状态更新成功")
+                                                    }
+                                                });
+                                            }
+                                        },
+                                        error: function(err) {
+                                            console.error("状态检查失败:", err);
+                                            clearInterval(statusCheckInterval);
+                                            $('.jmeter_status').empty().append('状态：状态检查异常');
+                                        }
+                                    });
+                                }, 500); // 每2秒轮询一次
                             }
-                         });
-                         if (progressBar.value === progressBar.max-1) {
-                            clearInterval(intervalId);
-                         }
-                    }, 100);
+                            else {
+                                $('.jmeter_status').empty().append('状态：启动失败');
+                            }
+                        },
+                        fail: function(result) {
+                            debugger
+                        }
+                    });
                 }
                 else {
                     $('.jmeter_status').empty().append('状态：出现异常');
@@ -201,49 +250,26 @@ function search_performance_interface() {
                 debugger
             }
         });
-
-        $.ajax({
-            url: "/autotest/apiperformance/start/",
-            headers:{'X-CSRFToken': '{{ csrf_token }}'},
-            contentType: 'application/json;charset=utf-8',
-            type: "POST",
-            traditional: true,
-            success: function(result) {
-                console.log(result);
-                if(result == 'success'){
-                    $('.jmeter_status').empty().append('状态：测试完成');
-                    $.ajax({
-                            url: appURL+setProgressURL,
-                            type: 'POST',
-                            data: JSON.stringify({
-                                progress:  0,
-                                progress_total: 1,
-                            }),
-                            success: (rst) => {
-                                console.log("success")
-                            }
-                         });
-                }
-                else {
-                    $('.jmeter_status').empty().append('状态：测试失败');
-                }
-            },
-            fail: function(result) {
-                debugger
-            }
-        });
     }
 
 function select_login(id1,name1,module1) {
     $('#login_panel').append('<a href="javascript:void(0)" id="'+id1+'" name="'+module1+'" class="list-group-item logins" onclick="remove_login_selected(\''+id1+'\')">'+name1+'</a>');
+
 }
+
+function view_test_result() {
+    window.open('/autotest/apiperformance/report/', '_blank');
+}
+
 function select_not_login(id1,name1,module1) {
     $('#not_login_panel').append('<a href="javascript:void(0)" id="'+id1+'" name="'+module1+'" class="list-group-item not_logins" onclick="remove_not_login_selected(\''+id1+'\')">'+name1+'</a>');
 }
+
 function remove_login_selected(ele) {
     var id1 = '#'+ele;
     $('#login_panel').find(id1).remove();
 }
+
 function remove_not_login_selected(ele) {
     var id1 = '#'+ele;
     $('#not_login_panel').find(id1).remove();

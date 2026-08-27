@@ -563,7 +563,13 @@ function run_webtestcase_bycode(e,tips="运行成功"){
               $("#addModal").modal('hide')
           }
           else{
-              return alert(rst)
+              // 解析 JSON 响应
+              var response = typeof rst === 'string' ? JSON.parse(rst) : rst;
+              if(response.message) {
+                  alert(response.message);
+              } else {
+                  alert('运行完成。该用例为：' + (response.web_testcase_code || web_testcase_code));
+              }
           }
       },
       error: (rst) =>{
@@ -585,7 +591,13 @@ function run_webtestcase_byproduct(e,tips="运行成功"){
               $("#addModal").modal('hide')
           }
           else{
-              return alert(rst)
+              // 解析 JSON 响应
+              var response = typeof rst === 'string' ? JSON.parse(rst) : rst;
+              if(response.message) {
+                  alert(response.message);
+              } else {
+                  alert('运行完成');
+              }
           }
       },
       error: (rst) =>{

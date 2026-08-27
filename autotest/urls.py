@@ -3,7 +3,9 @@
 #Auther:：Fin
 #Version：Autotestplat-V4.0
 ############################################
-from django.urls import path
+from django.urls import path, re_path # 新增 re_path
+from django.views.static import serve # 新增 serve
+import os # 新增 os
 from . import views, views_index
 from . import views_user
 from . import views_product
@@ -14,6 +16,10 @@ from . import views_interfacereport
 from . import views_performance
 from . import views_apptestcase
 from . import views_webtestcase
+
+# 定义报告目录路径 (BASE_DIR 是 Autotestplat 文件夹)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPORT_DIR = os.path.join(BASE_DIR, 'autotest', 'static', 'output')
 
 urlpatterns = [
     path('index/', views_index.indexView, name='index'),
@@ -82,6 +88,7 @@ urlpatterns = [
     path('apiperformance/prepare/', views_performance.prepareJmeter),
     path('apiperformance/start/', views_performance.startTestJmeter),
     path('apiperformance/progress/', views_performance.showProgress),
+    path('apiperformance/status/', views_performance.getJmeterStatus),
     path('apptestcase/', views_apptestcase.getAppView, name='apptestcase'),
     path('apptestcase/getSearchSelect/', views_apptestcase.loadAppOptions),
     path('apptestcase/getTableData/', views_apptestcase.loadAppTestcaseTable),
@@ -105,4 +112,12 @@ urlpatterns = [
     path('webtestcase/copyWebtestcase/', views_webtestcase.copyWebtestcase),
     path('webtestcase/run_webtestcase/<int:web_testcase_code>', views_webtestcase.runWebtestcase),
     path('webtestcase/runAllTestcase/', views_webtestcase.runAllTestcase),
+    
+    # === 新增这两行路由 ===
+    # 1. 处理主页请求：调用 Python 函数读取 index.html
+    path('apiperformance/report/', views_performance.report),
+    
+    # 2. 处理静态资源请求：使用 serve 视图加载 css/js/images
+    # 注意：这里用 .+ 而不是 .*，确保不匹配空路径（即不匹配 /report/ 本身）
+    re_path(r'^apiperformance/report/(?P<path>.+)$', serve, {'document_root': REPORT_DIR}),
 ]

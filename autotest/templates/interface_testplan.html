@@ -23,8 +23,8 @@ Auther:：Fin;  Version：Autotestplat-V2.7
             var addRunInterval = document.querySelectorAll('select[name="add_run_interval"]')[0];
             laydate.render({
                 elem: '#add_run_time',
-                type: 'datetime',
-                format: 'yyyy-MM-dd HH:mm',
+                type: 'time',
+                format: 'HH:mm',
                 done: function(value){
                     if (value) {
                         addRunInterval.value='';
@@ -37,8 +37,8 @@ Auther:：Fin;  Version：Autotestplat-V2.7
             var editRunInterval = document.querySelectorAll('select[name="edit_run_interval"]')[0];
             laydate.render({
                 elem: '#edit_run_time',
-                type: 'datetime',
-                format: 'yyyy-MM-dd HH:mm',
+                type: 'time',
+                format: 'HH:mm',
                 done: function(value){
                     if (value) {
                         editRunInterval.value='';
@@ -327,7 +327,7 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                                     <td style="width: 130px;font-size: 12px">{{ rec.suit_name }}</td>
                                     <td style="width: 90px;font-size: 12px;display: none">{{ rec.url_host }}</td>
                                     <td style="max-width: 200px;white-space:normal;font-size: 12px">{{ rec.interface_name_display | truncatechars:"24" }}</td>
-                                    <td style="width:110px;text-align: left;font-size: 12px">{{ rec.task_id }}</td>
+                                    <td style="width:110px;text-align: left;font-size: 12px">{{ rec.run_time }}</td>
                                     <td style="width:70px;text-align: left;font-size: 12px">{{ rec.charger }}</td>
                                     <td style="width:100px;text-align: left;font-size: 12px">{{ rec.product_id }}</td>
                                     <td style="width:50px;text-align: left;font-size: 12px"><progress id="progressBar_{{ rec.id }}" value="0" max="{{ rec.interface_num }}"></progress></td>
@@ -416,7 +416,7 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                                 <div class="col-md-11">
                                     <div class="input-group">
                                         <span class="input-group-addon">定时时间</span>
-                                         <input id="add_run_time" name="add_run_time"  class="form-control" placeholder="">
+                                         <input id="add_run_time" name="add_run_time"  class="form-control" placeholder="只选时分，如 14:30，每天到该时间执行">
                                     </div>
                                 </div>
                             </div>
@@ -700,7 +700,7 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                                 <div class="col-md-11">
                                     <div class="input-group">
                                         <span class="input-group-addon">定时时间</span>
-                                        <input id="edit_run_time" name="edit_run_time"  class="form-control" placeholder="">
+                                        <input id="edit_run_time" name="edit_run_time"  class="form-control" placeholder="只选时分，如 14:30，每天到该时间执行">
                                     </div>
                                 </div>
                             </div>
@@ -856,6 +856,10 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                     '</td>' +
                     '</tr>';
             $('#tbody_interface').append(tmp_append);
+            var currentProduct = "{{ product_name }}";
+            if (currentProduct) {
+                $('#add_product_id').val(currentProduct);
+            }
         });
 
         function reset_testplan(ele){
@@ -1218,6 +1222,7 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                 type: "POST",
                 traditional: true,
                 success: function (result) {
+                    alert('保存成功!\n\n注意：如果修改了定时时间，请重启 Celery Beat 服务才能生效。\n\n重启命令：python manage.py celery beat -l info');
                     window.location.reload(true);
                     console.log(result);
                 },

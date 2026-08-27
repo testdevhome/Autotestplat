@@ -123,10 +123,10 @@ def body_thread2(jid,numbf,numxh,numsj):
             '    <hashTree>\n'
     return  ss
 
-def body_cookie(key,value):
+def body_cookie(key,value,domain=''):
     ss =   '          <elementProp name="'+key+'" elementType="Cookie" testname="'+key+'">\n' \
            '            <stringProp name="Cookie.value">'+value+'</stringProp>\n' \
-           '            <stringProp name="Cookie.domain">testone.0easy.com</stringProp>\n' \
+           '            <stringProp name="Cookie.domain">'+domain+'</stringProp>\n' \
            '            <stringProp name="Cookie.path"></stringProp>\n' \
            '            <boolProp name="Cookie.secure">false</boolProp>\n' \
            '            <longProp name="Cookie.expires">0</longProp>\n' \
@@ -201,12 +201,12 @@ def body_result():
             '            <encoding>false</encoding>\n' \
             '            <assertions>true</assertions>\n' \
             '            <subresults>true</subresults>\n' \
-            '            <responseData>false</responseData>\n' \
-            '            <samplerData>false</samplerData>\n' \
+            '            <responseData>True</responseData>\n' \
+            '            <samplerData>True</samplerData>\n' \
             '            <xml>false</xml>\n' \
             '            <fieldNames>false</fieldNames>\n' \
-            '            <responseHeaders>false</responseHeaders>\n' \
-            '            <requestHeaders>false</requestHeaders>\n' \
+            '            <responseHeaders>True</responseHeaders>\n' \
+            '            <requestHeaders>True</requestHeaders>\n' \
             '            <responseDataOnError>false</responseDataOnError>\n' \
             '            <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>\n' \
             '            <assertionsResultsToSave>0</assertionsResultsToSave>\n' \
@@ -251,13 +251,13 @@ def body_report():
          '          <encoding>false</encoding>\n' \
          '          <assertions>true</assertions>\n' \
          '          <subresults>true</subresults>\n' \
-         '          <responseData>false</responseData>\n' \
-         '          <samplerData>false</samplerData>\n' \
+         '          <responseData>true</responseData>\n' \
+         '          <samplerData>true</samplerData>\n' \
          '          <xml>false</xml>\n' \
          '          <fieldNames>true</fieldNames>\n' \
-         '          <responseHeaders>false</responseHeaders>\n' \
-         '          <requestHeaders>false</requestHeaders>\n' \
-         '          <responseDataOnError>false</responseDataOnError>\n' \
+         '          <responseHeaders>true</responseHeaders>\n' \
+         '          <requestHeaders>true</requestHeaders>\n' \
+         '          <responseDataOnError>true</responseDataOnError>\n' \
          '          <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>\n' \
          '          <assertionsResultsToSave>0</assertionsResultsToSave>\n' \
          '          <bytes>true</bytes>\n' \
@@ -399,3 +399,48 @@ def generate_jmx2(jname,jhost,jport,jpath,jscheme,jbody):
     File2.close()
 
 
+def body_request_form(jid, jname, jhost, jport, jpath, jscheme, jbody, jhead, jassert, jcookie=''):
+    args_collection = ''
+    if isinstance(jbody, dict):
+        for k, v in jbody.items():
+            key_str = str(k)
+            val_str = str(v) if v is not None else ''
+            args_collection += \
+            '            <elementProp name="" elementType="HTTPArgument">\n' \
+            '              <boolProp name="HTTPArgument.always_encode">true</boolProp>\n' \
+            '              <stringProp name="Argument.name">'+key_str+'</stringProp>\n' \
+            '              <stringProp name="Argument.value">'+val_str+'</stringProp>\n' \
+            '              <stringProp name="Argument.metadata">=</stringProp>\n' \
+            '              <boolProp name="HTTPArgument.use_equals">true</boolProp>\n' \
+            '            </elementProp>\n'
+
+    cookie_xml = ''
+    if jcookie:
+        cookie_xml = body_httpcookie(jcookie)
+
+    ss =    '      <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="'+jname+'" enabled="true">\n' \
+            '        <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>\n' \
+            '        <elementProp name="HTTPsampler.Arguments" elementType="Arguments">\n' \
+            '          <collectionProp name="Arguments.arguments">\n' + args_collection + \
+            '          </collectionProp>\n' \
+            '        </elementProp>\n' \
+            '        <stringProp name="HTTPSampler.domain">'+jhost+'</stringProp>\n' \
+            '        <stringProp name="HTTPSampler.port">'+jport+'</stringProp>\n' \
+            '        <stringProp name="HTTPSampler.connect_timeout"></stringProp>\n' \
+            '        <stringProp name="HTTPSampler.response_timeout"></stringProp>\n' \
+            '        <stringProp name="HTTPSampler.protocol">'+jscheme+'</stringProp>\n' \
+            '        <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>\n' \
+            '        <stringProp name="HTTPSampler.path">'+jpath+'</stringProp>\n' \
+            '        <stringProp name="HTTPSampler.method">POST</stringProp>\n' \
+            '        <boolProp name="HTTPSampler.follow_redirects">false</boolProp>\n' \
+            '        <boolProp name="HTTPSampler.auto_redirects">true</boolProp>\n' \
+            '        <boolProp name="HTTPSampler.use_keepalive">false</boolProp>\n' \
+            '        <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>\n' \
+            '        <stringProp name="HTTPSampler.implementation">Java</stringProp>\n' \
+            '        <boolProp name="HTTPSampler.monitor">false</boolProp>\n' \
+            '        <stringProp name="HTTPSampler.embedded_url_re"></stringProp>\n' \
+            '      </HTTPSamplerProxy>\n' \
+            '    <hashTree>\n' + cookie_xml + body_httpheader(jhead) + body_reg() + body_assert(jassert) + '      <hashTree/>\n' \
+            + body_result() + '     <hashTree/>\n' \
+            '     </hashTree>\n'
+    return ss

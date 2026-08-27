@@ -19,14 +19,46 @@ from django.template.context_processors import csrf
 from django.shortcuts import render_to_response
 from pdfkit import from_url
 import pdfkit
+# def reportView(request):
+#     user_name = request.session.get('user', '')
+#     product_all = AutotestplatProduct.objects.filter(delete_flag='N')
+#     product_id = AuthUser.objects.filter(username=user_name).first().last_name
+#     product_name = AutotestplatProduct.objects.filter(id=product_id).first().product_name
+#     c = csrf(request)
+#     c.update({"product_name":product_name,"product_alls":product_all})
+#     return render_to_response("interface_report.html",c)
+
 def reportView(request):
     user_name = request.session.get('user', '')
+
+    # 检查用户是否登录
+    if not user_name:
+        # 用户未登录，重定向到登录页面或返回错误
+        return redirect('/autotest/login/')
+
+    # 获取用户对象并进行空值检查
+    user = AuthUser.objects.filter(username=user_name).first()
+    if user is None:
+        # 用户不存在，返回错误
+        return HttpResponse('用户不存在')
+
     product_all = AutotestplatProduct.objects.filter(delete_flag='N')
-    product_id = AuthUser.objects.filter(username=user_name).first().last_name
-    product_name = AutotestplatProduct.objects.filter(id=product_id).first().product_name
+    product_id = user.last_name
+
+    # 检查 product_id 是否存在
+    if not product_id:
+        # 用户没有关联产品，可能需要处理
+        product_name = "未关联产品"
+    else:
+        product = AutotestplatProduct.objects.filter(id=product_id).first()
+        if product is None:
+            product_name = "产品不存在"
+        else:
+            product_name = product.product_name
+
     c = csrf(request)
-    c.update({"product_name":product_name,"product_alls":product_all})
-    return render_to_response("interface_report.html",c)
+    c.update({"product_name": product_name, "product_alls": product_all})
+    return render_to_response("interface_report.html", c)
 
 @csrf_exempt
 def loadReport(request):

@@ -1,4 +1,4 @@
-﻿# -*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 from Autotestplat.celery import app
 
 @app.task(bind=True)

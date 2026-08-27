@@ -6,7 +6,7 @@
 import time,json,pymysql,os
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Count
 from django.db.models import Q
@@ -28,14 +28,47 @@ from .models import *
 
 current_dir = os.getcwd()
 
+# def getWebView(request):
+#     user_name = request.session.get('user', '')
+#     product_all = AutotestplatProduct.objects.filter(delete_flag='N')
+#     product_id = AuthUser.objects.filter(username=user_name).first().last_name
+#     product_name = AutotestplatProduct.objects.filter(id=product_id).first().product_name
+#     c = csrf(request)
+#     c.update({"product_name":product_name,"product_alls":product_all})
+#     return render_to_response("web_testcase.html",c)
+
 def getWebView(request):
     user_name = request.session.get('user', '')
+
+    # 检查用户是否登录
+    if not user_name:
+        # 用户未登录，重定向到登录页面或返回错误
+        return redirect('/autotest/login/')
+
+    # 获取用户对象并进行空值检查
+    user = AuthUser.objects.filter(username=user_name).first()
+    if user is None:
+        # 用户不存在，返回错误
+        return HttpResponse('用户不存在')
+
     product_all = AutotestplatProduct.objects.filter(delete_flag='N')
-    product_id = AuthUser.objects.filter(username=user_name).first().last_name
-    product_name = AutotestplatProduct.objects.filter(id=product_id).first().product_name
+    product_id = user.last_name
+
+    # 检查 product_id 是否存在
+    if not product_id:
+        # 用户没有关联产品，可能需要处理
+        product_name = "未关联产品"
+    else:
+        product = AutotestplatProduct.objects.filter(id=product_id).first()
+        if product is None:
+            product_name = "产品不存在"
+        else:
+            product_name = product.product_name
+
     c = csrf(request)
-    c.update({"product_name":product_name,"product_alls":product_all})
-    return render_to_response("web_testcase.html",c)
+    c.update({"product_name": product_name, "product_alls": product_all})
+    return render_to_response("web_testcase.html", c)
+
 
 @csrf_exempt
 def loadWebTestcaseTable(request):
@@ -340,7 +373,12 @@ def runWebtestcase(request,web_testcase_code):
             testcase_template_playwright(user_product_id, web_testcase_code)
     else:
         testcase_template_selenium(user_product_id, web_testcase_code)
-    return HttpResponse("运行完成。  该用例为：" + str(web_testcase_code) + "  " + "。" + "<input style='color:light blue' type='button'' name='Submit'' value='返回查看结果'' onclick='self.location=document.referrer;' />")
+    # return HttpResponse("运行完成。  该用例为：" + str(web_testcase_code) + "  " + "。" + "<input style='color:light blue' type='button'' name='Submit'' value='返回查看结果'' onclick='self.location=document.referrer;' />")
+    return HttpResponse(json.dumps({
+        'status': 'success',
+        'message': f'运行完成。该用例为：{web_testcase_code}',
+        'web_testcase_code': web_testcase_code
+    }), content_type='application/json')
 
 @csrf_exempt
 def runAllTestcase(request):
@@ -361,7 +399,12 @@ def runAllTestcase(request):
             testcase_template_playwright(user_product_id, web_testcase_code)
     else:
         testcase_template_selenium(user_product_id, web_testcase_code)
-    return HttpResponse("运行完成。  该用例为：" + str(web_testcase_code) + "  " + "。" + "<input style='color:light blue' type='button'' name='Submit'' value='返回查看结果'' onclick='self.location=document.referrer;' />")
+    # return HttpResponse("运行完成。  该用例为：" + str(web_testcase_code) + "  " + "。" + "<input style='color:light blue' type='button'' name='Submit'' value='返回查看结果'' onclick='self.location=document.referrer;' />")
+    return HttpResponse(json.dumps({
+        'status': 'success',
+        'message': f'运行完成。该用例为：{web_testcase_code}',
+        'web_testcase_code': web_testcase_code
+    }), content_type='application/json')
 
 def testcase_template_selenium(user_product_id,web_testcase_code):
     time.sleep(1)
@@ -369,12 +412,15 @@ def testcase_template_selenium(user_product_id,web_testcase_code):
     print("autotest product_id %s start..." % user_product_id )
     chrome_driver_path=r""+current_dir+"\chromedriver.exe"
     driver = webdriver.Chrome(executable_path=chrome_driver_path)
+    # 设置全局隐式等待时间
+    driver.implicitly_wait(10)
+    driver.maximize_window()
     if(web_testcase_code==''):
         sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.product_id=" + str(user_product_id) + " ORDER BY web_testcase_code_order ASC "
         caseResultInit(user_product_id, '未执行')
     else:
         sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.web_testcase_code=" + str(web_testcase_code) + " ORDER BY id ASC "
-    coon = pymysql.connect(user='root', passwd='test123456', db='autotestplat', port=3306, host='127.0.0.1',charset='utf8')
+    coon = pymysql.connect(user='root', passwd='Liuzhichao@123', db='autotestplat', port=3306, host='127.0.0.1',charset='utf8')
     cursor = coon.cursor()
     aa = cursor.execute(sql)
     info = cursor.fetchmany(aa)
@@ -481,7 +527,7 @@ def testcase_template_cypress(user_product_id,web_testcase_code):
     else:
         sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.web_testcase_code=" + str(
             web_testcase_code) + " ORDER BY id ASC "
-    coon = pymysql.connect(user='root', passwd='test123456', db='autotestplat', port=3306, host='127.0.0.1',
+    coon = pymysql.connect(user='root', passwd='Liuzhichao@123', db='autotestplat', port=3306, host='127.0.0.1',
                            charset='utf8')
     cursor = coon.cursor()
     aa = cursor.execute(sql)
@@ -590,7 +636,7 @@ def testcase_template_playwright(user_product_id,web_testcase_code):
     else:
         sql = "SELECT id,web_testcase_findmethod,web_testcase_evelement,web_testcase_optmethod,web_testcase_testdata,web_testcase_assertdata,`web_testcase_stepresult`,web_testcase_code from autotestplat_web_testcase where autotestplat_web_testcase.web_testcase_code=" + str(
             web_testcase_code) + " ORDER BY id ASC "
-    coon = pymysql.connect(user='root', passwd='test123456', db='autotestplat', port=3306, host='127.0.0.1',
+    coon = pymysql.connect(user='root', passwd='Liuzhichao@123', db='autotestplat', port=3306, host='127.0.0.1',
                            charset='utf8')
     cursor = coon.cursor()
     aa = cursor.execute(sql)
@@ -690,7 +736,7 @@ def casestepResult(web_testcase_code, result):
     now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     sql = "UPDATE autotestplat_web_testcase set autotestplat_web_testcase.web_testcase_stepresult=%s,autotestplat_web_testcase.run_time=%s where autotestplat_web_testcase.id=%s;"
     param = (result, now, web_testcase_code)
-    coon = pymysql.connect(user='root', passwd='test123456', db='autotestplat', port=3306, host='127.0.0.1',charset='utf8')
+    coon = pymysql.connect(user='root', passwd='Liuzhichao@123', db='autotestplat', port=3306, host='127.0.0.1',charset='utf8')
     cursor = coon.cursor()
     cursor.execute(sql, param)
     coon.commit()
@@ -703,7 +749,7 @@ def caseResult(web_testcase_code, result):
     sql = "UPDATE autotestplat_web_testcase set autotestplat_web_testcase.web_testcase_result=%s,autotestplat_web_testcase.run_time=%s where autotestplat_web_testcase.web_testcase_code=%s;"
     param = (result, now, web_testcase_code)
     print('web autotest result is ' + result.decode())
-    coon = pymysql.connect(user='root', passwd='test123456', db='autotestplat', port=3306, host='127.0.0.1',charset='utf8')
+    coon = pymysql.connect(user='root', passwd='Liuzhichao@123', db='autotestplat', port=3306, host='127.0.0.1',charset='utf8')
     cursor = coon.cursor()
     cursor.execute(sql, param)
     coon.commit()
@@ -716,7 +762,7 @@ def caseResultInit(user_product_id,result):
     sql = "UPDATE autotestplat_web_testcase set autotestplat_web_testcase.web_testcase_result=%s,autotestplat_web_testcase.web_testcase_stepresult=%s,autotestplat_web_testcase.run_time=%s where autotestplat_web_testcase.product_id=%s"
     param = (result, result, now, user_product_id)
     print('web autotest result init is ' + result.decode())
-    coon = pymysql.connect(user='root', passwd='test123456', db='autotestplat', port=3306, host='127.0.0.1',charset='utf8')
+    coon = pymysql.connect(user='root', passwd='Liuzhichao@123', db='autotestplat', port=3306, host='127.0.0.1',charset='utf8')
     cursor = coon.cursor()
     cursor.execute(sql, param)
     coon.commit()

@@ -10,7 +10,7 @@ import django
 from django.conf import settings
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Autotestplat.settings')
-django.setup()
+
 
 app = Celery('Autotestplat')
 
@@ -19,6 +19,8 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 app.conf.enable_utc = True
 app.conf.timezone = "Asia/Shanghai"
+
+django.setup()
 
 @app.task(bind=True)
 def debug_task(self):

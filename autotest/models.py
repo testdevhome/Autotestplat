@@ -216,15 +216,15 @@ class AutotestplatTestplanInterface(models.Model):
         db_table = 'autotestplat_testplan_interface'
 
 class AutotestplatTestplanInterfaceResult(models.Model):
-    report_id = models.CharField(max_length=20,null=True)
+    report_id = models.CharField(max_length=50,null=True)
     product_id = models.IntegerField(null=True)
     product_name = models.CharField(max_length=255, blank=True, null=True)
     suit_id = models.IntegerField(null=True)
     suit_name = models.CharField(max_length=100, null=True)
     suit_interface_id = models.IntegerField(null=True)
     interface_name = models.CharField(max_length=200,null=True)
-    url = models.CharField(max_length=100,null=True)
-    body = models.CharField(max_length=200,null=True)
+    url = models.CharField(max_length=500,null=True)
+    body = models.TextField(null=True, blank=True)
     mode = models.CharField(max_length=20,null=True)
     assert_keywords_old = models.CharField(max_length=20,null=True)
     task_mode = models.CharField(max_length=20,null=True)
@@ -232,7 +232,7 @@ class AutotestplatTestplanInterfaceResult(models.Model):
     response_time = models.TextField(null=True)
     result = models.CharField(max_length=20,null=True)
     pass_pers = models.CharField(max_length=20, null=True)
-    date_time = models.CharField(max_length=20,null=True)
+    date_time = models.CharField(max_length=50,null=True)
 
     class Meta:
         managed = True

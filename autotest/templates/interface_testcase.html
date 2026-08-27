@@ -44,9 +44,14 @@ Auther:：Fin;  Version：Autotestplat-V2.7
              });
 
              function renderTree(data) {
-                 var treeElement = $('.tree');
-                 treeElement.empty();
-                 let clickEvent = false;
+                var treeElement = $('#treeMenu');
+                if (treeElement.length === 0) {
+                    console.error('Tree container #treeMenu not found');
+                    return;
+                }
+                treeElement.empty();
+                let clickEvent = false;
+                
                  function renderNode(node) {
                      for (i = 0; i < node.length; i++) {
                          if (node[i][2] == 0) {
@@ -55,6 +60,7 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                              li.dataset.Id = node[i][0];
                              li.style.fontSize = '13px';
                              li.style.marginTop = '2px';
+                             li.classList.add('tree-node');
                              let addbtn = document.createElement('button');
                              addbtn.className = 'btn btn-default';
                              addbtn.style.width = '17px';
@@ -133,77 +139,81 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                                      newLi.style.marginLeft = '0px';
                                      newLi.style.fontSize = '13px'
                                      newLi.textContent = node[i][1];
-                             newLi.dataset.Id = node[i][0];
-                             newLi.dataset.parentId = pid;
-                             let abtn = document.createElement('button');
-                             abtn.className = 'btn btn-default';
-                             abtn.style.width = '17px';
-                             abtn.style.height = '17px';
-                             abtn.style.paddingLeft = '2px';
-                             abtn.style.lineHeight = '0px';
-                             abtn.style.float = 'right';
-                             abtn.style.backgroundImage = 'url(/static/src/pic/icon_add.png)';
-                             abtn.style.backgroundRepeat = 'no-repeat';
-                             abtn.style.backgroundSize = 'contain';
-                             abtn.onclick = function () {
-                                 showAddNextChildModule(newLi.textContent);
-                             };
-                             abtn.textContent = '+';
-                             abtn.style.color = '#00ADD8E6';
-                             let mbtn = document.createElement('button');
-                             mbtn.className = 'btn btn-default';
-                             mbtn.style.width = '17px';
-                             mbtn.style.height = '17px';
-                             mbtn.style.paddingLeft = '2px';
-                             mbtn.style.paddingRight = '2px';
-                             mbtn.style.lineHeight = '0px';
-                             mbtn.style.backgroundImage = 'url(/static/src/pic/icon_edit.png)';
-                             mbtn.style.backgroundRepeat = 'no-repeat';
-                             mbtn.style.backgroundSize = 'contain';
-                             mbtn.onclick = function () {
-                                 showModModule(newLi.dataset.Id, newLi.textContent);
-                             };
-                             mbtn.style.marginLeft = '3px';
-                             mbtn.style.float = 'right';
-                             let dbtn = document.createElement('button');
-                             dbtn.className = 'btn btn-default';
-                             dbtn.style.width = '17px';
-                             dbtn.style.height = '17px';
-                             dbtn.style.paddingLeft = '2px';
-                             dbtn.style.paddingRight = '2px';
-                             dbtn.style.lineHeight = '0px';
-                             dbtn.style.backgroundImage = 'url(/static/src/pic/icon_del.png)';
-                             dbtn.style.backgroundRepeat = 'no-repeat';
-                             dbtn.style.backgroundSize = 'contain';
-                             dbtn.onclick = function () {
-                                 showDelChildMoudle(newLi.dataset.Id, newLi.textContent);
-                             };
-                             dbtn.style.marginLeft = '3px'
-                             dbtn.style.float = 'right';
-                             newLi.addEventListener('mouseover', function () {
-                                 this.classList.add('node-hovered');
-                                 newLi.append(dbtn, mbtn);
-                                 abtn.style.display = 'block';
-                                 mbtn.style.display = 'block';
-                                 dbtn.style.display = 'block';
-                                 event.stopPropagation();
-                             });
-                             newLi.addEventListener('click', showTableData);
-                             newLi.addEventListener('click', showParentTableData);
-                             newLi.addEventListener('mouseout', function () {
-                                 if (clickEvent != newLi.dataset.Id) {
-                                     this.classList.remove('node-hovered')
+                                     newLi.dataset.Id = node[i][0];
+                                     newLi.dataset.parentId = pid;
+                                     let abtn = document.createElement('button');
+                                     abtn.className = 'btn btn-default';
+                                     abtn.style.width = '17px';
+                                     abtn.style.height = '17px';
+                                     abtn.style.paddingLeft = '2px';
+                                     abtn.style.lineHeight = '0px';
+                                     abtn.style.float = 'right';
+                                     abtn.style.backgroundImage = 'url(/static/src/pic/icon_add.png)';
+                                     abtn.style.backgroundRepeat = 'no-repeat';
+                                     abtn.style.backgroundSize = 'contain';
+                                     abtn.onclick = function () {
+                                         showAddNextChildModule(newLi.textContent);
+                                     };
+                                     abtn.textContent = '+';
+                                     abtn.style.color = '#00ADD8E6';
+                                     let mbtn = document.createElement('button');
+                                     mbtn.className = 'btn btn-default';
+                                     mbtn.style.width = '17px';
+                                     mbtn.style.height = '17px';
+                                     mbtn.style.paddingLeft = '2px';
+                                     mbtn.style.paddingRight = '2px';
+                                     mbtn.style.lineHeight = '0px';
+                                     mbtn.style.backgroundImage = 'url(/static/src/pic/icon_edit.png)';
+                                     mbtn.style.backgroundRepeat = 'no-repeat';
+                                     mbtn.style.backgroundSize = 'contain';
+                                     mbtn.onclick = function () {
+                                         showModModule(newLi.dataset.Id, newLi.textContent);
+                                     };
+                                     mbtn.style.marginLeft = '3px';
+                                     mbtn.style.float = 'right';
+                                     let dbtn = document.createElement('button');
+                                     dbtn.className = 'btn btn-default';
+                                     dbtn.style.width = '17px';
+                                     dbtn.style.height = '17px';
+                                     dbtn.style.paddingLeft = '2px';
+                                     dbtn.style.paddingRight = '2px';
+                                     dbtn.style.lineHeight = '0px';
+                                     dbtn.style.backgroundImage = 'url(/static/src/pic/icon_del.png)';
+                                     dbtn.style.backgroundRepeat = 'no-repeat';
+                                     dbtn.style.backgroundSize = 'contain';
+                                     dbtn.onclick = function () {
+                                         showDelChildMoudle(newLi.dataset.Id, newLi.textContent);
+                                     };
+                                     dbtn.style.marginLeft = '3px'
+                                     dbtn.style.float = 'right';
+                                     newLi.append(abtn, mbtn, dbtn);
+                                     abtn.style.display = 'none';
+                                     mbtn.style.display = 'none';
+                                     dbtn.style.display = 'none';
+                                     newLi.addEventListener('mouseover', function () {
+                                         this.classList.add('node-hovered');
+                                         abtn.style.display = 'block';
+                                         mbtn.style.display = 'block';
+                                         dbtn.style.display = 'block';
+                                         event.stopPropagation();
+                                     });
+                                     newLi.addEventListener('click', showTableData);
+                                     newLi.addEventListener('click', showParentTableData);
+                                     newLi.addEventListener('mouseout', function () {
+                                         if (clickEvent != newLi.dataset.Id) {
+                                             this.classList.remove('node-hovered')
+                                         }
+                                         abtn.style.display = 'none';
+                                         mbtn.style.display = 'none';
+                                         dbtn.style.display = 'none';
+                                         event.stopPropagation();
+                                     });
+                                     ulElement.append(newLi)
+                                     targetLi.append(ulElement);
                                  }
-                                 abtn.style.display = 'none';
-                                 mbtn.style.display = 'none';
-                                 dbtn.style.display = 'none';
-                                 event.stopPropagation();
-                             });
-                             ulElement.append(newLi)
-                             targetLi.append(ulElement);
+                             }
                          }
-                     }
-                 }
+
              }
 
          }
@@ -274,9 +284,9 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                 </li>
                 <li class="nav-item" id="cur_product" style="margin-left: 200px">
                     <select id="select-option" name="setInput"  onchange="saveOption()">
-                        <option>{{ product_name }}</option>
+                        <option value="{{ product_name }}">{{ product_name }}</option>
                         {% for product in product_alls %}
-                        <option>
+                        <option value="{{ product.product_name }}">
                         {% if product.product_name == product_name %}
                             {{ product.product_name }} ✓
                         {% else %}
@@ -327,7 +337,7 @@ Auther:：Fin;  Version：Autotestplat-V2.7
                     <tr>
                         <th class="dt-head-center" style="width: 5%; text-align: left; line-height: 0px; padding-top: 0px;font-size:14px;font-weight: bold; ">ID</th>
                         <th class="dt-head-center" style="width: 25%; text-align: left; line-height: 0px; padding-top: 0px;font-size:14px;font-weight: bold; ">用例名称</th>
-                        <th class="dt-head-center" style="width: 5%; text-align: left; line-height: 0px;  padding-top: 0px;font-size:14px;font-weight: bold;">请求</th>
+                        <th class="dt-head-center" style="width: 8%; text-align: left; line-height: 0px;  padding-top: 0px;font-size:14px;font-weight: bold;">请求</th>
                         <th class="dt-head-center" style="width: 15%; text-align: left; line-height: 0px; padding-top: 0px;font-size:14px;font-weight: bold; ">URL</th>
                         <th class="dt-head-center" style="width: 10%; text-align: left; line-height: 0px; padding-top: 0px; font-size:14px;font-weight: bold;">创建人</th>
                         <th class="dt-head-center" style="width: 12%; text-align: left; line-height: 0px; padding-top: 0px; font-size:14px;font-weight: bold;">创建日期</th>

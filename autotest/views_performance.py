@@ -1,4 +1,10 @@
-import os,re,json,traceback,copy,random,string,time,redis,ast,requests,codecs
+import os,re,json,traceback,copy,random,string,time,redis,ast,requests,codecs,subprocess
+
+import domain
+
+from .views_jmeter import generate_jmx, body_request, body_request2, body_testplan, body_result, body_thread, body_thread2, body_head, body_cookie, body_httpcookie, generate_jmx2, body_request_form
+
+from django.db import connection
 from django.shortcuts import render
 from django.shortcuts import render_to_response
 from django.http import StreamingHttpResponse
@@ -8,11 +14,10 @@ from django.template.context_processors import csrf
 from urllib.parse import urlparse
 from django.core.cache import cache
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime,timedelta
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import *
-from .views_jmeter import generate_jmx,body_request,body_request2,body_testplan,body_result,body_thread,body_thread2,body_head,body_cookie,generate_jmx2
 
 current_dir = os.getcwd()
 jmxfile = os.path.join(current_dir, 'apache-jmeter-5.6.2/bin', 'apitest.jmx')
@@ -64,7 +69,94 @@ def apiPerformance(request):
     return render_to_response("interface_performance.html", c)
 
 def report(request):
-    return render_to_response("output/index.html")
+    # 指向 JMeter 生成的 index.html 文件
+    output_index_path = os.path.join(current_dir, 'autotest', 'static', 'output', 'index.html')
+    
+    if os.path.exists(output_index_path):
+        # 尝试多种编码方式读取，解决中文乱码问题
+        content = None
+        # JMeter 在 Windows 上通常使用 GBK 编码，先尝试 UTF-8，失败后尝试 GBK
+        for encoding in ['utf-8', 'gbk', 'gb2312', 'gb18030']:
+            try:
+                with open(output_index_path, 'r', encoding=encoding) as f:
+                    content = f.read()
+                print(f"【SUCCESS】使用 {encoding} 编码成功读取 JMeter 报告")
+                break
+            except UnicodeDecodeError:
+                continue
+        
+        if content is None:
+            return HttpResponse('<h1>测试报告编码错误</h1><p>无法正确读取报告文件</p>')
+        
+        content = translate_jmeter_report(content)
+        # 必须指定 content_type 为 text/html; charset=utf-8，确保浏览器使用 UTF-8 解码
+        return HttpResponse(content, content_type='text/html; charset=utf-8')
+    else:
+        return HttpResponse('<h1>测试报告不存在</h1><p>请先执行性能测试</p>')
+
+
+def translate_jmeter_report(content):
+    translations = {
+        'Test and Report information': '测试和报告信息',
+        'Source file': '源文件',
+        'Start Time': '开始时间',
+        'End Time': '结束时间',
+        'Filter for display': '显示过滤器',
+        'APDEX (Application Performance Index)': 'APDEX (应用性能指数)',
+        'Apdex': 'Apdex指数',
+        'T (Toleration threshold)': 'T (容忍阈值)',
+        'F (Frustration threshold)': 'F (挫折阈值)',
+        'Label': '标签',
+        'Requests Summary': '请求摘要',
+        'Statistics': '统计信息',
+        'Requests': '请求',
+        'Executions': '执行情况',
+        'Response Times (ms)': '响应时间 (毫秒)',
+        'Throughput': '吞吐量',
+        'Network (KB/sec)': '网络 (KB/秒)',
+        '#Samples': '样本数',
+        'FAIL': '失败',
+        'Error %': '错误率',
+        'Average': '平均值',
+        'Min': '最小值',
+        'Max': '最大值',
+        'Median': '中位数',
+        '90th pct': '90百分位',
+        '95th pct': '95百分位',
+        '99th pct': '99百分位',
+        'Transactions/s': '事务/秒',
+        'Received': '接收',
+        'Sent': '发送',
+        'Total': '总计',
+        'Response Time Percentiles': '响应时间百分位',
+        'Response Time Distribution': '响应时间分布',
+        'Active Threads Over Time': '活跃线程数随时间变化',
+        'Time VS Threads': '时间 VS 线程数',
+        'Bytes Throughput Over Time': '字节吞吐量随时间变化',
+        'Response Times Over Time': '响应时间随时间变化',
+        'Response Time Percentiles Over Time (successful requests only)': '响应时间百分位随时间变化 (仅成功请求)',
+        'Synthetic Response Times Distribution': '合成响应时间分布',
+        'Latencies Over Time': '延迟随时间变化',
+        'Connect Time Over Time': '连接时间随时间变化',
+        'Response Time Vs Request': '响应时间 VS 请求数',
+        'Latencies Vs Request': '延迟 VS 请求数',
+        'Hits Per Second': '每秒点击数',
+        'Codes Per Second': '状态码/秒',
+        'Total Transactions Per Second': '每秒总事务数',
+        'Transactions Per Second': '每秒事务数',
+        'Customs Graphs': '自定义图表',
+        'Dashboard': '仪表板',
+        'Charts': '图表',
+        'Over Time': '随时间变化',
+        'Throughput': '吞吐量',
+        'Response Times': '响应时间',
+    }
+
+    for english, chinese in translations.items():
+        content = content.replace(f'>{english}<', f'>{chinese}<')
+        content = content.replace(f'"{english}"', f'"{chinese}"')
+
+    return content
 
 def searchPerformanceInterface(request):
     if request.method == "POST":
@@ -88,6 +180,7 @@ def searchPerformanceInterface(request):
                          'charger_list': charger_list,}
         return HttpResponse(json.dumps(interface_list2), content_type='application/json')
 
+
 def generateJmeterFile(request):
     try:
         raw_data = request.body
@@ -97,9 +190,72 @@ def generateJmeterFile(request):
         num_bf = raw_data['num_bf']
         num_xh = raw_data['num_xh']
         num_sj = raw_data['num_sj']
-        num_sj = str(int(num_sj)*60)
+        num_sj = str(int(num_sj) * 60)
         mode = raw_data['mode']
         deal_cookie = raw_data['deal_cookie']
+
+        print(f'【INFO】开始生成JMeter文件')
+        print(f'【INFO】登录接口列表: {id_list_login}')
+        print(f'【INFO】业务接口列表: {id_list_not_login}')
+
+        login_cookie_dict = {}
+
+        print(f'【INFO】开始从Redis获取Cookie用于性能测试')
+        try:
+            import redis as redis_client
+            # r = redis_client.Redis(host='127.0.0.1', port=6379, db=0, decode_responses=True)
+            r = redis_client.Redis(
+                host=os.getenv('REDIS_HOST', 'localhost'),
+                port=int(os.getenv('REDIS_PORT', 6379)),
+                db=0,
+                decode_responses=True
+            )
+            cached_cookies = r.get('auto_cookies_all')
+            print(f'【DEBUG】Redis中auto_cookies_all的原始值为: {cached_cookies}')
+            print(f'【DEBUG】Redis中auto_cookies_all的类型为: {type(cached_cookies)}')
+
+            if cached_cookies:
+                try:
+                    cookie_dict = None
+
+                    if isinstance(cached_cookies, str):
+                        cookie_dict = json.loads(cached_cookies)
+                    elif isinstance(cached_cookies, dict):
+                        cookie_dict = cached_cookies
+
+                    print(f'【DEBUG】解析后的cookie_dict: {cookie_dict}')
+
+                    if cookie_dict and isinstance(cookie_dict, dict) and len(cookie_dict) > 0:
+                        for key, value in cookie_dict.items():
+                            login_cookie_dict[key] = value
+                            print(f'【SUCCESS】从Redis获取到Cookie: {key}={value}')
+                    else:
+                        print(f'【WARNING】cookie_dict为空或不是字典类型')
+                except Exception as e:
+                    print(f'【ERROR】解析Redis Cookie失败: {e}')
+
+                    traceback.print_exc()
+
+                    try:
+                        cookie_dict = ast.literal_eval(str(cached_cookies))
+                        if isinstance(cookie_dict, dict):
+                            for key, value in cookie_dict.items():
+                                login_cookie_dict[key] = value
+                                print(f'【SUCCESS】通过ast解析从Redis获取到Cookie: {key}={value}')
+                    except Exception as ae:
+                        print(f'【ERROR】ast解析也失败: {ae}')
+            else:
+                print(f'【WARNING】Redis中auto_cookies_all为空，请先在接口用例中执行登录接口')
+        except Exception as e:
+            print(f'【ERROR】从Redis获取Cookie失败: {e}')
+
+            traceback.print_exc()
+
+        if login_cookie_dict:
+            print(f'【SUCCESS】成功获取到 {len(login_cookie_dict)} 个Cookie: {login_cookie_dict}')
+        else:
+            print(f'【WARNING】未能从Redis获取到Cookie，后续接口将不带Cookie')
+
         public_list = AutotestplatParameter.objects.filter()
         keyword_list = ["{" + rec.keywords + "}" for rec in public_list]
         public_list1 = AutotestplatParameter.objects.filter(Q(type='con'))
@@ -134,15 +290,21 @@ def generateJmeterFile(request):
         public_dict.update(public_dict4)
         public_dict.update(public_dict5)
         body_list = []
-        id=''
-        name=''
+        id = ''
+        name = ''
+        host = ''
         for id in id_list_login:
             interface_list = AutotestplatInterfaceTestcase.objects.filter(id=str(id))
             for rec in interface_list:
                 id = rec.id
                 url = rec.url
-                url2= url.replace('?','//%')
-                parabody = rec.body
+                url2 = url.replace('?', '//%')
+                try:
+                    parabody_dict = eval(rec.body)
+                    if not isinstance(parabody_dict, dict):
+                        parabody_dict = {}
+                except Exception:
+                    parabody_dict = {}
                 parsed_uri = urlparse(url2)
                 name = rec.name
                 head = rec.head
@@ -152,48 +314,95 @@ def generateJmeterFile(request):
                     if ("{" in url_host and "}" in url_host):
                         end_index = url_host.find("}")
                         key_url_host = url_host[:end_index + 1]
-                        url_host = url_host.replace(key_url_host, public_dict[key_url_host.replace('{', '').replace('}', '').replace(' ', '')])
+                        url_host = url_host.replace(key_url_host, public_dict[
+                            key_url_host.replace('{', '').replace('}', '').replace(' ', '')])
                 except:
                     return HttpResponse('【ERROR】：url_host参数 ' + url_host + ' 有误，请重新修改 ')
 
-                scheme = '{uri.scheme}'.format(uri=parsed_uri)
-                # domain = '{uri.netloc}'.format(uri=parsed_uri)
-                domain = url_host
-                path = '{uri.path}'.format(uri=parsed_uri)
-                path2 = path.replace('//%','?')
-                if url_host.startswith('http://') or url_host.startswith('https://'):
-                    host = domain.split(':')[1].replace('//', '')
-                    if len(domain.split(':')) > 2:
-                        port = domain.split(':')[2]
-                    else:
-                        port = ''
+                if url_host.lower().startswith('https://'):
+                    scheme = 'https'
+                    clean_host = url_host[8:]
+                elif url_host.lower().startswith('http://'):
+                    scheme = 'http'
+                    clean_host = url_host[7:]
                 else:
-                    host = domain.split(':')[0]
-                    if len(domain.split(':')) > 1:
-                        port = domain.split(':')[1]
-                    else:
-                        port = ''
+                    scheme = 'https'
+                    clean_host = url_host
+
+                if ':' in clean_host:
+                    host = clean_host.split(':')[0]
+                    port = clean_host.split(':')[1]
+                else:
+                    host = clean_host
+                    port = '443' if scheme == 'https' else '80'
+                path = '{uri.path}'.format(uri=parsed_uri)
+                path2 = path.replace('//%', '?')
+
                 head1 = eval(head)
-                head_list1 = []
-                for item, value in head1.items():
-                    item1 = item
-                    value1 = value
-                    head1 = body_head(item1, value1)
-                    head_list1.append(head1)
-                head1 = ''.join(head_list1)
-                body1 = body_request(str(id),name,host, port, path2, scheme, parabody,head1,assertkey,)
+                content_type = head1.get('Content-Type', '')
+
+                has_content_type = any(k.lower() == 'content-type' for k in head1.keys())
+
+                if 'application/json' in content_type.lower():
+                    parabody_str = json.dumps(parabody_dict, ensure_ascii=False)
+                    head_list1 = [body_head(k, v) for k, v in head1.items()]
+                    body1 = body_request(str(id), name, host, port, path2, scheme, parabody_str, ''.join(head_list1),
+                                         assertkey)
+                else:
+                    if not has_content_type:
+                        head1['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
+                    head_list1 = [body_head(k, v) for k, v in head1.items()]
+                    body1 = body_request_form(str(id), name, host, port, path2, scheme, parabody_dict,
+                                              ''.join(head_list1), assertkey)
                 body_list.append(body1)
-                islogin = True
-                start_interface_login(id)
                 update_cookie = rec.update_cookie
                 update_cookie = update_cookie.replace('{', '').replace('}', '')
+        if not host and id_list_not_login:
+            first_interface = AutotestplatInterfaceTestcase.objects.filter(id=str(id_list_not_login[0])).first()
+            if first_interface:
+                url_host = first_interface.url_host
+                try:
+                    if ("{" in url_host and "}" in url_host):
+                        end_index = url_host.find("}")
+                        key_url_host = url_host[:end_index + 1]
+                        url_host = url_host.replace(key_url_host, public_dict[
+                            key_url_host.replace('{', '').replace('}', '').replace(' ', '')])
+                except:
+                    pass
+
+                if url_host.startswith('http://') or url_host.startswith('https://'):
+                    url_host = url_host.split('://')[1]
+
+                if ':' in url_host:
+                    host = url_host.split(':')[0]
+                else:
+                    host = url_host
+                print(f'【INFO】从业务接口获取到域名: {host}')
+
         body1 = ''.join(body_list)
-        body_thread1=''
+        body_thread1 = ''
         try:
-            body_thread1 = body_thread(id,'1','1')
+            body_thread1 = body_thread(id, '1', '1')
         except Exception:
             pass
-        cookie=''
+        cookie_xml = ''
+        cookie_header_value = ''
+        if login_cookie_dict:
+            cookie_parts = []
+            cookie_header_parts = []
+            cookie_domain = host if host else ''
+            for key, value in login_cookie_dict.items():
+                cookie_parts.append(body_cookie(key, value, cookie_domain))
+                cookie_header_parts.append(f'{key}={value}')
+                print(f'【INFO】生成Cookie XML: {key}={value}, domain={cookie_domain}')
+            cookie_xml = ''.join(cookie_parts)
+            cookie_header_value = '; '.join(cookie_header_parts)
+            print(f'【INFO】拼接后的Cookie XML长度: {len(cookie_xml)}')
+            print(f'【INFO】拼接后的Cookie Header值: {cookie_header_value}')
+            print(f'【INFO】最终Cookie字典: {login_cookie_dict}')
+        else:
+            print(f'【ERROR】login_cookie_dict为空，无法生成Cookie XML，性能测试将会失败！')
+
         body_list2 = []
         for id2 in id_list_not_login:
             interface_list2 = AutotestplatInterfaceTestcase.objects.filter(id=str(id2))
@@ -204,7 +413,8 @@ def generateJmeterFile(request):
                     if ("{" in url_host and "}" in url_host):
                         end_index = url_host.find("}")
                         key_url_host = url_host[:end_index + 1]
-                        url_host = url_host.replace(key_url_host, public_dict[key_url_host.replace('{', '').replace('}', '').replace(' ', '')])
+                        url_host = url_host.replace(key_url_host, public_dict[
+                            key_url_host.replace('{', '').replace('}', '').replace(' ', '')])
                 except:
                     return HttpResponse('【ERROR】：url_host参数 ' + url_host + ' 有误，请重新修改 ')
                 url = rec.url
@@ -215,7 +425,8 @@ def generateJmeterFile(request):
                     url = url.replace(key_url, public_dict[key_url.replace('{', '').replace('}', '')])
                 body = eval(rec.body)
                 for bodykey in body.keys():
-                    if(isinstance(body[bodykey],str) or isinstance(body[bodykey],list) or isinstance(body[bodykey],dict)):
+                    if (isinstance(body[bodykey], str) or isinstance(body[bodykey], list) or isinstance(body[bodykey],
+                                                                                                        dict)):
                         for rec1 in keyword_list1:
                             if (rec1 in body[bodykey]):
                                 if ('captcha' not in rec1):
@@ -229,7 +440,9 @@ def generateJmeterFile(request):
                                         f.write(haha.content)
                                     yanzheng = getcaptcha()
                                     body[bodykey] = yanzheng
-                                    print_detail('【验证码】：', ','), print_detail(yanzheng)
+                                    print_log('【验证码】：', ',')
+                                    print_log(yanzheng)
+
                         for rec5 in keyword_list5:
                             if (rec5 in str(body[bodykey])):
                                 try:
@@ -251,7 +464,8 @@ def generateJmeterFile(request):
                                 except Exception:
                                     error_info = traceback.format_exc()
                                     print(error_info)
-                                    return HttpResponse('【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认是否已执行返回 ' + rec2 + ' 的接口')
+                                    return HttpResponse(
+                                        '【ERROR】：参数 ' + rec2 + ' 没有参数值，请确认是否已执行返回 ' + rec2 + ' 的接口')
                         for rec3 in keyword_list3:
                             if (rec3 in body[bodykey]):
                                 try:
@@ -281,6 +495,15 @@ def generateJmeterFile(request):
                 domain = url_host
                 path = '{uri.path}'.format(uri=parsed_uri)
                 path2 = path.replace('//%', '?')
+
+                if not scheme:
+                    if url_host.lower().startswith('https://'):
+                        scheme = 'https'
+                    elif url_host.lower().startswith('http://'):
+                        scheme = 'http'
+                    else:
+                        scheme = 'https'
+
                 if url_host.startswith('http://') or url_host.startswith('https://'):
                     host = domain.split(':')[1].replace('//', '')
                     if len(domain.split(':')) > 2:
@@ -293,64 +516,98 @@ def generateJmeterFile(request):
                         port = domain.split(':')[1]
                     else:
                         port = ''
+
+                if not port:
+                    port = '443' if scheme == 'https' else '80'
+
                 head2 = eval(head)
+                content_type = head2.get('Content-Type', '')
                 head_list2 = []
-                for item,value in head2.items():
+
+                has_content_type = any(k.lower() == 'content-type' for k in head2.keys())
+                has_cookie_header = any(k.lower() == 'cookie' for k in head2.keys())
+
+                for item, value in head2.items():
                     item2 = item
                     value2 = value
                     if value2 == "{autotestplat}":
-                        head2 = body_head(item2,str(cookie))
+                        if cookie_xml:
+                            head2 = body_head(item2, cookie_xml)
+                            print(f'【INFO】为接口 {id2} 添加Cookie到Header: {item2}={cookie_xml}')
+                        else:
+                            head2 = body_head(item2, '')
                     else:
                         head2 = body_head(item2, value2)
                     head_list2.append(head2)
-                head2 = ''.join(head_list2)
-                if(cookie):
-                    cookie = eval(cookie)
-                    cookie_list = []
-                    cookie1 = body_cookie(cookie[1][0],cookie[1][1])
-                    cookie_list.append(cookie1)
-                    cookie2 = body_cookie(cookie[2][0], cookie[2][1])
-                    cookie_list.append(cookie2)
-                    cookie3 = body_cookie(cookie[3][0], cookie[3][1])
-                    cookie_list.append(cookie3)
-                    for item, value in cookie[0].items():
-                        item2 = item
-                        value2 = value
-                        cookie = body_cookie(item2,value2)
-                        cookie_list.append(cookie)
-                    cookie = ''.join(cookie_list)
+
+                if not has_content_type:
+                    head_list2.append(body_head('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8'))
+
+                if cookie_header_value and not has_cookie_header:
+                    head_list2.append(body_head('Cookie', cookie_header_value))
+                    print(f'【INFO】为接口 {id2} 添加Cookie Header: {cookie_header_value}')
+
+                head2_str = ''.join(head_list2)
+
+                if 'application/json' in content_type.lower():
+                    body2 = body_request2(str(id2), name, host, port, path2, scheme, parabody, cookie_xml, head2_str,
+                                          assertkey)
                 else:
-                    cookie = ''
-                body2 = body_request2(str(id2), name,host, port, path2, scheme, parabody, cookie,head2,assertkey)
+                    body2 = body_request_form(str(id2), name, host, port, path2, scheme, body, head2_str, assertkey,
+                                              cookie_xml)
+
                 body_list2.append(body2)
                 islogin = False
         body2 = ''.join(body_list2)
-        body_thread22=''
+        body_thread22 = ''
         if num_xh == '0':
             num_xh = '-1'
         else:
             num_xh = num_xh
         try:
-            body_thread22 = body_thread2(id2,num_bf,num_xh,num_sj)
+            body_thread22 = body_thread2(id2, num_bf, num_xh, num_sj)
         except Exception:
             pass
         body3 = body_thread1 + str(body1) + '</hashTree>\n' + body_thread22 + str(body2)
         body4 = body_thread22 + str(body1) + str(body2)
-        if mode=='多用户':
-            generate_jmx(name,host, port, path2, scheme, body4,)
+        if mode == '多用户':
+            generate_jmx(name, host, port, path2, scheme, body4, )
         else:
-            generate_jmx2(name,host, port, path2, scheme, body3,)
+            generate_jmx2(name, host, port, path2, scheme, body3, )
         return HttpResponse("success")
     except Exception:
         traceback.print_exc()
         return HttpResponse("failed")
 
+
 def prepareJmeter(request):
     try:
-        bin_file = "cd "+current_dir+"/apache-jmeter-5.6.2/bin && del testLogFile"
-        rm_report_file = "rmdir /s/q "+current_dir.replace('/','\\')+"\\autotest\\static\\output\\ "
-        os.system(bin_file)
-        os.system(rm_report_file)
+        bin_dir = os.path.join(current_dir, 'apache-jmeter-5.6.2', 'bin')
+        test_log_file = os.path.join(bin_dir, 'testLogFile')
+        output_dir = os.path.join(current_dir, 'autotest', 'static', 'output')
+        
+        # 删除测试日志文件（如果存在）
+        if os.path.exists(test_log_file):
+            try:
+                os.remove(test_log_file)
+            except:
+                pass
+        
+        # 创建空的测试日志文件，避免 JMeter 找不到文件
+        with open(test_log_file, 'w', encoding='utf-8') as f:
+            pass
+        
+        # 删除旧的输出目录
+        if os.path.exists(output_dir):
+            try:
+                import shutil
+                shutil.rmtree(output_dir)
+            except:
+                pass
+        
+        # 必须重新创建空的输出目录，否则 serve 视图找不到根目录会报错
+        os.makedirs(output_dir)
+        
         return HttpResponse("success")
     except Exception:
         traceback.print_exc()
@@ -358,8 +615,78 @@ def prepareJmeter(request):
 
 def startTestJmeter(request):
     try:
-        report_file = "cd "+current_dir+"/apache-jmeter-5.6.2/bin && jmeter -n -t "+current_dir+"/apache-jmeter-5.6.2/bin/apitest.jmx -l testLogFile -e -o "+current_dir+"/autotest/static/output"
-        os.system(report_file)
+        jmx_path = os.path.join(current_dir, 'apache-jmeter-5.6.2', 'bin', 'apitest.jmx')
+        logfile_path = os.path.join(current_dir, 'apache-jmeter-5.6.2', 'bin', 'testLogFile')
+        output_path = os.path.join(current_dir, 'autotest', 'static', 'output')
+        apache_jmeter_jar = os.path.join(current_dir, 'apache-jmeter-5.6.2', 'bin', 'ApacheJMeter.jar')
+
+        if not os.path.exists(apache_jmeter_jar):
+            return HttpResponse("failed: JMeter核心jar包不存在")
+
+        # --- 开始修改：显式指定 Java 路径 ---
+        java_path = None
+        
+        # 1. 优先尝试读取环境变量 JAVA_HOME
+        java_home = os.environ.get('JAVA_HOME')
+        if java_home:
+            candidate = os.path.join(java_home, 'bin', 'java.exe')
+            if os.path.exists(candidate):
+                java_path = candidate
+                print(f"从环境变量找到 Java: {java_path}")
+        
+        # 2. 如果环境变量读取失败，使用截图中的路径作为兜底
+        if not java_path:
+            # 您截图中的实际路径
+            candidate = r"C:\Program Files\Java\jdk1.8.0_202\bin\java.exe"
+            if os.path.exists(candidate):
+                java_path = candidate
+                print(f"使用硬编码路径找到 Java: {java_path}")
+        
+        # 3. 如果以上都没找到，报错提示
+        if not java_path:
+            return HttpResponse("failed: 无法找到 Java 环境，请确认已安装 JDK 并配置了 JAVA_HOME。")
+        
+        if not os.path.exists(java_path):
+             return HttpResponse(f"failed: 找不到 Java 可执行文件，请检查路径: {java_path}")
+        # --- 结束修改 ---
+
+        env = os.environ.copy()
+        env['JMETER_HOME'] = os.path.join(current_dir, 'apache-jmeter-5.6.2')
+        
+        jmeter_cmd = [
+            java_path,
+            '-jar', apache_jmeter_jar,
+            '-n',
+            '-t', jmx_path,
+            '-l', logfile_path,
+            '-e',
+            '-o', output_path,
+            '-Jlanguage=zh_CN'
+        ]
+
+        # 【关键修改】：使用 subprocess.Popen 异步启动 JMeter，不阻塞请求
+        # 这样可以立即返回响应，前端可以继续轮询真实状态
+        pid_file = os.path.join(current_dir, 'autotest', 'jmeter.pid')
+        
+        # 启动 JMeter 进程
+        process = subprocess.Popen(
+            jmeter_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            cwd=current_dir,
+            shell=False,
+            env=env,
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0  # Windows 下创建新进程组
+        )
+        
+        # 保存进程 PID 到文件，便于后续查询状态
+        with open(pid_file, 'w') as f:
+            f.write(str(process.pid))
+        
+        print(f"JMeter 进程已启动，PID: {process.pid}")
+        
+        # 立即返回成功，不等待 JMeter 完成
         return HttpResponse("success")
     except Exception:
         traceback.print_exc()
@@ -379,6 +706,47 @@ def showProgress(request):
             progress_total = 1
         AutotestplatInterfacePerformance.objects.filter(id=1).update(progress=progress,progress_total=progress_total)
     return HttpResponse("success")
+
+
+def getJmeterStatus(request):
+    """
+    检查JMeter进程的真实运行状态
+    返回: {"running": true/false, "progress": 当前进度秒数}
+    """
+    try:
+        pid_file = os.path.join(current_dir, 'autotest', 'jmeter.pid')
+        
+        # 读取保存的PID
+        if not os.path.exists(pid_file):
+            return HttpResponse(json.dumps({"running": False, "progress": 0}), content_type='application/json')
+        
+        with open(pid_file, 'r') as f:
+            pid = int(f.read().strip())
+        
+        # 检查进程是否还在运行
+        import psutil
+        try:
+            process = psutil.Process(pid)
+            if process.is_running() and process.status() != psutil.STATUS_ZOMBIE:
+                # 进程还在运行，计算已经运行的时间
+                create_time = process.create_time()
+                import time
+                elapsed_seconds = int(time.time() - create_time)
+                return HttpResponse(json.dumps({
+                    "running": True, 
+                    "progress": elapsed_seconds,
+                    "pid": pid
+                }), content_type='application/json')
+            else:
+                # 进程已结束
+                return HttpResponse(json.dumps({"running": False, "progress": 0}), content_type='application/json')
+        except psutil.NoSuchProcess:
+            # 进程不存在
+            return HttpResponse(json.dumps({"running": False, "progress": 0}), content_type='application/json')
+    except Exception as e:
+        traceback.print_exc()
+        # 如果psutil不可用或其他错误，返回未运行状态
+        return HttpResponse(json.dumps({"running": False, "progress": 0, "error": str(e)}), content_type='application/json')
 
 
 def start_interface_login(id1):
@@ -488,7 +856,7 @@ def start_interface_login(id1):
                 if('select' in body[rec]):
                     try:
                         sql = body[rec]
-                        cursor = connection.cursor()
+                        cursor = conne.cursor()
                         cursor.execute(sql)
                         data = cursor.fetchall()
                         print(u'查询的结果为： ',data[0][0])
@@ -635,14 +1003,23 @@ def interface_test_start(url,body,head,mode,body_format,is_out):
         return 1
 
 def request_post(url, body, head, body_format):
-    if (body_format == 'JSON'):
-         body = json.dumps(body)
-    else:
-        keys = body.keys()
-        for rec in keys:
-            if ('[{' in str(body[rec]) and '}]' in str(body[rec])):
-                body = json.dumps(body)
-                break
+    try:
+        if (body_format == 'JSON' or body_format == 'json'):
+            # 检测是否为 JSON 数组
+            if isinstance(body, list):
+                body = json.dumps(body, ensure_ascii=False)  # 序列化 JSON 数组
+            elif isinstance(body, dict):
+                body = json.dumps(body, ensure_ascii=False)  # 序列化 JSON 对象
+        else:
+            # FORM 格式，不需要 json.dumps
+            keys = body.keys()
+            for rec in keys:
+                if ('[{' in str(body[rec]) and '}]' in str(body[rec])):
+                    body = json.dumps(body, ensure_ascii=False)
+                    break
+    except Exception as e:
+        print_log(f'【ERROR】请求体序列化失败：{e}')
+        print_log(f'body_format: {body_format}, body type: {type(body)}')
     r = session.post(url, body, headers=head)
     return r
 
